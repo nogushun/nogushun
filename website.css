@@ -13,7 +13,7 @@
     --dash-color: #eeeeee;
     --footer-color: #777777;
     --avatar-border: #ffffff;
-    --html-bg: #f5f7fa; /* ★ここをグラデーションの開始色（一番上の色）に合わせる */
+    --html-bg: #f5f7fa;
 }
 
 /* 端末がダークモードの時の色設定 */
@@ -28,8 +28,35 @@
         --dash-color: #2d3342;
         --footer-color: #64748b;
         --avatar-border: #2d3342;
-        --html-bg: #121212; /* ★ダークモード時もグラデーションの最初の色（暗い方）に合わせる */
+        --html-bg: #121212;
     }
+}
+
+/* ==========================================
+   2. 基本レイアウトと画面いっぱいに広げる設定
+   ================================---------- */
+html {
+    background-color: var(--html-bg);
+    height: 100%;
+    /* パソコンのスクロール時の白い余白を防ぐ */
+    overflow-x: hidden;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-gradient);
+    background-attachment: fixed; /* ★ここを追加：背景を固定してスクロールしても白い隙間を出さない */
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ==========================================
