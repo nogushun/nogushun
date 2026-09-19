@@ -18,7 +18,7 @@
 /* 端末がダークモードの時の色設定 */
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-gradient: linear-gradient(135deg, #1a1c23 0%, #111317 100%);
+        --bg-gradient: linear-gradient(135deg, #121212 0%, #1a1c23 100%);
         --text-main: #e2e8f0;
         --text-sub: #94a3b8;
         --card-bg: #1e222b;
@@ -31,25 +31,34 @@
 }
 
 /* ==========================================
-   2. 基本レイアウトとデザイン
+   2. 基本レイアウトと画面いっぱいに広げる設定
    ================================---------- */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: var(--bg-gradient);
     color: var(--text-main);
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ヘッダー */
 .hero {
     text-align: center;
-    padding: 50px 20px 30px;
+    padding: 50px 20px 20px;
+    width: 100%;
+    max-width: 480px;
+    box-sizing: border-box;
 }
 
 .avatar {
@@ -82,7 +91,7 @@ body {
 
 .hero h1 {
     margin: 0;
-    font-size: 28px;
+    font-size: 26px;
     color: var(--text-main);
 }
 
@@ -94,43 +103,39 @@ body {
 
 /* メインカードのレイアウト */
 .container {
-    width: 90%;
-    max-width: 600px;
+    width: 100%;
+    max-width: 480px;
+    padding: 0 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     margin-bottom: 40px;
 }
 
 .card {
     background: var(--card-bg);
-    padding: 25px;
+    padding: 20px;
     border-radius: 16px;
     box-shadow: 0 4px 15px var(--card-shadow);
-    margin-bottom: 20px;
+    box-sizing: border-box;
     transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card h2 {
-    font-size: 20px;
+    font-size: 16px;
     color: var(--text-main);
     margin-top: 0;
+    margin-bottom: 12px;
     border-bottom: 2px solid var(--border-color);
     padding-bottom: 8px;
 }
 
-/* 趣味・興味リスト */
-.hobby-list {
-    list-style: none;
-    padding: 0;
+.card p {
     margin: 0;
-}
-
-.hobby-list li {
-    padding: 10px 0;
-    border-bottom: 1px dashed var(--dash-color);
-    font-size: 15px;
-}
-
-.hobby-list li:last-child {
-    border-bottom: none;
+    font-size: 14px;
+    color: var(--text-sub);
+    line-height: 1.5;
 }
 
 /* ==========================================
@@ -146,13 +151,15 @@ body {
 .btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: 14px 20px;
     color: white;
     text-decoration: none;
     border-radius: 12px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
     transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
@@ -160,7 +167,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 12px;
+    margin-right: 10px;
 }
 
 /* Blueskyボタン専用の配色（空色のグラデーション） */
@@ -187,6 +194,7 @@ footer {
     color: var(--footer-color);
     font-size: 12px;
     margin-top: auto;
+    width: 100%;
 }
 
 /* ==========================================
@@ -196,7 +204,7 @@ footer {
 @keyframes popUp {
     0% {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
     }
     100% {
         opacity: 1;
@@ -206,17 +214,17 @@ footer {
 
 .fade-in-1, .fade-in-2, .fade-in-3 {
     opacity: 0;
-    animation: popUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: popUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .fade-in-1 {
-    animation-delay: 0.2s;
+    animation-delay: 0.1s;
 }
 
 .fade-in-2 {
-    animation-delay: 0.5s;
+    animation-delay: 0.3s;
 }
 
 .fade-in-3 {
-    animation-delay: 0.8s;
+    animation-delay: 0.5s;
 }
