@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
@@ -60,21 +60,28 @@ function showToast(message) {
     }, 2500);
 }
 
+// リダイレクト結果の処理（スマホ用）
+getRedirectResult(auth).catch((error) => {
+    console.error("リダイレクトログインエラー:", error);
+    showToast("ログイン処理中にエラーが発生しました。");
+});
+
+// 認証状態の監視
 onAuthStateChanged(auth, (user) => {
-    const adminPanel = document.getElementById('admin-panel');
+    const adminContentArea = document.getElementById('admin-content-area');
     const loginSection = document.getElementById('login-section');
     const userEmailDisplay = document.getElementById('user-email-display');
     const adminBadgeContainer = document.getElementById('admin-badge-container');
 
     if (user && user.email === ADMIN_EMAIL) {
         isAdmin = true;
-        if (adminPanel) adminPanel.style.display = 'block';
+        if (adminContentArea) adminContentArea.style.display = 'block';
         if (loginSection) loginSection.style.display = 'none';
         if (userEmailDisplay) userEmailDisplay.textContent = `ログイン中: ${user.email}`;
         if (adminBadgeContainer) adminBadgeContainer.style.display = 'block';
     } else {
         isAdmin = false;
-        if (adminPanel) adminPanel.style.display = 'none';
+        if (adminContentArea) adminContentArea.style.display = 'none';
         if (loginSection) loginSection.style.display = 'block';
         if (adminBadgeContainer) adminBadgeContainer.style.display = 'none';
 
@@ -86,11 +93,12 @@ onAuthStateChanged(auth, (user) => {
     loadMessages();
 });
 
+// Googleログインボタン（スマホ対応リダイレクト）
 const googleLoginBtn = document.getElementById('google-login-btn');
 if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', async () => {
         try {
-            await signInWithPopup(auth, provider);
+            await signInWithRedirect(auth, provider);
         } catch (error) {
             console.error("ログインエラー:", error);
             showToast("Googleログインに失敗しました。");
@@ -98,6 +106,7 @@ if (googleLoginBtn) {
     });
 }
 
+// ログアウトボタン
 const logoutBtn = document.getElementById('logout-btn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {

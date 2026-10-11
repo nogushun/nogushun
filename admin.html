@@ -27,40 +27,46 @@
         </div>
     </section>
 
-    <!-- ログイン後：管理パネル -->
-    <section id="admin-panel" class="card" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2>メッセージ追加</h2>
-            <button id="logout-btn" class="btn-action btn-delete" style="padding: 6px 12px;">ログアウト</button>
-        </div>
-        <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: 16px;">
-        <span id="user-email-display" style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 10px;"></span>
-        
-        <form id="admin-form" style="display: flex; flex-direction: column; gap: 12px;">
-            <textarea id="input-text" placeholder="いまの気持ちやメッセージを入力..." style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff; resize: vertical;" required></textarea>
-
-            <div id="drop-area" style="border: 2px dashed var(--border); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.02);">
-                <p id="drop-text" style="font-size: 13px; color: var(--text-sub); margin: 0;">📸 画像をドロップ または クリックして選択（複数可）</p>
-                <input type="file" id="input-image" accept="image/*" multiple style="display: none;">
+    <!-- ログイン後：管理パネル＆メッセージ一覧（初期状態は display: none で非表示） -->
+    <div id="admin-content-area" style="display: none;">
+        <section id="admin-panel" class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h2>メッセージ追加</h2>
+                <button id="logout-btn" class="btn-action btn-delete" style="padding: 6px 12px;">ログアウト</button>
             </div>
+            <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: 16px;">
+            <span id="user-email-display" style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 10px;"></span>
+            
+            <form id="admin-form" style="display: flex; flex-direction: column; gap: 12px;">
+                <textarea id="input-text" placeholder="いまの気持ちやメッセージを入力..." style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff; resize: vertical;" required></textarea>
 
-            <button type="submit" class="btn" style="background: #22c55e; color: #fff; font-weight: bold; border: none; cursor: pointer;">投稿する</button>
-        </form>
+                <div id="drop-area" style="border: 2px dashed var(--border); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.02);">
+                    <p id="drop-text" style="font-size: 13px; color: var(--text-sub); margin: 0;">📸 画像をドロップ または クリックして選択（複数可）</p>
+                    <input type="file" id="input-image" accept="image/*" multiple style="display: none;">
+                </div>
 
-        <div style="margin-top: 20px; text-align: center;">
-            <a href="messages.html" style="color: #3b82f6; font-size: 13px; text-decoration: none; margin-right: 15px;">💬 メッセージ・メディア一覧を見る</a>
-            <a href="index.html" style="color: var(--text-sub); font-size: 13px; text-decoration: none;">← トップページ</a>
-        </div>
-    </section>
+                <button type="submit" class="btn" style="background: #22c55e; color: #fff; font-weight: bold; border: none; cursor: pointer;">投稿する</button>
+            </form>
 
-    <!-- 登録済みメッセージ一覧（管理画面用） -->
-    <section class="card">
-        <h2>登録済みメッセージ管理</h2>
-        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0 16px;">
-        <div id="message-container" style="display: flex; flex-direction: column; gap: 20px;">
-            <!-- JSでメッセージがここに追加されます -->
-        </div>
-    </section>
+            <div style="margin-top: 20px; text-align: center;">
+                <a href="messages.html" style="color: #3b82f6; font-size: 13px; text-decoration: none; margin-right: 15px;">💬 メッセージ・メディア一覧を見る</a>
+                <a href="index.html" style="color: var(--text-sub); font-size: 13px; text-decoration: none;">← トップページ</a>
+            </div>
+        </section>
+
+        <!-- 登録済みメッセージ一覧（管理画面用） -->
+        <section class="card">
+            <h2>登録済みメッセージ管理</h2>
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0 16px;">
+            <div id="message-container" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- JSでメッセージがここに追加されます -->
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        © 2026 のぐしゅん. All Rights Reserved.
+    </footer>
 
 </main>
 
