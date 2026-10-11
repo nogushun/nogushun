@@ -15,7 +15,7 @@
         <p style="font-size: 13px; color: var(--text-sub);">Googleアカウントでログインしてメッセージを管理します。</p>
     </div>
 
-    <!-- ログイン前：Googleログインボタン -->
+    <!-- ログイン前：Googleログインボタン（初期状態では表示しておき、ログイン後にJSで隠す） -->
     <section id="login-section" class="card" style="text-align: center; padding: 40px 20px;">
         <h2 style="margin-bottom: 20px;">ログイン</h2>
         <button id="google-login-btn" class="btn" style="background: #fff; color: #000; font-weight: bold; border: none; cursor: pointer; margin: 0 auto; max-width: 300px; justify-content: center;">
@@ -27,7 +27,7 @@
         </div>
     </section>
 
-    <!-- ログイン後：管理パネル＆メッセージ一覧（初期状態は display: none で非表示） -->
+    <!-- ログイン後：管理パネル＆メッセージ一覧（初期状態は非表示） -->
     <div id="admin-content-area" style="display: none;">
         <section id="admin-panel" class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
@@ -66,6 +66,8 @@
 
     <footer>
         © 2026 のぐしゅん. All Rights Reserved.
+        <br>
+        <a href="admin.html" style="color: var(--text-sub); font-size: 10px; text-decoration: none; opacity: 0.6;">⚙️ 管理者ログイン</a>
     </footer>
 
 </main>

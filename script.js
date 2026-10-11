@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
@@ -60,12 +60,6 @@ function showToast(message) {
     }, 2500);
 }
 
-// リダイレクト結果の処理（スマホ用）
-getRedirectResult(auth).catch((error) => {
-    console.error("リダイレクトログインエラー:", error);
-    showToast("ログイン処理中にエラーが発生しました。");
-});
-
 // 認証状態の監視
 onAuthStateChanged(auth, (user) => {
     const adminContentArea = document.getElementById('admin-content-area');
@@ -93,12 +87,12 @@ onAuthStateChanged(auth, (user) => {
     loadMessages();
 });
 
-// Googleログインボタン（スマホ対応リダイレクト）
+// Googleログインボタン（ポップアップ認証）
 const googleLoginBtn = document.getElementById('google-login-btn');
 if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', async () => {
         try {
-            await signInWithRedirect(auth, provider);
+            await signInWithPopup(auth, provider);
         } catch (error) {
             console.error("ログインエラー:", error);
             showToast("Googleログインに失敗しました。");
