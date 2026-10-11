@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者ページ - のぐしゅんのページ</title>
+    <link rel="stylesheet" href="website.css">
+</head>
+<body>
+
+<main class="container">
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1>管理者専用ページ</h1>
+        <p style="font-size: 13px; color: var(--text-sub);">Googleアカウントでログインしてメッセージを管理します。</p>
+    </div>
+
+    <!-- ログイン前：Googleログインボタン -->
+    <section id="login-section" class="card" style="text-align: center; padding: 40px 20px;">
+        <h2 style="margin-bottom: 20px;">ログイン</h2>
+        <button id="google-login-btn" class="btn" style="background: #fff; color: #000; font-weight: bold; border: none; cursor: pointer; margin: 0 auto; max-width: 300px; justify-content: center;">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.15C3.26 21.35 7.33 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.6H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.4l3.98-3.16z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.65 1.29 6.6l3.98 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+            Googleアカウントでログイン
+        </button>
+        <div style="margin-top: 20px;">
+            <a href="index.html" style="color: var(--text-sub); font-size: 13px; text-decoration: none;">← トップページに戻る</a>
+        </div>
+    </section>
+
+    <!-- ログイン後：管理パネル -->
+    <section id="admin-panel" class="card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2>メッセージ追加</h2>
+            <button id="logout-btn" class="btn-action btn-delete" style="padding: 6px 12px;">ログアウト</button>
+        </div>
+        <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: 16px;">
+        <span id="user-email-display" style="font-size: 12px; color: var(--text-sub); display: block; margin-bottom: 10px;"></span>
+        
+        <form id="admin-form" style="display: flex; flex-direction: column; gap: 12px;">
+            <textarea id="input-text" placeholder="いまの気持ちやメッセージを入力..." style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff; resize: vertical;" required></textarea>
+
+            <div id="drop-area" style="border: 2px dashed var(--border); border-radius: 8px; padding: 16px; text-align: center; cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.02);">
+                <p id="drop-text" style="font-size: 13px; color: var(--text-sub); margin: 0;">📸 画像をドロップ または クリックして選択（複数可）</p>
+                <input type="file" id="input-image" accept="image/*" multiple style="display: none;">
+            </div>
+
+            <button type="submit" class="btn" style="background: #22c55e; color: #fff; font-weight: bold; border: none; cursor: pointer;">投稿する</button>
+        </form>
+
+        <div style="margin-top: 20px; text-align: center;">
+            <a href="messages.html" style="color: #3b82f6; font-size: 13px; text-decoration: none; margin-right: 15px;">💬 メッセージ・メディア一覧を見る</a>
+            <a href="index.html" style="color: var(--text-sub); font-size: 13px; text-decoration: none;">← トップページ</a>
+        </div>
+    </section>
+
+    <!-- 登録済みメッセージ一覧（管理画面用） -->
+    <section class="card">
+        <h2>登録済みメッセージ管理</h2>
+        <hr style="border: none; border-top: 1px solid var(--border); margin: 12px 0 16px;">
+        <div id="message-container" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- JSでメッセージがここに追加されます -->
+        </div>
+    </section>
+
+</main>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>

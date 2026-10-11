@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>メッセージ一覧 - のぐしゅんのページ</title>
+    <link rel="stylesheet" href="website.css">
+</head>
+<body>
+
+<main class="container">
+
+    <!-- ヘッダー＆タブ切り替えエリア -->
+    <section class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h1 style="font-size: 20px; margin: 0;">💬 メッセージ & メディア</h1>
+            
+            <!-- メッセージ / メディア 切り替えタブ -->
+            <div id="content-tabs" style="display: flex; gap: 6px;">
+                <button id="tab-msg-btn" class="tab-btn active-tab">メッセージ</button>
+                <button id="tab-media-btn" class="tab-btn">メディア</button>
+            </div>
+        </div>
+        <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: 16px;">
+        
+        <!-- メッセージ一覧表示エリア -->
+        <div id="message-container" style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- JSでメッセージがここに追加されます -->
+        </div>
+
+        <!-- メディアギャラリー表示エリア -->
+        <div id="media-container" style="display: none; flex-wrap: wrap; gap: 8px;">
+            <!-- JSでメディアがここに追加されます -->
+        </div>
+
+        <div style="margin-top: 24px; text-align: center;">
+            <a href="index.html" style="color: var(--text-sub); font-size: 13px; text-decoration: none;">← トップページに戻る</a>
+        </div>
+    </section>
+
+    <footer>
+        © 2026 のぐしゅん. All Rights Reserved.
+    </footer>
+
+</main>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
