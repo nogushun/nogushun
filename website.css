@@ -293,3 +293,26 @@ textarea, input {
     box-sizing: border-box;
     max-width: 100%;
 }
+/* 投稿されたチャット画像の画質と表示の鮮明化 */
+.chat-bubble img {
+    max-width: 100%;
+    height: auto !important; /* 高さを固定せず縦横比を綺麗に維持 */
+    max-height: 250px;       /* 大きすぎる場合は適度な高さに制限 */
+    border-radius: 8px;
+    cursor: pointer;
+    object-fit: contain;     /* 画像全体を綺麗に収める */
+    background: rgba(0, 0, 0, 0.2);
+}
+
+/* メディアタブのグリッド画像の鮮明化 */
+#media-container img {
+    width: calc(33.333% - 6px);
+    height: 120px;
+    border-radius: 8px;
+    cursor: pointer;
+    object-fit: cover;
+    transition: 0.2s;
+}
+#media-container img:hover {
+    opacity: 0.85;
+}

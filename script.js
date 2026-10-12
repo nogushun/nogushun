@@ -62,27 +62,27 @@ function showToast(message) {
 
 // 認証状態の監視
 onAuthStateChanged(auth, (user) => {
+    const loginSection = document.getElementById('login-section');
     const adminPanel = document.getElementById('admin-panel');
     const adminMessagesSection = document.getElementById('admin-messages-section');
-    const loginSection = document.getElementById('login-section');
     const userEmailDisplay = document.getElementById('user-email-display');
     const adminBadgeContainer = document.getElementById('admin-badge-container');
 
     if (user && user.email === ADMIN_EMAIL) {
         isAdmin = true;
+        if (loginSection) loginSection.style.display = 'none';
         if (adminPanel) adminPanel.style.display = 'block';
         if (adminMessagesSection) adminMessagesSection.style.display = 'block';
-        if (loginSection) loginSection.style.display = 'none';
         if (userEmailDisplay) userEmailDisplay.textContent = `ログイン中: ${user.email}`;
         if (adminBadgeContainer) adminBadgeContainer.style.display = 'block';
     } else {
         isAdmin = false;
+        if (loginSection) loginSection.style.display = 'block';
         if (adminPanel) adminPanel.style.display = 'none';
         if (adminMessagesSection) adminMessagesSection.style.display = 'none';
-        if (loginSection) loginSection.style.display = 'block';
         if (adminBadgeContainer) adminBadgeContainer.style.display = 'none';
 
-        if (user) {
+        if (user && user.email !== ADMIN_EMAIL) {
             showToast("管理者権限のないアカウントです。");
             signOut(auth);
         }
@@ -182,8 +182,10 @@ function renderMessageList(messagesToRender = allMessagesCache) {
         let imagesArray = data.imageUrls || (data.imageUrl ? [data.imageUrl] : []);
         let imagesHtml = '';
         if (imagesArray.length > 0) {
+            const rawText = data.text || '';
+            let encodedText = encodeURIComponent(rawText);
             let imgTags = imagesArray.map(url => `
-                <img src="${url}" onclick="openImageModal('${url}')" style="height: 100px; max-width: 150px; border-radius: 6px; cursor: pointer; object-fit: cover; transition: 0.2s;" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1" title="クリックして拡大">
+                <img src="${url}" onclick="openImageModal('${url}', decodeURIComponent('${encodedText}'))" style="height: 100px; max-width: 150px; border-radius: 6px; cursor: pointer; object-fit: cover; transition: 0.2s;" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1" title="クリックして拡大">
             `).join('');
             imagesHtml = `<div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">${imgTags}</div>`;
         }
@@ -219,7 +221,8 @@ function renderMediaGrid() {
     let allImages = [];
     allMessagesCache.forEach(data => {
         let imgs = data.imageUrls || (data.imageUrl ? [data.imageUrl] : []);
-        imgs.forEach(url => allImages.push(url));
+        const rawText = data.text || '';
+        imgs.forEach(url => allImages.push({ url, text: rawText }));
     });
 
     if (allImages.length === 0) {
@@ -227,9 +230,10 @@ function renderMediaGrid() {
         return;
     }
 
-    container.innerHTML = allImages.map(url => `
-        <img src="${url}" onclick="openImageModal('${url}')" style="width: calc(33.333% - 6px); height: 110px; border-radius: 8px; cursor: pointer; object-fit: cover; transition: 0.2s;" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1" title="クリックして拡大">
-    `).join('');
+    container.innerHTML = allImages.map(item => {
+        let encodedText = encodeURIComponent(item.text);
+        return `<img src="${item.url}" onclick="openImageModal('${item.url}', decodeURIComponent('${encodedText}'))" style="width: calc(33.333% - 6px); height: 110px; border-radius: 8px; cursor: pointer; object-fit: cover; transition: 0.2s;" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1" title="クリックして拡大">`;
+    }).join('');
 }
 
 const tabMsgBtn = document.getElementById('tab-msg-btn');
@@ -324,7 +328,6 @@ if (adminForm) {
         let imageUrls = [];
         for (const file of selectedFiles) {
             try {
-                // 高画質設定（1920px / 90%画質）
                 const compressed = await resizeAndCompressImage(file, 1920, 0.9);
                 imageUrls.push(compressed);
             } catch (err) {
@@ -352,17 +355,66 @@ if (adminForm) {
     });
 }
 
-window.openImageModal = (imageUrl) => {
+window.openImageModal = (imageUrl, text = "") => {
     let modal = document.getElementById('image-zoom-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'image-zoom-modal';
-        modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 300; justify-content: center; align-items: center; cursor: pointer;';
-        modal.innerHTML = `<img id="zoom-img" style="max-width: 90%; max-height: 90%; border-radius: 8px; object-fit: contain;">`;
+        modal.style.cssText = 'display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 300; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;';
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cssText = 'position: relative; max-width: 90%; max-height: 90%; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box;';
+        
+        // バツボタンをカードの右上に配置（画像やテキストに被らない独立したヘッダー部分）
+        const headerDiv = document.createElement('div');
+        headerDiv.style.cssText = 'display: flex; justify-content: flex-end; width: 100%; margin-bottom: 8px;';
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.id = 'close-zoom-btn';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.cssText = 'background: rgba(255,255,255,0.1); border: none; border-radius: 50%; width: 32px; height: 32px; color: #fff; font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;';
+        closeBtn.onmouseover = () => closeBtn.style.background = 'rgba(255,255,255,0.2)';
+        closeBtn.onmouseout = () => closeBtn.style.background = 'rgba(255,255,255,0.1)';
+        
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            modal.style.display = 'none';
+        });
+        headerDiv.appendChild(closeBtn);
+        card.appendChild(headerDiv);
+
+        const imgWrapper = document.createElement('div');
+        imgWrapper.style.cssText = 'display: flex; justify-content: center; align-items: center; overflow: hidden;';
+        
+        const img = document.createElement('img');
+        img.id = 'zoom-img';
+        img.style.cssText = 'max-width: 100%; max-height: 60vh; border-radius: 8px; object-fit: contain;';
+        imgWrapper.appendChild(img);
+        card.appendChild(imgWrapper);
+
+        const textPara = document.createElement('p');
+        textPara.id = 'zoom-text';
+        textPara.style.cssText = "color: #fff; font-size: 18px; font-family: 'AzukiFont', sans-serif !important; text-align: left; margin-top: 15px; width: 100%; word-break: break-all; display: none;";
+        card.appendChild(textPara);
+
+        modal.appendChild(card);
         document.body.appendChild(modal);
+        
         modal.addEventListener('click', () => { modal.style.display = 'none'; });
+        card.addEventListener('click', (e) => { e.stopPropagation(); });
     }
+    
     document.getElementById('zoom-img').src = imageUrl;
+    
+    const zoomText = document.getElementById('zoom-text');
+    if (text && text.trim() !== "") {
+        zoomText.textContent = text;
+        zoomText.style.display = 'block';
+    } else {
+        zoomText.style.display = 'none';
+    }
+
     modal.style.display = 'flex';
 };
 
@@ -399,7 +451,7 @@ window.openEditModal = async (docId) => {
                 <div class="card" style="width: 90%; max-width: 400px; position: relative; max-height: 90vh; overflow-y: auto;">
                     <h2 style="margin-bottom: 12px; font-size: 16px;">メッセージを編集</h2>
                     <hr style="border: none; border-top: 1px solid var(--border); margin-bottom: 16px;">
-                    <textarea id="edit-input-text" style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff; resize: vertical; margin-bottom: 12px;"></textarea>
+                    <textarea id="edit-input-text" style="width: 100%; height: 80px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: #fff; resize: vertical; margin-bottom: 12px; box-sizing: border-box;"></textarea>
                     
                     <div style="margin-bottom: 12px;">
                         <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 6px;">画像:</p>
@@ -429,7 +481,6 @@ window.openEditModal = async (docId) => {
                 const files = Array.from(e.target.files);
                 for (const file of files) {
                     try {
-                        // 高画質設定（1920px / 90%画質）
                         const compressed = await resizeAndCompressImage(file, 1920, 0.9);
                         editCurrentImages.push(compressed);
                     } catch (err) {
