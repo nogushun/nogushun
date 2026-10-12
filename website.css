@@ -193,6 +193,9 @@ footer {
     padding: 12px 16px;
     flex-grow: 1;
     position: relative;
+    overflow: hidden; /* はみ出し防止の追加設定 */
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 .chat-bubble::before {
@@ -224,6 +227,8 @@ footer {
     font-size: 16px !important;
     letter-spacing: 0.5px;
     line-height: 1.5;
+    word-break: break-all;
+    overflow-wrap: break-word;
 }
 
 #custom-confirm-modal p,
@@ -283,12 +288,8 @@ footer {
     color: #fff;
     border-color: #3b82f6;
 }
-/* 長いURLやテキストが枠からはみ出さないようにする設定 */
-.chat-bubble p {
-    font-family: 'AzukiFont', sans-serif !important;
-    font-size: 16px !important;
-    letter-spacing: 0.5px;
-    line-height: 1.5;
-    word-break: break-all; /* 長いURLや英字を強制的に折り返す */
-    overflow-wrap: break-word;
+/* メッセージ入力欄やフォーム要素が枠からはみ出さないようにする設定 */
+textarea, input {
+    box-sizing: border-box;
+    max-width: 100%;
 }
