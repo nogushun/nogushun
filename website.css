@@ -283,3 +283,12 @@ footer {
     color: #fff;
     border-color: #3b82f6;
 }
+/* 長いURLやテキストが枠からはみ出さないようにする設定 */
+.chat-bubble p {
+    font-family: 'AzukiFont', sans-serif !important;
+    font-size: 16px !important;
+    letter-spacing: 0.5px;
+    line-height: 1.5;
+    word-break: break-all; /* 長いURLや英字を強制的に折り返す */
+    overflow-wrap: break-word;
+}
