@@ -62,20 +62,23 @@ function showToast(message) {
 
 // 認証状態の監視
 onAuthStateChanged(auth, (user) => {
-    const adminContentArea = document.getElementById('admin-content-area');
+    const adminPanel = document.getElementById('admin-panel');
+    const adminMessagesSection = document.getElementById('admin-messages-section');
     const loginSection = document.getElementById('login-section');
     const userEmailDisplay = document.getElementById('user-email-display');
     const adminBadgeContainer = document.getElementById('admin-badge-container');
 
     if (user && user.email === ADMIN_EMAIL) {
         isAdmin = true;
-        if (adminContentArea) adminContentArea.style.display = 'block';
+        if (adminPanel) adminPanel.style.display = 'block';
+        if (adminMessagesSection) adminMessagesSection.style.display = 'block';
         if (loginSection) loginSection.style.display = 'none';
         if (userEmailDisplay) userEmailDisplay.textContent = `ログイン中: ${user.email}`;
         if (adminBadgeContainer) adminBadgeContainer.style.display = 'block';
     } else {
         isAdmin = false;
-        if (adminContentArea) adminContentArea.style.display = 'none';
+        if (adminPanel) adminPanel.style.display = 'none';
+        if (adminMessagesSection) adminMessagesSection.style.display = 'none';
         if (loginSection) loginSection.style.display = 'block';
         if (adminBadgeContainer) adminBadgeContainer.style.display = 'none';
 
@@ -87,7 +90,7 @@ onAuthStateChanged(auth, (user) => {
     loadMessages();
 });
 
-// Googleログインボタン（ポップアップ認証）
+// Googleログインボタン
 const googleLoginBtn = document.getElementById('google-login-btn');
 if (googleLoginBtn) {
     googleLoginBtn.addEventListener('click', async () => {
@@ -321,7 +324,8 @@ if (adminForm) {
         let imageUrls = [];
         for (const file of selectedFiles) {
             try {
-                const compressed = await resizeAndCompressImage(file, 800, 0.7);
+                // 高画質設定（1920px / 90%画質）
+                const compressed = await resizeAndCompressImage(file, 1920, 0.9);
                 imageUrls.push(compressed);
             } catch (err) {
                 console.error("画像処理エラー:", err);
@@ -425,7 +429,8 @@ window.openEditModal = async (docId) => {
                 const files = Array.from(e.target.files);
                 for (const file of files) {
                     try {
-                        const compressed = await resizeAndCompressImage(file, 800, 0.7);
+                        // 高画質設定（1920px / 90%画質）
+                        const compressed = await resizeAndCompressImage(file, 1920, 0.9);
                         editCurrentImages.push(compressed);
                     } catch (err) {
                         console.error("編集画像エラー:", err);
