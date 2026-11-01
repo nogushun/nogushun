@@ -168,7 +168,6 @@
       setDoc, 
       collection, 
       query, 
-      orderBy, 
       limit 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -226,8 +225,8 @@
       }
     });
 
-    // 3. 最新の稼働ログ (bot_logs) 10件をリアルタイム取得
-    const logsQuery = query(collection(db, "bot_logs"), orderBy("timestamp", "desc"), limit(10));
+    // 3. 最新の稼働ログ (bot_logs) の取得（インデックスエラーを回避するためシンプルに取得してブラウザ側で並び替え）
+    const logsQuery = query(collection(db, "bot_logs"), limit(20));
 
     onSnapshot(logsQuery, (snapshot) => {
       logsContainer.innerHTML = "";
@@ -237,9 +236,24 @@
         return;
       }
 
+      // 取得したデータを配列に入れてタイムスタンプ順（新しい順）に並び替え
+      const logs = [];
       snapshot.forEach((docSnap) => {
-        const logData = docSnap.data();
-        const timeStr = logData.timestamp ? new Date(logData.timestamp.toDate()).toLocaleString("ja-JP") : "送信中...";
+        logs.push(docSnap.data());
+      });
+
+      // タイムスタンプが存在する場合は降順ソート
+      logs.sort((a, b) => {
+        const timeA = a.timestamp?.toMillis ? a.timestamp.toMillis() : 0;
+        const timeB = b.timestamp?.toMillis ? b.timestamp.toMillis() : 0;
+        return timeB - timeA;
+      });
+
+      logs.slice(0, 10).forEach((logData) => {
+        let timeStr = "日時不明";
+        if (logData.timestamp && typeof logData.timestamp.toDate === "function") {
+          timeStr = logData.timestamp.toDate().toLocaleString("ja-JP");
+        }
 
         const logItem = document.createElement("div");
         logItem.className = "log-item";
