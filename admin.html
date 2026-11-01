@@ -19,7 +19,7 @@
 
     <div style="text-align: center; margin-bottom: 20px;">
         <h1>管理者専用ページ</h1>
-        <p style="font-size: 13px; color: var(--text-sub);">Googleアカウントでログインしてメッセージを管理します。</p>
+        <p style="font-size: 13px; color: var(--text-sub);">Googleアカウントでログインしてメッセージやボットを管理します。</p>
     </div>
 
     <!-- ログインセクション（常にHTML上に存在させ、CSSで制御） -->
@@ -54,8 +54,10 @@
             <button type="submit" class="btn" style="background: #22c55e; color: #fff; font-weight: bold; border: none; cursor: pointer;">投稿する</button>
         </form>
 
-        <div style="margin-top: 20px; text-align: center;">
-            <a href="messages.html" style="color: #3b82f6; font-size: 13px; text-decoration: none; margin-right: 15px;">💬 メッセージ・メディア一覧を見る</a>
+        <!-- 管理メニューへのリンク群（piyobot管理へのリンクを追加！） -->
+        <div style="margin-top: 20px; text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;">
+            <a href="messages.html" style="color: #3b82f6; font-size: 13px; text-decoration: none;">💬 メッセージ・メディア一覧</a>
+            <a href="piyobot.html" style="color: #5865F2; font-size: 13px; text-decoration: none; font-weight: bold;">🐣 piyobot管理パネル</a>
             <a href="index.html" style="color: var(--text-sub); font-size: 13px; text-decoration: none;">← トップページ</a>
         </div>
     </section>
