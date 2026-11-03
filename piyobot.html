@@ -198,6 +198,7 @@
       margin-bottom: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
       position: relative;
+      overflow: visible; /* ポップアップがカードからはみ出せるようにする */
     }
 
     .card h2 {
@@ -325,22 +326,21 @@
       font-family: monospace;
     }
 
-    /* 飛び出しを解消したコンパクトなカラーパレットポップアップ */
+    /* カラーパレットポップアップ（ジャストサイズ設計） */
     .custom-palette-popup {
       position: absolute;
-      top: calc(100% + 6px);
+      top: calc(100% + 8px);
       left: 0;
-      width: 220px !important;
-      max-width: 220px !important;
+      width: 230px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
       border-radius: 10px;
       padding: 12px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
-      z-index: 1000;
+      z-index: 2000;
       display: none;
       user-select: none;
-      box-sizing: border-box !important;
+      box-sizing: border-box;
     }
 
     .custom-palette-popup.open {
@@ -349,8 +349,8 @@
 
     .palette-canvas-container {
       position: relative;
-      width: 100% !important;
-      height: 100px !important;
+      width: 100%;
+      height: 100px;
       border-radius: 6px;
       overflow: hidden;
       cursor: crosshair;
@@ -358,10 +358,9 @@
     }
 
     .palette-canvas {
-      width: 100% !important;
-      height: 100% !important;
+      width: 100%;
+      height: 100%;
       display: block;
-      box-sizing: border-box;
     }
 
     .palette-sliders {
@@ -700,7 +699,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 2000;
+      z-index: 3000;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -1298,7 +1297,7 @@
       let currentHue = 120;
 
       function drawCanvas(hue) {
-        canvas.width = 194;
+        canvas.width = 206;
         canvas.height = 100;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1365,7 +1364,7 @@
 
       const canvas = document.getElementById(conf.canvasId);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      canvas.width = 194;
+      canvas.width = 206;
       canvas.height = 100;
       ctx.fillStyle = `hsl(120, 100%, 50%)`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1523,7 +1522,7 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = 194;
+      paletteCanvas.width = 206;
       paletteCanvas.height = 100;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
@@ -1556,7 +1555,7 @@
     function pickColorFromCanvas(e) {
       const rect = paletteCanvas.getBoundingClientRect();
       const x = Math.max(0, Math.min(e.clientX - rect.left, paletteCanvas.width));
-      const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.width));
+      const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.height));
       const pixel = ctx.getImageData(x, y, 1, 1).data;
       const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
       updateColor(hex, false);
