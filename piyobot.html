@@ -3,267 +3,282 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>piyobot 管理パネル - のぐしゅんのページ</title>
+  <title>piyobot 管理パネル</title>
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --bg-color: #000000;
+      --card-bg: #09090b;
+      --card-border: #27272a;
+      --text-main: #f4f4f5;
+      --text-muted: #a1a1aa;
+      --accent-green: #22c55e;
+      --accent-red: #ef4444;
+      --log-bg: #030305;
+    }
+
+    body {
       margin: 0;
       padding: 0;
-    }
-    body {
-      background-color: #0d1117;
-      color: #c9d1d9;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      justify-content: center;
       min-height: 100vh;
-      padding: 40px 20px;
     }
-    .header {
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      padding: 40px 20px;
+      box-sizing: border-box;
+    }
+
+    header {
       text-align: center;
       margin-bottom: 30px;
     }
-    .header h1 {
+
+    header h1 {
       font-size: 2rem;
-      color: #ffffff;
+      margin: 0 0 8px 0;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 8px;
+      color: #ffffff;
     }
-    .header p {
-      color: #8b949e;
+
+    header p {
+      color: var(--text-muted);
+      margin: 0;
       font-size: 0.95rem;
     }
-    .container {
-      width: 100%;
-      max-width: 600px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+
     .card {
-      background-color: #161b22;
-      border: 1px solid #30363d;
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 12px;
       padding: 24px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
     }
+
     .card h2 {
-      font-size: 1.2rem;
-      color: #ffffff;
-      margin-bottom: 12px;
-      border-bottom: 1px solid #30363d;
-      padding-bottom: 8px;
-    }
-    .status-text {
-      font-size: 1rem;
+      font-size: 1.15rem;
+      margin-top: 0;
       margin-bottom: 16px;
-      color: #58a6ff;
-      font-weight: bold;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 8px;
+      color: #e4e4e7;
     }
-    .btn {
-      background-color: #238636;
-      color: #ffffff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
+
+    .status-badge {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
+      margin-right: 6px;
+    }
+
+    .status-text {
       font-size: 0.95rem;
-      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-muted);
+    }
+
+    .status-text strong {
+      color: var(--text-main);
+    }
+
+    .btn {
+      background-color: #18181b;
+      color: var(--accent-red);
+      border: 1px solid #3f3f46;
+      padding: 10px 20px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      border-radius: 6px;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition: all 0.2s ease;
     }
+
     .btn:hover {
-      background-color: #2ea043;
+      background-color: var(--accent-red);
+      color: #ffffff;
+      border-color: var(--accent-red);
     }
-    .btn-disabled {
-      background-color: #da3633;
-    }
-    .btn-disabled:hover {
-      background-color: #f85149;
-    }
-    .logs-box {
-      background-color: #0d1117;
-      border: 1px solid #30363d;
+
+    .log-container {
+      background-color: var(--log-bg);
+      border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 16px;
-      max-height: 250px;
-      overflow-y: auto;
-      font-family: monospace;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.88rem;
+      max-height: 380px;
+      overflow-y: auto;
     }
+
+    /* カスタムスクロールバー（黒テーマ用） */
+    .log-container::-webkit-scrollbar {
+      width: 8px;
+    }
+    .log-container::-webkit-scrollbar-track {
+      background: #030305;
+    }
+    .log-container::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 4px;
+    }
+    .log-container::-webkit-scrollbar-thumb:hover {
+      background: #3f3f46;
+    }
+
     .log-item {
-      padding: 6px 0;
-      border-bottom: 1px solid #21262d;
+      margin-bottom: 10px;
+      line-height: 1.6;
+      color: #d4d4d8;
       word-break: break-all;
     }
+
     .log-item:last-child {
-      border-bottom: none;
+      margin-bottom: 0;
     }
+
     .log-time {
-      color: #8b949e;
+      color: #71717a;
       margin-right: 8px;
     }
-    .footer-links {
-      text-align: center;
-      margin-top: 20px;
+
+    .log-item strong {
+      color: #ffffff;
     }
-    .footer-links a {
-      color: #58a6ff;
+
+    footer {
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    footer a {
+      color: var(--text-muted);
       text-decoration: none;
       font-size: 0.9rem;
+      transition: color 0.2s;
     }
-    .footer-links a:hover {
+
+    footer a:hover {
+      color: #ffffff;
       text-decoration: underline;
-    }
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      color: #484f58;
-      font-size: 0.8rem;
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>🐤 piyobot 管理パネル</h1>
-    <p>Discordボットの稼働状態やログをリアルタイムで管理します。</p>
-  </div>
-
   <div class="container">
-    <!-- ステータス制御カード -->
+    <header>
+      <h1>🐤 piyobot 管理パネル</h1>
+      <p>Discordボットの稼働状態やログをリアルタイムで管理します。</p>
+    </header>
+
+    <!-- ボットステータス制御 -->
     <div class="card">
       <h2>ボットステータス制御</h2>
-      <div id="status-display" class="status-text">現在の状態: 読み込み中...</div>
-      <button id="toggle-btn" class="btn">状態を切り替える</button>
+      <div class="status-text">
+        現在の状態: <span class="status-badge"></span><strong>有効 (稼働中)</strong>
+      </div>
+      <button class="btn" id="toggle-btn">ボットを停止する</button>
     </div>
 
-    <!-- 稼働ログカード -->
+    <!-- 最新の稼働ログ -->
     <div class="card">
       <h2>最新の稼働ログ</h2>
-      <div id="logs-container" class="logs-box">
-        <div class="log-item">ログを読み込んでいます...</div>
+      <div class="log-container" id="log-list">
+        <div class="log-item" style="color: var(--text-muted);">ログを読み込んでいます...</div>
       </div>
     </div>
+
+    <footer>
+      <a href="./">← 管理者ページに戻る</a>
+    </footer>
   </div>
 
-  <div class="footer-links">
-    <a href="./admin.html">← 管理者ページに戻る</a>
-  </div>
-
-  <footer>
-    &copy; 2026 のぐしゅん. All Rights Reserved.
-  </footer>
-
-  <!-- Firebase Web SDK (v10 Modular) -->
+  <!-- Firebase SDK (Modular v10+) -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
       getFirestore, 
-      doc, 
-      onSnapshot, 
-      setDoc, 
       collection, 
       query, 
-      limit 
+      orderBy, 
+      limit, 
+      onSnapshot 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+    // 1. Firebaseの設定情報（ご自身のFirebaseプロジェクトの設定に差し替えてください）
     const firebaseConfig = {
-        apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
-        authDomain: "mywebsite-72df0.firebaseapp.com",
-        projectId: "mywebsite-72df0",
-        storageBucket: "mywebsite-72df0.firebasestorage.app",
-        messagingSenderId: "538159276455",
-        appId: "1:538159276455:web:3b61ea7c2b427ee6c11682",
-        measurementId: "G-XGGF1946BT"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
-    // Firebase 初期化
+    // Firebase初期化
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const statusDisplay = document.getElementById("status-display");
-    const toggleBtn = document.getElementById("toggle-btn");
-    const logsContainer = document.getElementById("logs-container");
+    const logListEl = document.getElementById("log-list");
 
-    let currentIsEnabled = true;
+    // 2. Firestoreの 'logs' コレクションをリアルタイム監視（onSnapshot）
+    const q = query(
+      collection(db, "logs"), 
+      orderBy("timestamp", "desc"), 
+      limit(20)
+    );
 
-    // 1. ボット設定 (settings/bot) のリアルタイム監視
-    onSnapshot(doc(db, "settings", "bot"), (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        currentIsEnabled = data.isEnabled ?? true;
-
-        if (currentIsEnabled) {
-          statusDisplay.textContent = "現在の状態: 🟢 有効（稼働中）";
-          statusDisplay.style.color = "#3fb950";
-          toggleBtn.textContent = "ボットを停止する";
-          toggleBtn.classList.add("btn-disabled");
-        } else {
-          statusDisplay.textContent = "現在の状態: 🔴 無効（停止中）";
-          statusDisplay.style.color = "#f85149";
-          toggleBtn.textContent = "ボットを有効化する";
-          toggleBtn.classList.remove("btn-disabled");
-        }
-      } else {
-        statusDisplay.textContent = "現在の状態: ⚠️ 初期設定が見つかりません";
-      }
-    });
-
-    // 2. 状態切替ボタンの処理
-    toggleBtn.addEventListener("click", async () => {
-      try {
-        await setDoc(doc(db, "settings", "bot"), {
-          isEnabled: !currentIsEnabled
-        }, { merge: true });
-      } catch (error) {
-        console.error("設定変更エラー:", error);
-        alert("設定の変更に失敗しました。Firestoreのセキュリティルールを確認してください。");
-      }
-    });
-
-    // 3. 最新の稼働ログ (bot_logs) の取得（インデックスエラーを回避するためシンプルに取得してブラウザ側で並び替え）
-    const logsQuery = query(collection(db, "bot_logs"), limit(20));
-
-    onSnapshot(logsQuery, (snapshot) => {
-      logsContainer.innerHTML = "";
+    onSnapshot(q, (snapshot) => {
+      logListEl.innerHTML = "";
 
       if (snapshot.empty) {
-        logsContainer.innerHTML = '<div class="log-item">ログはまだありません。</div>';
+        logListEl.innerHTML = '<div class="log-item" style="color: var(--text-muted);">ログはありません。</div>';
         return;
       }
 
-      // 取得したデータを配列に入れてタイムスタンプ順（新しい順）に並び替え
-      const logs = [];
-      snapshot.forEach((docSnap) => {
-        logs.push(docSnap.data());
-      });
-
-      // タイムスタンプが存在する場合は降順ソート
-      logs.sort((a, b) => {
-        const timeA = a.timestamp?.toMillis ? a.timestamp.toMillis() : 0;
-        const timeB = b.timestamp?.toMillis ? b.timestamp.toMillis() : 0;
-        return timeB - timeA;
-      });
-
-      logs.slice(0, 10).forEach((logData) => {
-        let timeStr = "日時不明";
-        if (logData.timestamp && typeof logData.timestamp.toDate === "function") {
-          timeStr = logData.timestamp.toDate().toLocaleString("ja-JP");
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        
+        // タイムスタンプのフォーマット処理
+        let timeStr = "";
+        if (data.timestamp && data.timestamp.toDate) {
+          const date = data.timestamp.toDate();
+          timeStr = `[${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}]`;
+        } else if (typeof data.timestamp === 'string') {
+          timeStr = `[${data.timestamp}]`;
+        } else {
+          timeStr = `[直近]`;
         }
 
+        // マークダウン太字(** text **)をHTMLの <strong> タグに変換
+        let messageHtml = (data.message || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // ログ要素の追加
         const logItem = document.createElement("div");
         logItem.className = "log-item";
-        logItem.innerHTML = `<span class="log-time">[${timeStr}]</span>${logData.message}`;
-
-        logsContainer.appendChild(logItem);
+        logItem.innerHTML = `<span class="log-time">${timeStr}</span> ${messageHtml}`;
+        
+        logListEl.appendChild(logItem);
       });
     }, (error) => {
-      console.error("ログ読み込みエラー:", error);
-      logsContainer.innerHTML = '<div class="log-item" style="color: #f85149;">ログの取得に失敗しました。</div>';
+      console.error("Firestoreリアルタイム取得エラー:", error);
+      logListEl.innerHTML = '<div class="log-item" style="color:var(--accent-red);">ログの取得に失敗しました。</div>';
     });
   </script>
 </body>
