@@ -246,19 +246,18 @@
     }
 
     /* カラーピッカーコンポーネント */
-    .color-picker-wrapper {
+    .color-picker-row {
       display: flex;
-      gap: 12px;
       align-items: center;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 8px;
     }
 
     .color-preview-box {
-      width: 44px;
-      height: 40px;
-      border-radius: 8px;
+      width: 36px;
+      height: 32px;
+      border-radius: 6px;
       border: 1px solid var(--card-border);
-      background-color: #32CD32;
       cursor: pointer;
       transition: border-color 0.2s;
     }
@@ -268,20 +267,15 @@
     }
 
     .color-text-input {
-      flex: 1;
+      width: 100px;
       background-color: var(--input-bg);
       border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 10px 14px;
+      border-radius: 6px;
+      padding: 6px 10px;
       color: var(--text-main);
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       outline: none;
       font-family: monospace;
-      transition: border-color 0.2s;
-    }
-
-    .color-text-input:focus {
-      border-color: var(--accent-blue);
     }
 
     /* 自作カラーパレットポップアップ */
@@ -314,7 +308,7 @@
       margin-bottom: 12px;
     }
 
-    #palette-canvas {
+    .palette-canvas {
       width: 100%;
       height: 100%;
       display: block;
@@ -437,7 +431,6 @@
       color: #dbdee1;
     }
 
-    /* タブ切り替え用プレビュー用 Embed カード風 */
     .preview-embed-box {
       background-color: #2b2d31;
       border-radius: 4px;
@@ -545,7 +538,7 @@
 
     .form-textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 90px;
     }
 
     .form-textarea:focus, .form-input:focus {
@@ -580,6 +573,20 @@
     }
     .btn-blue:hover {
       background-color: #2563eb;
+    }
+
+    /* 通知設定画面の個別セクション */
+    .notice-setting-card {
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .notice-setting-card.active-notice {
+      border-color: var(--accent-blue);
     }
 
     /* ログコンテナ */
@@ -764,14 +771,14 @@
 
           <div class="form-group">
             <label for="color-text">アクセントカラー（サイドバーの色）</label>
-            <div class="color-picker-wrapper">
+            <div class="color-picker-row">
               <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;" title="クリックしてカラーパレットを開く"></div>
               <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
             </div>
 
             <div class="custom-palette-popup" id="palette-popup">
-              <div class="palette-canvas-container" id="palette-container">
-                <canvas id="palette-canvas"></canvas>
+              <div class="palette-canvas-container">
+                <canvas class="palette-canvas" id="palette-canvas"></canvas>
               </div>
               <div class="palette-sliders">
                 <input type="range" min="0" max="360" value="120" class="palette-slider" id="hue-slider">
@@ -814,41 +821,83 @@
       </div>
     </section>
 
-    <!-- 3. 通知メッセージ設定画面（構想図＆ワンタップ変数挿入対応） -->
+    <!-- 3. 通知メッセージ設定画面（全通知にカラーピッカー＆通話移動追加） -->
     <section id="section-notices" class="content-section">
       <div class="custom-layout">
         <!-- 左側：編集フォーム -->
         <div class="card" style="margin-bottom: 0;">
           <h2>自動通知メッセージの編集</h2>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
-            チップボタンをタップすると、カーソル位置に変数を挿入できます。
+            チップボタンをタップするとカーソル位置に変数を挿入できます。各カードを選択して色をカスタマイズ可能です。
           </p>
 
-          <div class="form-group">
-            <label>🎉 ウェルカムメッセージ (メンバー参加時)</label>
-            <div class="variable-chips">
-              <span class="var-chip" onclick="insertVariable('notif-welcome', '{user}')">+ {user}</span>
-              <span class="var-chip" onclick="insertVariable('notif-welcome', '{channel}')">+ {channel}</span>
+          <!-- 1. ウェルカムメッセージ設定 -->
+          <div class="notice-setting-card active-notice" id="card-welcome" onclick="selectNoticeTab('welcome')">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>🎉 ウェルカムメッセージ (メンバー参加時)</label>
+              <div class="color-picker-row">
+                <div class="color-preview-box notice-color-preview" id="preview-box-welcome" style="background-color: #FFB6C1;" onclick="event.stopPropagation(); openNoticePalette('welcome')"></div>
+                <input type="text" id="color-welcome" class="color-text-input notice-color-input" value="#FFB6C1" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('welcome', this.value)">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+              </div>
             </div>
-            <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！"></textarea>
+            <div class="variable-chips">
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-welcome', '{user}')">+ {user}</span>
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-welcome', '{channel}')">+ {channel}</span>
+            </div>
+            <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！" onclick="event.stopPropagation(); selectNoticeTab('welcome')"></textarea>
           </div>
 
-          <div class="form-group">
-            <label>🔊 ボイスチャンネル参加メッセージ</label>
-            <div class="variable-chips">
-              <span class="var-chip" onclick="insertVariable('notif-join', '{user}')">+ {user}</span>
-              <span class="var-chip" onclick="insertVariable('notif-join', '{channel}')">+ {channel}</span>
+          <!-- 2. 通話参加メッセージ設定 -->
+          <div class="notice-setting-card" id="card-join" onclick="selectNoticeTab('join')">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>🔊 ボイスチャンネル参加メッセージ</label>
+              <div class="color-picker-row">
+                <div class="color-preview-box notice-color-preview" id="preview-box-join" style="background-color: #57F287;" onclick="event.stopPropagation(); openNoticePalette('join')"></div>
+                <input type="text" id="color-join" class="color-text-input notice-color-input" value="#57F287" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('join', this.value)">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+              </div>
             </div>
-            <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）"></textarea>
+            <div class="variable-chips">
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-join', '{user}')">+ {user}</span>
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-join', '{channel}')">+ {channel}</span>
+            </div>
+            <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）" onclick="event.stopPropagation(); selectNoticeTab('join')"></textarea>
           </div>
 
-          <div class="form-group">
-            <label>🔇 ボイスチャンネル退出メッセージ</label>
-            <div class="variable-chips">
-              <span class="var-chip" onclick="insertVariable('notif-leave', '{user}')">+ {user}</span>
-              <span class="var-chip" onclick="insertVariable('notif-leave', '{channel}')">+ {channel}</span>
+          <!-- 3. 通話移動メッセージ設定 (新規追加) -->
+          <div class="notice-setting-card" id="card-move" onclick="selectNoticeTab('move')">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>🔄 ボイスチャンネル移動メッセージ</label>
+              <div class="color-picker-row">
+                <div class="color-preview-box notice-color-preview" id="preview-box-move" style="background-color: #FEE75C;" onclick="event.stopPropagation(); openNoticePalette('move')"></div>
+                <input type="text" id="color-move" class="color-text-input notice-color-input" value="#FEE75C" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('move', this.value)">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+              </div>
             </div>
-            <textarea id="notif-leave" class="form-textarea" placeholder="{user} さんが通話を退出しました。（{channel}）"></textarea>
+            <div class="variable-chips">
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-move', '{user}')">+ {user}</span>
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-move', '{old_channel}')">+ {old_channel}</span>
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-move', '{new_channel}')">+ {new_channel}</span>
+            </div>
+            <textarea id="notif-move" class="form-textarea" placeholder="{user} さんが通話を移動しました。（{old_channel} ➔ {new_channel}）" onclick="event.stopPropagation(); selectNoticeTab('move')"></textarea>
+          </div>
+
+          <!-- 4. 通話退出メッセージ設定 -->
+          <div class="notice-setting-card" id="card-leave" onclick="selectNoticeTab('leave')">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>🔇 ボイスチャンネル退出メッセージ</label>
+              <div class="color-picker-row">
+                <div class="color-preview-box notice-color-preview" id="preview-box-leave" style="background-color: #ED4245;" onclick="event.stopPropagation(); openNoticePalette('leave')"></div>
+                <input type="text" id="color-leave" class="color-text-input notice-color-input" value="#ED4245" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('leave', this.value)">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+              </div>
+            </div>
+            <div class="variable-chips">
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-leave', '{user}')">+ {user}</span>
+              <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-leave', '{channel}')">+ {channel}</span>
+            </div>
+            <textarea id="notif-leave" class="form-textarea" placeholder="{user} さんが通話を退出しました。（{channel}）" onclick="event.stopPropagation(); selectNoticeTab('leave')"></textarea>
           </div>
 
           <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
@@ -858,7 +907,7 @@
         <div>
           <div class="card" style="margin-bottom: 0;">
             <h2>通知プレビュー（構想図）</h2>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">イベント発生時の見た目を確認できます。</p>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">選択中のイベント通知の見た目です。</p>
             
             <div class="preview-card-container">
               <div class="preview-header">
@@ -881,6 +930,18 @@
         </div>
       </div>
     </section>
+
+    <!-- 共有用カラーパレットポップアップ（通知設定画面用） -->
+    <div class="custom-palette-popup" id="notice-palette-popup">
+      <div class="palette-canvas-container">
+        <canvas class="palette-canvas" id="notice-palette-canvas"></canvas>
+      </div>
+      <div class="palette-sliders">
+        <input type="range" min="0" max="360" value="120" class="palette-slider" id="notice-hue-slider">
+      </div>
+      <div class="palette-presets-label">カラーテンプレート</div>
+      <div class="palette-presets-grid" id="notice-preset-grid"></div>
+    </div>
 
     <!-- 4. 稼働ログ画面 -->
     <section id="section-logs" class="content-section">
@@ -962,8 +1023,8 @@
         document.getElementById('section-notices').classList.add('active');
         document.getElementById('menu-notices').classList.add('active');
         document.getElementById('page-title').textContent = '通知メッセージ設定';
-        document.getElementById('page-desc').textContent = 'ウェルカムメッセージや通話通知の文面をウェブから自由に編集できます。';
-        updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1');
+        document.getElementById('page-desc').textContent = 'ウェルカムメッセージや通話通知の文面やバナーカラーを自由に編集できます。';
+        selectNoticeTab('welcome');
       } else if (tabName === 'logs') {
         document.getElementById('section-logs').classList.add('active');
         document.getElementById('menu-logs').classList.add('active');
@@ -976,7 +1037,6 @@
       document.getElementById(modalId).classList.remove('show');
     };
 
-    // --- 変数をテキストエリアに挿入する関数 ---
     window.insertVariable = function(elementId, variableText) {
       const textarea = document.getElementById(elementId);
       const start = textarea.selectionStart;
@@ -988,42 +1048,177 @@
       textarea.dispatchEvent(new Event('input'));
     };
 
-    // --- 自動通知文面のロード ＆ プレビュー連動 ---
-    const notifWelcome = document.getElementById("notif-welcome");
-    const notifJoin = document.getElementById("notif-join");
-    const notifLeave = document.getElementById("notif-leave");
-    const saveNotifsBtn = document.getElementById("save-notifs-btn");
+    // --- 通知メッセージ設定関連のロジック ---
+    let activeNoticeType = 'welcome'; // 'welcome', 'join', 'move', 'leave'
+    const noticeConfigData = {
+      welcome: { title: '🎉 メンバーが参加しました！', inputId: 'notif-welcome', colorInputId: 'color-welcome', previewBoxId: 'preview-box-welcome', defaultColor: '#FFB6C1', defaultText: '{user} さんサーバーへようこそ！' },
+      join: { title: '🔊 通話参加通知', inputId: 'notif-join', colorInputId: 'color-join', previewBoxId: 'preview-box-join', defaultColor: '#57F287', defaultText: '{user} さんが通話に参加しました。（{channel}）' },
+      move: { title: '🔄 通話移動通知', inputId: 'notif-move', colorInputId: 'color-move', previewBoxId: 'preview-box-move', defaultColor: '#FEE75C', defaultText: '{user} さんが通話を移動しました。（{old_channel} ➔ {new_channel}）' },
+      leave: { title: '🔇 通話退出通知', inputId: 'notif-leave', colorInputId: 'color-leave', previewBoxId: 'preview-box-leave', defaultColor: '#ED4245', defaultText: '{user} さんが通話を退出しました。（{channel}）' }
+    };
 
-    const previewNoticeBox = document.getElementById("preview-notice-box");
-    const previewNoticeTitle = document.getElementById("preview-notice-title");
-    const previewNoticeDesc = document.getElementById("preview-notice-desc");
+    window.selectNoticeTab = function(type) {
+      activeNoticeType = type;
+      document.querySelectorAll('.notice-setting-card').forEach(c => c.classList.remove('active-notice'));
+      document.getElementById('card-' + type).classList.add('active-notice');
+      updateNoticePreviewUI();
+    };
 
-    function updateNoticePreview(activeId, title, colorHex) {
-      previewNoticeBox.style.borderLeftColor = colorHex;
-      previewNoticeTitle.textContent = title;
-      const textarea = document.getElementById(activeId);
+    function updateNoticePreviewUI() {
+      const conf = noticeConfigData[activeNoticeType];
+      const textarea = document.getElementById(conf.inputId);
+      const colorHex = document.getElementById(conf.colorInputId).value || conf.defaultColor;
+
+      document.getElementById("preview-notice-box").style.borderLeftColor = colorHex;
+      document.getElementById("preview-notice-title").textContent = conf.title;
+
       let val = textarea.value.trim() || textarea.placeholder;
-      val = val.replace(/{user}/g, "@nogushunN").replace(/{channel}/g, "雑談");
-      previewNoticeDesc.textContent = val;
+      val = val.replace(/{user}/g, "@nogushunN")
+               .replace(/{channel}/g, "雑談")
+               .replace(/{old_channel}/g, "雑談")
+               .replace(/{new_channel}/g, "ゲーム部屋");
+      document.getElementById("preview-notice-desc").textContent = val;
     }
 
-    notifWelcome.addEventListener("input", () => { updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1'); });
-    notifJoin.addEventListener("input", () => { updateNoticePreview('notif-join', '🔊 通話参加通知', '#57F287'); });
-    notifLeave.addEventListener("input", () => { updateNoticePreview('notif-leave', '🔇 通話退出通知', '#ED4245'); });
+    // 各テキストエリアの入力時にプレビューを同期
+    Object.keys(noticeConfigData).forEach(type => {
+      const conf = noticeConfigData[type];
+      const ta = document.getElementById(conf.inputId);
+      ta.addEventListener("input", () => {
+        if (activeNoticeType === type) updateNoticePreviewUI();
+      });
+    });
 
-    notifWelcome.addEventListener("focus", () => { updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1'); });
-    notifJoin.addEventListener("focus", () => { updateNoticePreview('notif-join', '🔊 通話参加通知', '#57F287'); });
-    notifLeave.addEventListener("focus", () => { updateNoticePreview('notif-leave', '🔇 通話退出通知', '#ED4245'); });
+    // --- 通知用カラーパレットポップアップ制御 ---
+    const noticePalettePopup = document.getElementById("notice-palette-popup");
+    const noticePaletteCanvas = document.getElementById("notice-palette-canvas");
+    const noticeCtx = noticePaletteCanvas.getContext("2d");
+    const noticeHueSlider = document.getElementById("notice-hue-slider");
+    const noticePresetGrid = document.getElementById("notice-preset-grid");
+    let currentNoticeHue = 120;
+    let editingColorInputId = null;
+
+    window.openNoticePalette = function(type) {
+      event.stopPropagation();
+      activeNoticeType = type;
+      selectNoticeTab(type);
+      const conf = noticeConfigData[type];
+      const colorInput = document.getElementById(conf.colorInputId);
+      editingColorInputId = conf.colorInputId;
+
+      const rect = document.getElementById(conf.previewBoxId).getBoundingClientRect();
+      noticePalettePopup.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+      noticePalettePopup.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 300) + 'px';
+      noticePalettePopup.classList.add("open");
+      drawNoticePalette(currentNoticeHue);
+    };
+
+    function drawNoticePalette(hue) {
+      noticePaletteCanvas.width = 248;
+      noticePaletteCanvas.height = 140;
+      const width = noticePaletteCanvas.width;
+      const height = noticePaletteCanvas.height;
+
+      noticeCtx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+      noticeCtx.fillRect(0, 0, width, height);
+
+      const gradWhite = noticeCtx.createLinearGradient(0, 0, width, 0);
+      gradWhite.addColorStop(0, "rgba(255, 255, 255, 1)");
+      gradWhite.addColorStop(1, "rgba(255, 255, 255, 0)");
+      noticeCtx.fillStyle = gradWhite;
+      noticeCtx.fillRect(0, 0, width, height);
+
+      const gradBlack = noticeCtx.createLinearGradient(0, 0, 0, height);
+      gradBlack.addColorStop(0, "rgba(0, 0, 0, 0)");
+      gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
+      noticeCtx.fillStyle = gradBlack;
+      noticeCtx.fillRect(0, 0, width, height);
+    }
+
+    let isNoticeMouseDown = false;
+    noticePaletteCanvas.addEventListener("mousedown", (e) => { isNoticeMouseDown = true; pickNoticeColor(e); });
+    window.addEventListener("mouseup", () => { isNoticeMouseDown = false; });
+    noticePaletteCanvas.addEventListener("mousemove", (e) => { if (isNoticeMouseDown) pickNoticeColor(e); });
+
+    function pickNoticeColor(e) {
+      const rect = noticePaletteCanvas.getBoundingClientRect();
+      const x = Math.max(0, Math.min(e.clientX - rect.left, noticePaletteCanvas.width));
+      const y = Math.max(0, Math.min(e.clientY - rect.top, noticePaletteCanvas.height));
+      const pixel = noticeCtx.getImageData(x, y, 1, 1).data;
+      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+      applyNoticeColor(hex);
+    }
+
+    noticeHueSlider.addEventListener("input", (e) => {
+      currentNoticeHue = e.target.value;
+      drawNoticePalette(currentNoticeHue);
+    });
+
+    window.updateNoticeColorFromInput = function(type, hex) {
+      if (/^#[0-9A-F]{6}$/i.test(hex)) {
+        const conf = noticeConfigData[type];
+        document.getElementById(conf.previewBoxId).style.backgroundColor = hex;
+        updateNoticePreviewUI();
+      }
+    };
+
+    function applyNoticeColor(hex) {
+      if (!editingColorInputId) return;
+      const colorInput = document.getElementById(editingColorInputId);
+      colorInput.value = hex;
+      const type = Object.keys(noticeConfigData).find(k => noticeConfigData[k].colorInputId === editingColorInputId);
+      if (type) {
+        document.getElementById(noticeConfigData[type].previewBoxId).style.backgroundColor = hex;
+        updateNoticePreviewUI();
+      }
+    }
+
+    // パレット外クリックで閉じる
+    document.addEventListener("click", (e) => {
+      if (!noticePalettePopup.contains(e.target) && !e.target.classList.contains('notice-color-preview')) {
+        noticePalettePopup.classList.remove("open");
+      }
+    });
+
+    // テンプレート生成
+    const presetColors = [
+      "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
+      "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
+      "#ec4899", "#f43f5e", "#ef4444", "#f97316", 
+      "#eab308", "#84cc16", "#ffffff", "#000000"
+    ];
+
+    presetColors.forEach(hex => {
+      const item = document.createElement("div");
+      item.className = "palette-preset-item";
+      item.style.backgroundColor = hex;
+      item.addEventListener("click", () => {
+        applyNoticeColor(hex);
+        noticePalettePopup.classList.remove("open");
+      });
+      noticePresetGrid.appendChild(item);
+    });
+
+
+    // --- 設定保存処理 ---
+    const saveNotifsBtn = document.getElementById("save-notifs-btn");
 
     async function loadNotificationConfig() {
       try {
         const docSnap = await getDoc(doc(db, "settings", "bot_config"));
         if (docSnap.exists()) {
           const data = docSnap.data();
-          if (data.welcomeTemplate) notifWelcome.value = data.welcomeTemplate;
-          if (data.voiceJoinTemplate) notifJoin.value = data.voiceJoinTemplate;
-          if (data.voiceLeaveTemplate) notifLeave.value = data.voiceLeaveTemplate;
-          updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1');
+          if (data.welcomeTemplate) document.getElementById("notif-welcome").value = data.welcomeTemplate;
+          if (data.voiceJoinTemplate) document.getElementById("notif-join").value = data.voiceJoinTemplate;
+          if (data.voiceMoveTemplate) document.getElementById("notif-move").value = data.voiceMoveTemplate;
+          if (data.voiceLeaveTemplate) document.getElementById("notif-leave").value = data.voiceLeaveTemplate;
+
+          if (data.welcomeColor) { document.getElementById("color-welcome").value = data.welcomeColor; document.getElementById("preview-box-welcome").style.backgroundColor = data.welcomeColor; }
+          if (data.joinColor) { document.getElementById("color-join").value = data.joinColor; document.getElementById("preview-box-join").style.backgroundColor = data.joinColor; }
+          if (data.moveColor) { document.getElementById("color-move").value = data.moveColor; document.getElementById("preview-box-move").style.backgroundColor = data.moveColor; }
+          if (data.leaveColor) { document.getElementById("color-leave").value = data.leaveColor; document.getElementById("preview-box-leave").style.backgroundColor = data.leaveColor; }
+
+          updateNoticePreviewUI();
         }
       } catch (e) {
         console.error("通知設定の読み込みエラー:", e);
@@ -1037,14 +1232,19 @@
         saveNotifsBtn.textContent = "保存中...";
 
         await setDoc(doc(db, "settings", "bot_config"), {
-          welcomeTemplate: notifWelcome.value,
-          voiceJoinTemplate: notifJoin.value,
-          voiceLeaveTemplate: notifLeave.value,
+          welcomeTemplate: document.getElementById("notif-welcome").value,
+          voiceJoinTemplate: document.getElementById("notif-join").value,
+          voiceMoveTemplate: document.getElementById("notif-move").value,
+          voiceLeaveTemplate: document.getElementById("notif-leave").value,
+          welcomeColor: document.getElementById("color-welcome").value,
+          joinColor: document.getElementById("color-join").value,
+          moveColor: document.getElementById("color-move").value,
+          leaveColor: document.getElementById("color-leave").value,
           updatedAt: serverTimestamp()
         }, { merge: true });
 
         document.getElementById('success-title').textContent = "保存完了";
-        document.getElementById('success-desc').textContent = "通知メッセージの設定を正常に保存しました！";
+        document.getElementById('success-desc').textContent = "通知メッセージおよびカラー設定を正常に保存しました！";
         document.getElementById('success-modal').classList.add('show');
       } catch (e) {
         console.error("設定保存エラー:", e);
@@ -1056,7 +1256,7 @@
       }
     });
 
-    // --- カラーピッカー ＆ プレビュー連動ロジック ---
+    // --- カスタムメッセージ画面のカラーピッカーロジック ---
     const colorPreview = document.getElementById("color-preview");
     const colorText = document.getElementById("color-text");
     const palettePopup = document.getElementById("palette-popup");
@@ -1066,14 +1266,12 @@
     const presetGrid = document.getElementById("preset-grid");
     const messageInput = document.getElementById("message-input");
     const previewMsgBox = document.getElementById("preview-msg-box");
-
     let currentHue = 120;
 
     function updateColor(hex, syncHue = true) {
       colorPreview.style.backgroundColor = hex;
       colorText.value = hex;
       previewMsgBox.style.borderLeftColor = hex;
-
       if (syncHue && /^#[0-9A-F]{6}$/i.test(hex)) {
         const rgb = hexToRgb(hex);
         if (rgb) {
@@ -1094,9 +1292,8 @@
       r /= 255; g /= 255; b /= 255;
       const max = Math.max(r, g, b), min = Math.min(r, g, b);
       let h, s, l = (max + min) / 2;
-      if (max === min) {
-        h = s = 0;
-      } else {
+      if (max === min) { h = s = 0; }
+      else {
         const d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
         switch (max) {
@@ -1174,13 +1371,6 @@
       previewMsgBox.textContent = text || "ここにメッセージの内容がリアルタイムで反映されます...";
     });
 
-    const presetColors = [
-      "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
-      "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
-      "#ec4899", "#f43f5e", "#ef4444", "#f97316", 
-      "#eab308", "#84cc16", "#ffffff", "#000000"
-    ];
-
     presetColors.forEach(hex => {
       const item = document.createElement("div");
       item.className = "palette-preset-item";
@@ -1189,7 +1379,7 @@
       presetGrid.appendChild(item);
     });
 
-    // --- ダッシュボードのステータス情報＆ボットコントロール ---
+    // --- ダッシュボードおよびその他操作ロジック ---
     const logListEl = document.getElementById("log-list");
     const toggleBtn = document.getElementById("toggle-btn");
     const statusBadge = document.getElementById("status-badge");
