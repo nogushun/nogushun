@@ -176,30 +176,38 @@
       margin-bottom: 8px;
     }
 
-    /* カラー選択エリア */
+    /* ブラック仕様カスタムカラー選択エリア */
     .color-picker-wrapper {
       display: flex;
       gap: 12px;
       align-items: center;
     }
 
-    .color-input-native {
-      -webkit-appearance: none;
-      border: none;
+    .color-preview-box {
       width: 44px;
       height: 40px;
       border-radius: 8px;
-      cursor: pointer;
-      background: none;
-    }
-
-    .color-input-native::-webkit-color-swatch-wrapper {
-      padding: 0;
-    }
-
-    .color-input-native::-webkit-color-swatch {
       border: 1px solid var(--card-border);
-      border-radius: 8px;
+      background-color: #32CD32;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .color-preview-box:hover {
+      border-color: #3f3f46;
+    }
+
+    /* ネイティブのカラーピッカーを透明にして重ねることでブラウザ標準のポップアップを維持しつつ見た目を完全ブラック化 */
+    .color-input-native {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: 64px;
+      height: 60px;
+      opacity: 0;
+      cursor: pointer;
     }
 
     .color-text-input {
@@ -212,6 +220,33 @@
       font-size: 0.95rem;
       outline: none;
       font-family: monospace;
+      transition: border-color 0.2s;
+    }
+
+    .color-text-input:focus {
+      border-color: var(--accent-blue);
+    }
+
+    /* カラーテンプレート（プリセット）ボタン一覧 */
+    .color-presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .color-preset-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s;
+    }
+
+    .color-preset-btn:hover {
+      transform: scale(1.1);
+      border-color: #ffffff;
     }
 
     /* カスタムドロップダウン */
@@ -493,12 +528,26 @@
           </div>
         </div>
 
-        <!-- アクセントカラー選択（カラーピッカー ＆ テキスト入力） -->
+        <!-- アクセントカラー選択（ブラック仕様 ＆ テンプレート一覧） -->
         <div class="form-group">
           <label for="color-picker">アクセントカラー（サイドバーの色）</label>
           <div class="color-picker-wrapper">
-            <input type="color" id="color-picker" class="color-input-native" value="#32CD32">
+            <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;">
+              <input type="color" id="color-picker" class="color-input-native" value="#32CD32">
+            </div>
             <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
+          </div>
+          <!-- カラーテンプレート（よく使う色をワンクリック選択） -->
+          <div class="color-presets">
+            <button type="button" class="color-preset-btn" style="background-color: #32CD32;" data-color="#32CD32" title="ライムグリーン"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #3b82f6;" data-color="#3b82f6" title="ブルー"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #ef4444;" data-color="#ef4444" title="レッド"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #eab308;" data-color="#eab308" title="イエロー"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #a855f7;" data-color="#a855f7" title="パープル"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #ec4899;" data-color="#ec4899" title="ピンク"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #06b6d4;" data-color="#06b6d4" title="シアン"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #ffffff;" data-color="#ffffff" title="ホワイト"></button>
+            <button type="button" class="color-preset-btn" style="background-color: #71717a;" data-color="#71717a" title="グレー"></button>
           </div>
         </div>
 
@@ -595,19 +644,33 @@
     const sendMsgBtn = document.getElementById("send-msg-btn");
     const messageInput = document.getElementById("message-input");
 
-    // カラーピッカー連動
+    // カラーピッカー・プレビュー・テキスト連動
     const colorPicker = document.getElementById("color-picker");
     const colorText = document.getElementById("color-text");
+    const colorPreview = document.getElementById("color-preview");
+
+    function updateColor(colorHex) {
+      colorPicker.value = colorHex;
+      colorText.value = colorHex;
+      colorPreview.style.backgroundColor = colorHex;
+    }
 
     colorPicker.addEventListener("input", (e) => {
-      colorText.value = e.target.value;
+      updateColor(e.target.value);
     });
 
     colorText.addEventListener("input", (e) => {
       let val = e.target.value;
       if (/^#[0-9A-F]{6}$/i.test(val)) {
-        colorPicker.value = val;
+        updateColor(val);
       }
+    });
+
+    // カラーテンプレート（プリセット）ボタンのクリックイベント
+    document.querySelectorAll(".color-preset-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        updateColor(btn.dataset.color);
+      });
     });
 
     const guildDropdown = document.getElementById("guild-dropdown");
