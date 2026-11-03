@@ -198,7 +198,6 @@
       margin-bottom: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
       position: relative;
-      overflow: visible;
     }
 
     .card h2 {
@@ -326,18 +325,18 @@
       font-family: monospace;
     }
 
-    /* カラーパレットポップアップ（幅・高さコンパクト化） */
+    /* カラーパレットポップアップ（位置ズレを完全になくす固定サイズ） */
     .custom-palette-popup {
       position: absolute;
-      top: calc(100% + 8px);
+      top: 42px;
       left: 0;
-      width: 250px;
+      width: 240px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
       border-radius: 10px;
       padding: 12px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
-      z-index: 2000;
+      z-index: 3000;
       display: none;
       user-select: none;
       box-sizing: border-box;
@@ -350,7 +349,7 @@
     .palette-canvas-container {
       position: relative;
       width: 100%;
-      height: 90px;
+      height: 85px;
       border-radius: 6px;
       overflow: hidden;
       cursor: crosshair;
@@ -651,7 +650,6 @@
       cursor: pointer;
       transition: border-color 0.2s;
       position: relative;
-      overflow: visible;
     }
     .notice-setting-card.active-notice {
       border-color: var(--accent-blue);
@@ -699,7 +697,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 3000;
+      z-index: 4000;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -883,7 +881,7 @@
     <!-- 2. カスタムメッセージ画面 -->
     <section id="section-custom" class="content-section">
       <div class="custom-layout">
-        <div class="card" style="margin-bottom: 0;">
+        <div class="card">
           <h2>カスタムメッセージ送信</h2>
           
           <div class="form-group">
@@ -958,7 +956,7 @@
     <!-- 3. 通知メッセージ設定画面 -->
     <section id="section-notices" class="content-section">
       <div class="custom-layout">
-        <div class="card" style="margin-bottom: 0;">
+        <div class="card">
           <h2>自動通知メッセージの編集</h2>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
             チップボタンをタップするとカーソル位置に変数を挿入できます。各カードを選択して色をカスタマイズ可能です。
@@ -1297,8 +1295,8 @@
       let currentHue = 120;
 
       function drawCanvas(hue) {
-        canvas.width = 226;
-        canvas.height = 90;
+        canvas.width = 214;
+        canvas.height = 85;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1364,8 +1362,8 @@
 
       const canvas = document.getElementById(conf.canvasId);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      canvas.width = 226;
-      canvas.height = 90;
+      canvas.width = 214;
+      canvas.height = 85;
       ctx.fillStyle = `hsl(120, 100%, 50%)`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
@@ -1522,8 +1520,8 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = 226;
-      paletteCanvas.height = 90;
+      paletteCanvas.width = 214;
+      paletteCanvas.height = 85;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
 
