@@ -29,7 +29,7 @@
       min-height: 100vh;
     }
 
-    /* モバイル用トップバー（初期状態は隠す） */
+    /* モバイル用トップバー */
     .mobile-header {
       display: none;
       position: fixed;
@@ -297,6 +297,7 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 8px;
+      position: relative;
     }
 
     .color-preview-box {
@@ -324,11 +325,13 @@
       font-family: monospace;
     }
 
+    /* 飛び出しを解消したコンパクトなカラーパレットポップアップ */
     .custom-palette-popup {
       position: absolute;
-      top: calc(100% + 4px);
+      top: calc(100% + 6px);
       left: 0;
-      width: 220px;
+      width: 220px !important;
+      max-width: 220px !important;
       background-color: #16161a;
       border: 1px solid #3f3f46;
       border-radius: 10px;
@@ -337,7 +340,7 @@
       z-index: 1000;
       display: none;
       user-select: none;
-      box-sizing: border-box;
+      box-sizing: border-box !important;
     }
 
     .custom-palette-popup.open {
@@ -346,8 +349,8 @@
 
     .palette-canvas-container {
       position: relative;
-      width: 100%;
-      height: 100px;
+      width: 100% !important;
+      height: 100px !important;
       border-radius: 6px;
       overflow: hidden;
       cursor: crosshair;
@@ -355,9 +358,10 @@
     }
 
     .palette-canvas {
-      width: 100%;
-      height: 100%;
+      width: 100% !important;
+      height: 100% !important;
       display: block;
+      box-sizing: border-box;
     }
 
     .palette-sliders {
@@ -375,6 +379,7 @@
       cursor: pointer;
       -webkit-appearance: none;
       background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+      box-sizing: border-box;
     }
 
     .palette-slider::-webkit-slider-thumb {
@@ -420,11 +425,12 @@
       border: 1px solid #3f3f46;
       color: var(--text-main);
       font-size: 0.75rem;
-      padding: 5px;
+      padding: 6px;
       border-radius: 5px;
       cursor: pointer;
       text-align: center;
       transition: background-color 0.2s;
+      box-sizing: border-box;
     }
 
     .palette-default-btn:hover {
@@ -754,35 +760,33 @@
       font-size: 0.9rem;
     }
 
-    /* ==========================================
-       📱 スマホ対応レスポンシブ CSS (幅768px以下)
-       ========================================== */
+    /* スマホ対応レスポンシブ CSS */
     @media (max-width: 768px) {
       .mobile-header {
-        display: flex; /* モバイル用ヘッダーを表示 */
+        display: flex;
       }
 
       aside {
-        transform: translateX(-100%); /* 初期状態で左に隠す */
+        transform: translateX(-100%);
         width: 280px;
         box-shadow: 8px 0 24px rgba(0,0,0,0.8);
       }
 
       aside.open {
-        transform: translateX(0); /* メニュー展開時表示 */
+        transform: translateX(0);
       }
 
       .close-menu-btn {
-        display: block; /* メニュー内の閉じるボタンを表示 */
+        display: block;
       }
 
       .sidebar-overlay.open {
-        display: block; /* 暗い背景を表示 */
+        display: block;
       }
 
       main {
         margin-left: 0;
-        padding: 80px 16px 24px 16px; /* モバイルヘッダー分の余白を空ける */
+        padding: 80px 16px 24px 16px;
       }
 
       header h1 {
@@ -790,7 +794,7 @@
       }
 
       .custom-layout {
-        grid-template-columns: 1fr; /* 1列に並べる */
+        grid-template-columns: 1fr;
         gap: 16px;
       }
 
@@ -800,7 +804,7 @@
       }
 
       .sticky-preview-wrapper {
-        position: static; /* スマホではスクロール追従を解除 */
+        position: static;
       }
 
       .card {
@@ -904,18 +908,18 @@
             <div class="color-picker-row">
               <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;" title="クリックしてカラーパレットを開く"></div>
               <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
-            </div>
 
-            <div class="custom-palette-popup" id="palette-popup">
-              <div class="palette-canvas-container">
-                <canvas class="palette-canvas" id="palette-canvas"></canvas>
+              <div class="custom-palette-popup" id="palette-popup">
+                <div class="palette-canvas-container">
+                  <canvas class="palette-canvas" id="palette-canvas"></canvas>
+                </div>
+                <div class="palette-sliders">
+                  <input type="range" min="0" max="360" value="120" class="palette-slider" id="hue-slider">
+                </div>
+                <div class="palette-presets-label">カラーテンプレート</div>
+                <div class="palette-presets-grid" id="preset-grid"></div>
+                <div class="palette-default-btn" onclick="updateColor('#32CD32', true); palettePopup.classList.remove('open');">デフォルトに戻す (#32CD32)</div>
               </div>
-              <div class="palette-sliders">
-                <input type="range" min="0" max="360" value="120" class="palette-slider" id="hue-slider">
-              </div>
-              <div class="palette-presets-label">カラーテンプレート</div>
-              <div class="palette-presets-grid" id="preset-grid"></div>
-              <div class="palette-default-btn" onclick="updateColor('#32CD32', true); palettePopup.classList.remove('open');">デフォルトに戻す (#32CD32)</div>
             </div>
           </div>
 
@@ -955,7 +959,6 @@
     <!-- 3. 通知メッセージ設定画面 -->
     <section id="section-notices" class="content-section">
       <div class="custom-layout">
-        <!-- 左側：編集フォーム -->
         <div class="card" style="margin-bottom: 0;">
           <h2>自動通知メッセージの編集</h2>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
@@ -970,6 +973,18 @@
                 <div class="color-preview-box notice-color-preview" id="preview-box-welcome" style="background-color: #FFB6C1;" onclick="event.stopPropagation(); openNoticePalette('welcome')"></div>
                 <input type="text" id="color-welcome" class="color-text-input notice-color-input" value="#FFB6C1" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('welcome', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+
+                <div class="custom-palette-popup" id="palette-popup-welcome">
+                  <div class="palette-canvas-container">
+                    <canvas class="palette-canvas" id="canvas-welcome"></canvas>
+                  </div>
+                  <div class="palette-sliders">
+                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-welcome">
+                  </div>
+                  <div class="palette-presets-label">カラーテンプレート</div>
+                  <div class="palette-presets-grid" id="presets-welcome"></div>
+                  <div class="palette-default-btn" onclick="applyNoticeDefaultColor('welcome')">デフォルトに戻す (#FFB6C1)</div>
+                </div>
               </div>
             </div>
             <div class="variable-chips">
@@ -977,18 +992,6 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-welcome', '{channel}')">+ {channel}</span>
             </div>
             <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！" onclick="event.stopPropagation(); selectNoticeTab('welcome')"></textarea>
-            
-            <div class="custom-palette-popup" id="palette-popup-welcome">
-              <div class="palette-canvas-container">
-                <canvas class="palette-canvas" id="canvas-welcome"></canvas>
-              </div>
-              <div class="palette-sliders">
-                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-welcome">
-              </div>
-              <div class="palette-presets-label">カラーテンプレート</div>
-              <div class="palette-presets-grid" id="presets-welcome"></div>
-              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('welcome')">デフォルトに戻す (#FFB6C1)</div>
-            </div>
           </div>
 
           <!-- 2. 通話参加メッセージ設定 -->
@@ -999,6 +1002,18 @@
                 <div class="color-preview-box notice-color-preview" id="preview-box-join" style="background-color: #57F287;" onclick="event.stopPropagation(); openNoticePalette('join')"></div>
                 <input type="text" id="color-join" class="color-text-input notice-color-input" value="#57F287" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('join', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+
+                <div class="custom-palette-popup" id="palette-popup-join">
+                  <div class="palette-canvas-container">
+                    <canvas class="palette-canvas" id="canvas-join"></canvas>
+                  </div>
+                  <div class="palette-sliders">
+                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-join">
+                  </div>
+                  <div class="palette-presets-label">カラーテンプレート</div>
+                  <div class="palette-presets-grid" id="presets-join"></div>
+                  <div class="palette-default-btn" onclick="applyNoticeDefaultColor('join')">デフォルトに戻す (#57F287)</div>
+                </div>
               </div>
             </div>
             <div class="variable-chips">
@@ -1006,18 +1021,6 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-join', '{channel}')">+ {channel}</span>
             </div>
             <textarea id="notif-join" class="form-textarea" placeholder="{user}さんがボイスチャンネル[{channel}]に参加しました。" onclick="event.stopPropagation(); selectNoticeTab('join')"></textarea>
-            
-            <div class="custom-palette-popup" id="palette-popup-join">
-              <div class="palette-canvas-container">
-                <canvas class="palette-canvas" id="canvas-join"></canvas>
-              </div>
-              <div class="palette-sliders">
-                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-join">
-              </div>
-              <div class="palette-presets-label">カラーテンプレート</div>
-              <div class="palette-presets-grid" id="presets-join"></div>
-              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('join')">デフォルトに戻す (#57F287)</div>
-            </div>
           </div>
 
           <!-- 3. 通話移動メッセージ設定 -->
@@ -1028,6 +1031,18 @@
                 <div class="color-preview-box notice-color-preview" id="preview-box-move" style="background-color: #FEE75C;" onclick="event.stopPropagation(); openNoticePalette('move')"></div>
                 <input type="text" id="color-move" class="color-text-input notice-color-input" value="#FEE75C" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('move', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+
+                <div class="custom-palette-popup" id="palette-popup-move">
+                  <div class="palette-canvas-container">
+                    <canvas class="palette-canvas" id="canvas-move"></canvas>
+                  </div>
+                  <div class="palette-sliders">
+                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-move">
+                  </div>
+                  <div class="palette-presets-label">カラーテンプレート</div>
+                  <div class="palette-presets-grid" id="presets-move"></div>
+                  <div class="palette-default-btn" onclick="applyNoticeDefaultColor('move')">デフォルトに戻す (#FEE75C)</div>
+                </div>
               </div>
             </div>
             <div class="variable-chips">
@@ -1036,18 +1051,6 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-move', '{new_channel}')">+ {new_channel}</span>
             </div>
             <textarea id="notif-move" class="form-textarea" placeholder="👥{user}さんがボイスチャンネル[{old_channel}]から[{new_channel}]に移動しました。" onclick="event.stopPropagation(); selectNoticeTab('move')"></textarea>
-            
-            <div class="custom-palette-popup" id="palette-popup-move">
-              <div class="palette-canvas-container">
-                <canvas class="palette-canvas" id="canvas-move"></canvas>
-              </div>
-              <div class="palette-sliders">
-                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-move">
-              </div>
-              <div class="palette-presets-label">カラーテンプレート</div>
-              <div class="palette-presets-grid" id="presets-move"></div>
-              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('move')">デフォルトに戻す (#FEE75C)</div>
-            </div>
           </div>
 
           <!-- 4. 通話退出メッセージ設定 -->
@@ -1058,6 +1061,18 @@
                 <div class="color-preview-box notice-color-preview" id="preview-box-leave" style="background-color: #ED4245;" onclick="event.stopPropagation(); openNoticePalette('leave')"></div>
                 <input type="text" id="color-leave" class="color-text-input notice-color-input" value="#ED4245" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('leave', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+
+                <div class="custom-palette-popup" id="palette-popup-leave">
+                  <div class="palette-canvas-container">
+                    <canvas class="palette-canvas" id="canvas-leave"></canvas>
+                  </div>
+                  <div class="palette-sliders">
+                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-leave">
+                  </div>
+                  <div class="palette-presets-label">カラーテンプレート</div>
+                  <div class="palette-presets-grid" id="presets-leave"></div>
+                  <div class="palette-default-btn" onclick="applyNoticeDefaultColor('leave')">デフォルトに戻す (#ED4245)</div>
+                </div>
               </div>
             </div>
             <div class="variable-chips">
@@ -1065,18 +1080,6 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-leave', '{channel}')">+ {channel}</span>
             </div>
             <textarea id="notif-leave" class="form-textarea" placeholder="{user}さんがボイスチャンネル[{channel}]を退出しました。" onclick="event.stopPropagation(); selectNoticeTab('leave')"></textarea>
-            
-            <div class="custom-palette-popup" id="palette-popup-leave">
-              <div class="palette-canvas-container">
-                <canvas class="palette-canvas" id="canvas-leave"></canvas>
-              </div>
-              <div class="palette-sliders">
-                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-leave">
-              </div>
-              <div class="palette-presets-label">カラーテンプレート</div>
-              <div class="palette-presets-grid" id="presets-leave"></div>
-              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('leave')">デフォルトに戻す (#ED4245)</div>
-            </div>
           </div>
 
           <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
@@ -1171,7 +1174,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // --- スマホ用ハンバーガーメニュー制御 ---
+    // スマホ用ハンバーガーメニュー制御
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const openMenuBtn = document.getElementById('open-menu-btn');
@@ -1191,7 +1194,6 @@
     closeMenuBtn.addEventListener('click', closeSidebar);
     sidebarOverlay.addEventListener('click', closeSidebar);
 
-    // タブ切り替え（スマホの時は選択後にメニューを自動で閉じる）
     window.switchTab = function(tabName) {
       document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
@@ -1262,7 +1264,7 @@
       document.getElementById("preview-notice-title").textContent = conf.title;
 
       let val = textarea.value.trim() || textarea.placeholder;
-      val = val.replace(/{user}/g, "@nogushunN")
+      val = val.replace(/{user}/g, "nogushunN")
                .replace(/{channel}/g, "雑談")
                .replace(/{old_channel}/g, "雑談")
                .replace(/{new_channel}/g, "ゲーム部屋");
@@ -1277,7 +1279,7 @@
       });
     });
 
-    // --- 各カード独立型カラーパレットの初期化 ---
+    // --- カラーパレットの初期化 ---
     const presetColors = [
       "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
       "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
@@ -1296,7 +1298,7 @@
       let currentHue = 120;
 
       function drawCanvas(hue) {
-        canvas.width = 196;
+        canvas.width = 194;
         canvas.height = 100;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1324,7 +1326,6 @@
       window.addEventListener("mouseup", () => { isDrawing = false; });
       canvas.addEventListener("mousemove", (e) => { if (isDrawing) pickColor(e); });
 
-      // タッチ操作（スマホ）のサポート
       canvas.addEventListener("touchstart", (e) => { isDrawing = true; pickColor(e.touches[0]); });
       window.addEventListener("touchend", () => { isDrawing = false; });
       canvas.addEventListener("touchmove", (e) => { if (isDrawing) pickColor(e.touches[0]); });
@@ -1364,7 +1365,7 @@
 
       const canvas = document.getElementById(conf.canvasId);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      canvas.width = 196;
+      canvas.width = 194;
       canvas.height = 100;
       ctx.fillStyle = `hsl(120, 100%, 50%)`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1522,7 +1523,7 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = 196;
+      paletteCanvas.width = 194;
       paletteCanvas.height = 100;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
@@ -1555,7 +1556,7 @@
     function pickColorFromCanvas(e) {
       const rect = paletteCanvas.getBoundingClientRect();
       const x = Math.max(0, Math.min(e.clientX - rect.left, paletteCanvas.width));
-      const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.height));
+      const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.width));
       const pixel = ctx.getImageData(x, y, 1, 1).data;
       const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
       updateColor(hex, false);
