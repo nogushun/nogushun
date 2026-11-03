@@ -136,7 +136,6 @@
       }
     }
 
-    /* プレビュー側を画面に固定するスタイル */
     .sticky-preview-wrapper {
       position: sticky;
       top: 40px;
@@ -213,7 +212,6 @@
       color: #ffffff;
     }
 
-    /* フォーム要素 */
     .form-group {
       margin-bottom: 20px;
       position: relative;
@@ -226,7 +224,6 @@
       margin-bottom: 8px;
     }
 
-    /* 変数挿入用チップボタン群 */
     .variable-chips {
       display: flex;
       gap: 8px;
@@ -251,7 +248,6 @@
       color: #ffffff;
     }
 
-    /* カラーピッカーコンポーネント */
     .color-picker-row {
       display: flex;
       align-items: center;
@@ -284,16 +280,16 @@
       font-family: monospace;
     }
 
-    /* 修正済みの自作カラーパレットポップアップ（飛び出し防止＆サイズ最適化） */
+    /* 飛び出し防止を最適化したカラーパレットポップアップ */
     .custom-palette-popup {
       position: absolute;
-      top: calc(100% + 6px);
+      top: calc(100% + 4px);
       left: 0;
-      width: 250px;
+      width: 220px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
-      border-radius: 12px;
-      padding: 14px;
+      border-radius: 10px;
+      padding: 12px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
       z-index: 1000;
       display: none;
@@ -308,11 +304,11 @@
     .palette-canvas-container {
       position: relative;
       width: 100%;
-      height: 120px;
+      height: 100px;
       border-radius: 6px;
       overflow: hidden;
       cursor: crosshair;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .palette-canvas {
@@ -325,13 +321,13 @@
       display: flex;
       flex-direction: column;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .palette-slider {
       width: 100%;
-      height: 10px;
-      border-radius: 5px;
+      height: 8px;
+      border-radius: 4px;
       outline: none;
       cursor: pointer;
       -webkit-appearance: none;
@@ -340,8 +336,8 @@
 
     .palette-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid #000000;
@@ -349,7 +345,7 @@
     }
 
     .palette-presets-label {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       margin-bottom: 4px;
     }
@@ -357,14 +353,14 @@
     .palette-presets-grid {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
-      gap: 5px;
-      margin-bottom: 10px;
+      gap: 4px;
+      margin-bottom: 8px;
     }
 
     .palette-preset-item {
       width: 100%;
       aspect-ratio: 1;
-      border-radius: 4px;
+      border-radius: 3px;
       border: 1px solid var(--card-border);
       cursor: pointer;
       transition: transform 0.15s;
@@ -380,9 +376,9 @@
       background-color: #27272a;
       border: 1px solid #3f3f46;
       color: var(--text-main);
-      font-size: 0.78rem;
-      padding: 6px;
-      border-radius: 6px;
+      font-size: 0.75rem;
+      padding: 5px;
+      border-radius: 5px;
       cursor: pointer;
       text-align: center;
       transition: background-color 0.2s;
@@ -600,7 +596,7 @@
       background-color: #2563eb;
     }
 
-    /* 通知設定画面の個別セクション */
+    /* 通知設定画面の個別セクション（overflowをvisibleに変更してポップアップがはみ出せるようにする） */
     .notice-setting-card {
       background-color: var(--input-bg);
       border: 1px solid var(--card-border);
@@ -609,6 +605,8 @@
       margin-bottom: 16px;
       cursor: pointer;
       transition: border-color 0.2s;
+      position: relative;
+      overflow: visible;
     }
     .notice-setting-card.active-notice {
       border-color: var(--accent-blue);
@@ -872,6 +870,19 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-welcome', '{channel}')">+ {channel}</span>
             </div>
             <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！" onclick="event.stopPropagation(); selectNoticeTab('welcome')"></textarea>
+            
+            <!-- 通知設定カード専用カラーパレットポップアップ -->
+            <div class="custom-palette-popup" id="palette-popup-welcome">
+              <div class="palette-canvas-container">
+                <canvas class="palette-canvas" id="canvas-welcome"></canvas>
+              </div>
+              <div class="palette-sliders">
+                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-welcome">
+              </div>
+              <div class="palette-presets-label">カラーテンプレート</div>
+              <div class="palette-presets-grid" id="presets-welcome"></div>
+              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('welcome')">デフォルトに戻す (#FFB6C1)</div>
+            </div>
           </div>
 
           <!-- 2. 通話参加メッセージ設定 -->
@@ -889,6 +900,18 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-join', '{channel}')">+ {channel}</span>
             </div>
             <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）" onclick="event.stopPropagation(); selectNoticeTab('join')"></textarea>
+            
+            <div class="custom-palette-popup" id="palette-popup-join">
+              <div class="palette-canvas-container">
+                <canvas class="palette-canvas" id="canvas-join"></canvas>
+              </div>
+              <div class="palette-sliders">
+                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-join">
+              </div>
+              <div class="palette-presets-label">カラーテンプレート</div>
+              <div class="palette-presets-grid" id="presets-join"></div>
+              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('join')">デフォルトに戻す (#57F287)</div>
+            </div>
           </div>
 
           <!-- 3. 通話移動メッセージ設定 -->
@@ -907,6 +930,18 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-move', '{new_channel}')">+ {new_channel}</span>
             </div>
             <textarea id="notif-move" class="form-textarea" placeholder="{user} さんが通話を移動しました。（{old_channel} ➔ {new_channel}）" onclick="event.stopPropagation(); selectNoticeTab('move')"></textarea>
+            
+            <div class="custom-palette-popup" id="palette-popup-move">
+              <div class="palette-canvas-container">
+                <canvas class="palette-canvas" id="canvas-move"></canvas>
+              </div>
+              <div class="palette-sliders">
+                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-move">
+              </div>
+              <div class="palette-presets-label">カラーテンプレート</div>
+              <div class="palette-presets-grid" id="presets-move"></div>
+              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('move')">デフォルトに戻す (#FEE75C)</div>
+            </div>
           </div>
 
           <!-- 4. 通話退出メッセージ設定 -->
@@ -924,6 +959,18 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-leave', '{channel}')">+ {channel}</span>
             </div>
             <textarea id="notif-leave" class="form-textarea" placeholder="{user} さんが通話を退出しました。（{channel}）" onclick="event.stopPropagation(); selectNoticeTab('leave')"></textarea>
+            
+            <div class="custom-palette-popup" id="palette-popup-leave">
+              <div class="palette-canvas-container">
+                <canvas class="palette-canvas" id="canvas-leave"></canvas>
+              </div>
+              <div class="palette-sliders">
+                <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-leave">
+              </div>
+              <div class="palette-presets-label">カラーテンプレート</div>
+              <div class="palette-presets-grid" id="presets-leave"></div>
+              <div class="palette-default-btn" onclick="applyNoticeDefaultColor('leave')">デフォルトに戻す (#ED4245)</div>
+            </div>
           </div>
 
           <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
@@ -956,19 +1003,6 @@
         </div>
       </div>
     </section>
-
-    <!-- 共有用カラーパレットポップアップ（通知設定画面用・デフォルトボタン付き） -->
-    <div class="custom-palette-popup" id="notice-palette-popup">
-      <div class="palette-canvas-container">
-        <canvas class="palette-canvas" id="notice-palette-canvas"></canvas>
-      </div>
-      <div class="palette-sliders">
-        <input type="range" min="0" max="360" value="120" class="palette-slider" id="notice-hue-slider">
-      </div>
-      <div class="palette-presets-label">カラーテンプレート</div>
-      <div class="palette-presets-grid" id="notice-preset-grid"></div>
-      <div class="palette-default-btn" onclick="applyNoticeDefaultColor()">デフォルトに戻す</div>
-    </div>
 
     <!-- 4. 稼働ログ画面 -->
     <section id="section-logs" class="content-section">
@@ -1076,12 +1110,12 @@
     };
 
     // --- 通知メッセージ設定関連のロジック ---
-    let activeNoticeType = 'welcome'; // 'welcome', 'join', 'move', 'leave'
+    let activeNoticeType = 'welcome';
     const noticeConfigData = {
-      welcome: { title: '🎉 メンバーが参加しました！', inputId: 'notif-welcome', colorInputId: 'color-welcome', previewBoxId: 'preview-box-welcome', defaultColor: '#FFB6C1', defaultText: '{user} さんサーバーへようこそ！' },
-      join: { title: '🔊 通話参加通知', inputId: 'notif-join', colorInputId: 'color-join', previewBoxId: 'preview-box-join', defaultColor: '#57F287', defaultText: '{user} さんが通話に参加しました。（{channel}）' },
-      move: { title: '🔄 通話移動通知', inputId: 'notif-move', colorInputId: 'color-move', previewBoxId: 'preview-box-move', defaultColor: '#FEE75C', defaultText: '{user} さんが通話を移動しました。（{old_channel} ➔ {new_channel}）' },
-      leave: { title: '🔇 通話退出通知', inputId: 'notif-leave', colorInputId: 'color-leave', previewBoxId: 'preview-box-leave', defaultColor: '#ED4245', defaultText: '{user} さんが通話を退出しました。（{channel}）' }
+      welcome: { title: '🎉 メンバーが参加しました！', inputId: 'notif-welcome', colorInputId: 'color-welcome', previewBoxId: 'preview-box-welcome', popupId: 'palette-popup-welcome', canvasId: 'canvas-welcome', sliderId: 'slider-welcome', presetsId: 'presets-welcome', defaultColor: '#FFB6C1' },
+      join: { title: '🔊 通話参加通知', inputId: 'notif-join', colorInputId: 'color-join', previewBoxId: 'preview-box-join', popupId: 'palette-popup-join', canvasId: 'canvas-join', sliderId: 'slider-join', presetsId: 'presets-join', defaultColor: '#57F287' },
+      move: { title: '🔄 通話移動通知', inputId: 'notif-move', colorInputId: 'color-move', previewBoxId: 'preview-box-move', popupId: 'palette-popup-move', canvasId: 'canvas-move', sliderId: 'slider-move', presetsId: 'presets-move', defaultColor: '#FEE75C' },
+      leave: { title: '🔇 通話退出通知', inputId: 'notif-leave', colorInputId: 'color-leave', previewBoxId: 'preview-box-leave', popupId: 'palette-popup-leave', canvasId: 'canvas-leave', sliderId: 'slider-leave', presetsId: 'presets-leave', defaultColor: '#ED4245' }
     };
 
     window.selectNoticeTab = function(type) {
@@ -1115,104 +1149,7 @@
       });
     });
 
-    // --- 通知用カラーパレットポップアップ制御 ---
-    const noticePalettePopup = document.getElementById("notice-palette-popup");
-    const noticePaletteCanvas = document.getElementById("notice-palette-canvas");
-    const noticeCtx = noticePaletteCanvas.getContext("2d");
-    const noticeHueSlider = document.getElementById("notice-hue-slider");
-    const noticePresetGrid = document.getElementById("notice-preset-grid");
-    let currentNoticeHue = 120;
-    let editingColorInputId = null;
-
-    window.openNoticePalette = function(type) {
-      event.stopPropagation();
-      activeNoticeType = type;
-      selectNoticeTab(type);
-      const conf = noticeConfigData[type];
-      editingColorInputId = conf.colorInputId;
-
-      const rect = document.getElementById(conf.previewBoxId).getBoundingClientRect();
-      noticePalettePopup.style.top = (rect.bottom + window.scrollY + 6) + 'px';
-      noticePalettePopup.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 270) + 'px';
-      noticePalettePopup.classList.add("open");
-      drawNoticePalette(currentNoticeHue);
-    };
-
-    function drawNoticePalette(hue) {
-      noticePaletteCanvas.width = 220;
-      noticePaletteCanvas.height = 120;
-      const width = noticePaletteCanvas.width;
-      const height = noticePaletteCanvas.height;
-
-      noticeCtx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-      noticeCtx.fillRect(0, 0, width, height);
-
-      const gradWhite = noticeCtx.createLinearGradient(0, 0, width, 0);
-      gradWhite.addColorStop(0, "rgba(255, 255, 255, 1)");
-      gradWhite.addColorStop(1, "rgba(255, 255, 255, 0)");
-      noticeCtx.fillStyle = gradWhite;
-      noticeCtx.fillRect(0, 0, width, height);
-
-      const gradBlack = noticeCtx.createLinearGradient(0, 0, 0, height);
-      gradBlack.addColorStop(0, "rgba(0, 0, 0, 0)");
-      gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
-      noticeCtx.fillStyle = gradBlack;
-      noticeCtx.fillRect(0, 0, width, height);
-    }
-
-    let isNoticeMouseDown = false;
-    noticePaletteCanvas.addEventListener("mousedown", (e) => { isNoticeMouseDown = true; pickNoticeColor(e); });
-    window.addEventListener("mouseup", () => { isNoticeMouseDown = false; });
-    noticePaletteCanvas.addEventListener("mousemove", (e) => { if (isNoticeMouseDown) pickNoticeColor(e); });
-
-    function pickNoticeColor(e) {
-      const rect = noticePaletteCanvas.getBoundingClientRect();
-      const x = Math.max(0, Math.min(e.clientX - rect.left, noticePaletteCanvas.width));
-      const y = Math.max(0, Math.min(e.clientY - rect.top, noticePaletteCanvas.height));
-      const pixel = noticeCtx.getImageData(x, y, 1, 1).data;
-      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
-      applyNoticeColor(hex);
-    }
-
-    noticeHueSlider.addEventListener("input", (e) => {
-      currentNoticeHue = e.target.value;
-      drawNoticePalette(currentNoticeHue);
-    });
-
-    window.updateNoticeColorFromInput = function(type, hex) {
-      if (/^#[0-9A-F]{6}$/i.test(hex)) {
-        const conf = noticeConfigData[type];
-        document.getElementById(conf.previewBoxId).style.backgroundColor = hex;
-        updateNoticePreviewUI();
-      }
-    };
-
-    function applyNoticeColor(hex) {
-      if (!editingColorInputId) return;
-      const colorInput = document.getElementById(editingColorInputId);
-      colorInput.value = hex;
-      const type = Object.keys(noticeConfigData).find(k => noticeConfigData[k].colorInputId === editingColorInputId);
-      if (type) {
-        document.getElementById(noticeConfigData[type].previewBoxId).style.backgroundColor = hex;
-        updateNoticePreviewUI();
-      }
-    }
-
-    window.applyNoticeDefaultColor = function() {
-      const type = Object.keys(noticeConfigData).find(k => noticeConfigData[k].colorInputId === editingColorInputId);
-      if (type) {
-        const defaultHex = noticeConfigData[type].defaultColor;
-        applyNoticeColor(defaultHex);
-        noticePalettePopup.classList.remove("open");
-      }
-    };
-
-    document.addEventListener("click", (e) => {
-      if (!noticePalettePopup.contains(e.target) && !e.target.classList.contains('notice-color-preview')) {
-        noticePalettePopup.classList.remove("open");
-      }
-    });
-
+    // --- 各カード独立型カラーパレットの初期化 ---
     const presetColors = [
       "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
       "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
@@ -1220,15 +1157,118 @@
       "#eab308", "#84cc16", "#ffffff", "#000000"
     ];
 
-    presetColors.forEach(hex => {
-      const item = document.createElement("div");
-      item.className = "palette-preset-item";
-      item.style.backgroundColor = hex;
-      item.addEventListener("click", () => {
-        applyNoticeColor(hex);
-        noticePalettePopup.classList.remove("open");
+    Object.keys(noticeConfigData).forEach(type => {
+      const conf = noticeConfigData[type];
+      const popup = document.getElementById(conf.popupId);
+      const canvas = document.getElementById(conf.canvasId);
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      const slider = document.getElementById(conf.sliderId);
+      const presetsGrid = document.getElementById(conf.presetsId);
+
+      let currentHue = 120;
+
+      function drawCanvas(hue) {
+        canvas.width = 196;
+        canvas.height = 100;
+        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const gradWhite = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        gradWhite.addColorStop(0, "rgba(255, 255, 255, 1)");
+        gradWhite.addColorStop(1, "rgba(255, 255, 255, 0)");
+        ctx.fillStyle = gradWhite;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        const gradBlack = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradBlack.addColorStop(0, "rgba(0, 0, 0, 0)");
+        gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
+        ctx.fillStyle = gradBlack;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      slider.addEventListener("input", (e) => {
+        currentHue = e.target.value;
+        drawCanvas(currentHue);
       });
-      noticePresetGrid.appendChild(item);
+
+      let isDrawing = false;
+      canvas.addEventListener("mousedown", (e) => { isDrawing = true; pickColor(e); });
+      window.addEventListener("mouseup", () => { isDrawing = false; });
+      canvas.addEventListener("mousemove", (e) => { if (isDrawing) pickColor(e); });
+
+      function pickColor(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.max(0, Math.min(e.clientX - rect.left, canvas.width));
+        const y = Math.max(0, Math.min(e.clientY - rect.top, canvas.height));
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
+        applyColorToNotice(type, hex);
+      }
+
+      presetColors.forEach(hex => {
+        const item = document.createElement("div");
+        item.className = "palette-preset-item";
+        item.style.backgroundColor = hex;
+        item.addEventListener("click", () => {
+          applyColorToNotice(type, hex);
+          popup.classList.remove("open");
+        });
+        presetsGrid.appendChild(item);
+      });
+    });
+
+    window.openNoticePalette = function(type) {
+      event.stopPropagation();
+      selectNoticeTab(type);
+      
+      // 他のポップアップをすべて閉じる
+      Object.keys(noticeConfigData).forEach(k => {
+        document.getElementById(noticeConfigData[k].popupId).classList.remove("open");
+      });
+
+      const conf = noticeConfigData[type];
+      const popup = document.getElementById(conf.popupId);
+      popup.classList.add("open");
+
+      // キャンバスを再描画
+      const canvas = document.getElementById(conf.canvasId);
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      canvas.width = 196;
+      canvas.height = 100;
+      ctx.fillStyle = `hsl(120, 100%, 50%)`;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    };
+
+    window.applyColorToNotice = function(type, hex) {
+      const conf = noticeConfigData[type];
+      document.getElementById(conf.colorInputId).value = hex;
+      document.getElementById(conf.previewBoxId).style.backgroundColor = hex;
+      if (activeNoticeType === type) {
+        updateNoticePreviewUI();
+      }
+    };
+
+    window.updateNoticeColorFromInput = function(type, hex) {
+      if (/^#[0-9A-F]{6}$/i.test(hex)) {
+        const conf = noticeConfigData[type];
+        document.getElementById(conf.previewBoxId).style.backgroundColor = hex;
+        if (activeNoticeType === type) updateNoticePreviewUI();
+      }
+    };
+
+    window.applyNoticeDefaultColor = function(type) {
+      const conf = noticeConfigData[type];
+      applyColorToNotice(type, conf.defaultColor);
+      document.getElementById(conf.popupId).classList.remove("open");
+    };
+
+    // パレット外クリックで閉じる
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest('.custom-palette-popup') && !e.target.classList.contains('notice-color-preview')) {
+        Object.keys(noticeConfigData).forEach(k => {
+          document.getElementById(noticeConfigData[k].popupId).classList.remove("open");
+        });
+      }
     });
 
     // --- 設定保存処理 ---
@@ -1244,10 +1284,10 @@
           if (data.voiceMoveTemplate) document.getElementById("notif-move").value = data.voiceMoveTemplate;
           if (data.voiceLeaveTemplate) document.getElementById("notif-leave").value = data.voiceLeaveTemplate;
 
-          if (data.welcomeColor) { document.getElementById("color-welcome").value = data.welcomeColor; document.getElementById("preview-box-welcome").style.backgroundColor = data.welcomeColor; }
-          if (data.joinColor) { document.getElementById("color-join").value = data.joinColor; document.getElementById("preview-box-join").style.backgroundColor = data.joinColor; }
-          if (data.moveColor) { document.getElementById("color-move").value = data.moveColor; document.getElementById("preview-box-move").style.backgroundColor = data.moveColor; }
-          if (data.leaveColor) { document.getElementById("color-leave").value = data.leaveColor; document.getElementById("preview-box-leave").style.backgroundColor = data.leaveColor; }
+          if (data.welcomeColor) applyColorToNotice('welcome', data.welcomeColor);
+          if (data.joinColor) applyColorToNotice('join', data.joinColor);
+          if (data.moveColor) applyColorToNotice('move', data.moveColor);
+          if (data.leaveColor) applyColorToNotice('leave', data.leaveColor);
 
           updateNoticePreviewUI();
         }
@@ -1352,8 +1392,8 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = 220;
-      paletteCanvas.height = 120;
+      paletteCanvas.width = 196;
+      paletteCanvas.height = 100;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
 
@@ -1606,7 +1646,7 @@
         document.getElementById('error-msg').textContent = "送信リクエストの追加に失敗しました。";
         document.getElementById('error-modal').classList.add('show');
       } finally {
-        sendMsgBtn.disabled = false;
+        sendMsgBtn.disabled, sendMsgBtn.disabled = false;
         sendMsgBtn.textContent = "Discordに送信";
       }
     });
