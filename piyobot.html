@@ -131,6 +131,7 @@
       padding: 24px;
       margin-bottom: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      position: relative;
     }
 
     .card h2 {
@@ -175,7 +176,7 @@
       margin-bottom: 8px;
     }
 
-    /* オリジナル・カスタムドロップダウン */
+    /* 洗練されたオリジナル・カスタムドロップダウン */
     .custom-select-container {
       position: relative;
       user-select: none;
@@ -201,7 +202,7 @@
 
     .custom-select-trigger::after {
       content: '▾';
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
       transition: transform 0.2s;
     }
@@ -215,13 +216,13 @@
       top: calc(100% + 6px);
       left: 0;
       right: 0;
-      background-color: #16161a;
-      border: 1px solid var(--card-border);
+      background-color: #1c1c21;
+      border: 1px solid #3f3f46;
       border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-      max-height: 220px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
+      max-height: 240px;
       overflow-y: auto;
-      z-index: 50;
+      z-index: 999; /* 完全に手前に表示されるよう最前面へ */
       display: none;
     }
 
@@ -230,11 +231,16 @@
     }
 
     .custom-option {
-      padding: 10px 16px;
-      font-size: 0.9rem;
+      padding: 12px 16px;
+      font-size: 0.92rem;
       color: var(--text-muted);
       cursor: pointer;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
       transition: background-color 0.15s, color 0.15s;
+    }
+
+    .custom-option:last-child {
+      border-bottom: none;
     }
 
     .custom-option:hover, .custom-option.selected {
@@ -307,7 +313,7 @@
       width: 6px;
     }
     .log-container::-webkit-scrollbar-thumb, .custom-select-options::-webkit-scrollbar-thumb {
-      background: #27272a;
+      background: #3f3f46;
       border-radius: 4px;
     }
 
@@ -330,12 +336,12 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(4px);
       display: flex;
       justify-content: center;
       align-items: center;
-      z-index: 1000;
+      z-index: 2000;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
@@ -426,12 +432,12 @@
       </div>
     </section>
 
-    <!-- 2. カスタムメッセージ画面（オリジナルUI式） -->
+    <!-- 2. カスタムメッセージ画面 -->
     <section id="section-custom" class="content-section">
       <div class="card">
         <h2>カスタムメッセージ送信</h2>
         
-        <!-- オリジナル・サーバー選択 -->
+        <!-- サーバー選択 -->
         <div class="form-group">
           <label>送信先サーバー</label>
           <div class="custom-select-container" id="guild-dropdown">
@@ -440,7 +446,7 @@
           </div>
         </div>
 
-        <!-- オリジナル・チャンネル選択 -->
+        <!-- チャンネル選択 -->
         <div class="form-group">
           <label>送信先チャンネル</label>
           <div class="custom-select-container" id="channel-dropdown">
@@ -468,7 +474,7 @@
     </section>
   </main>
 
-  <!-- オリジナル送信完了モーダル -->
+  <!-- 送信完了モーダル -->
   <div class="modal-overlay" id="success-modal">
     <div class="modal-card">
       <div class="modal-icon">✓</div>
@@ -478,7 +484,7 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & JS制御 -->
+  <!-- Firebase SDK & ロジック -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -531,7 +537,6 @@
       }
     };
 
-    // モーダル閉じる
     window.closeModal = function() {
       document.getElementById('success-modal').classList.remove('show');
     };
@@ -543,7 +548,6 @@
     const sendMsgBtn = document.getElementById("send-msg-btn");
     const messageInput = document.getElementById("message-input");
 
-    // カスタムドロップダウン関連
     const guildDropdown = document.getElementById("guild-dropdown");
     const guildTrigger = document.getElementById("guild-trigger");
     const guildOptions = document.getElementById("guild-options");
@@ -574,7 +578,7 @@
       channelDropdown.classList.remove("open");
     });
 
-    // 1. サーバー＆チャンネルデータの読み込みと反映
+    // 1. サーバー＆チャンネル読み込み
     async function loadGuilds() {
       try {
         const docSnap = await getDoc(doc(db, "settings", "guilds_cache"));
@@ -602,13 +606,12 @@
       guildTrigger.textContent = guild.name;
       guildDropdown.classList.remove("open");
 
-      // チャンネルの選択肢を初期化して構成
       channelTrigger.textContent = "チャンネルを選択してください";
       channelTrigger.dataset.enabled = "true";
       channelOptions.innerHTML = "";
       selectedChannelId = "";
 
-      if (guild.channels) {
+      if (guild.channels && guild.channels.length > 0) {
         guild.channels.forEach(c => {
           const opt = document.createElement("div");
           opt.className = "custom-option";
@@ -620,6 +623,12 @@
           });
           channelOptions.appendChild(opt);
         });
+      } else {
+        const opt = document.createElement("div");
+        opt.className = "custom-option";
+        opt.style.color = "var(--text-muted)";
+        opt.textContent = "利用可能なテキストチャンネルがありません";
+        channelOptions.appendChild(opt);
       }
     }
 
@@ -716,8 +725,6 @@
         });
 
         messageInput.value = "";
-        
-        // カスタム完了モーダルの表示
         document.getElementById('success-modal').classList.add('show');
       } catch (error) {
         console.error("送信エラー:", error);
