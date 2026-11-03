@@ -176,7 +176,45 @@
       margin-bottom: 8px;
     }
 
-    /* 洗練されたオリジナル・カスタムドロップダウン */
+    /* カラー選択エリア */
+    .color-picker-wrapper {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .color-input-native {
+      -webkit-appearance: none;
+      border: none;
+      width: 44px;
+      height: 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      background: none;
+    }
+
+    .color-input-native::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-input-native::-webkit-color-swatch {
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+    }
+
+    .color-text-input {
+      flex: 1;
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      outline: none;
+      font-family: monospace;
+    }
+
+    /* カスタムドロップダウン */
     .custom-select-container {
       position: relative;
       user-select: none;
@@ -222,7 +260,7 @@
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
       max-height: 240px;
       overflow-y: auto;
-      z-index: 999; /* 完全に手前に表示されるよう最前面へ */
+      z-index: 999;
       display: none;
     }
 
@@ -329,7 +367,7 @@
       margin-right: 8px;
     }
 
-    /* オリジナル完了モーダル */
+    /* 送信完了モーダル */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -455,6 +493,15 @@
           </div>
         </div>
 
+        <!-- アクセントカラー選択（カラーピッカー ＆ テキスト入力） -->
+        <div class="form-group">
+          <label for="color-picker">アクセントカラー（サイドバーの色）</label>
+          <div class="color-picker-wrapper">
+            <input type="color" id="color-picker" class="color-input-native" value="#32CD32">
+            <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
+          </div>
+        </div>
+
         <div class="form-group">
           <label for="message-input">メッセージ内容</label>
           <textarea id="message-input" class="form-textarea" placeholder="Discordに送信するメッセージを入力してください..."></textarea>
@@ -547,6 +594,21 @@
     const statusLabel = document.getElementById("status-label");
     const sendMsgBtn = document.getElementById("send-msg-btn");
     const messageInput = document.getElementById("message-input");
+
+    // カラーピッカー連動
+    const colorPicker = document.getElementById("color-picker");
+    const colorText = document.getElementById("color-text");
+
+    colorPicker.addEventListener("input", (e) => {
+      colorText.value = e.target.value;
+    });
+
+    colorText.addEventListener("input", (e) => {
+      let val = e.target.value;
+      if (/^#[0-9A-F]{6}$/i.test(val)) {
+        colorPicker.value = val;
+      }
+    });
 
     const guildDropdown = document.getElementById("guild-dropdown");
     const guildTrigger = document.getElementById("guild-trigger");
@@ -707,6 +769,7 @@
     // 4. メッセージ送信処理
     sendMsgBtn.addEventListener("click", async () => {
       const content = messageInput.value.trim();
+      const color = colorText.value.trim() || "#32CD32";
 
       if (!selectedChannelId || !content) {
         alert("送信先のサーバー・チャンネルとメッセージ内容をすべて選択・入力してください。");
@@ -720,6 +783,7 @@
         await addDoc(collection(db, "send_requests"), {
           channelId: selectedChannelId,
           content: content,
+          color: color,
           status: "pending",
           createdAt: serverTimestamp()
         });
