@@ -123,7 +123,6 @@
       display: block;
     }
 
-    /* 2カラムレイアウト */
     .custom-layout {
       display: grid;
       grid-template-columns: 1fr 380px;
@@ -176,6 +175,39 @@
       color: var(--text-main);
     }
 
+    /* ダッシュボード用グリッドカード */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .stat-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
     /* フォーム要素 */
     .form-group {
       margin-bottom: 20px;
@@ -187,6 +219,12 @@
       font-size: 0.88rem;
       color: var(--text-muted);
       margin-bottom: 8px;
+    }
+
+    .form-hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 4px;
     }
 
     /* カラーピッカーコンポーネント */
@@ -453,7 +491,7 @@
       color: #ffffff;
     }
 
-    .form-textarea {
+    .form-textarea, .form-input {
       width: 100%;
       background-color: var(--input-bg);
       border: 1px solid var(--card-border);
@@ -463,12 +501,15 @@
       font-size: 0.95rem;
       box-sizing: border-box;
       outline: none;
-      resize: vertical;
-      min-height: 120px;
       transition: border-color 0.2s;
     }
 
-    .form-textarea:focus {
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-textarea:focus, .form-input:focus {
       border-color: var(--accent-blue);
     }
 
@@ -534,7 +575,7 @@
       margin-right: 8px;
     }
 
-    /* モーダル共通オーバーレイ */
+    /* モーダル */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -617,6 +658,7 @@
     <ul class="sidebar-menu">
       <li class="active" id="menu-dashboard"><button onclick="switchTab('dashboard')">📊 ダッシュボード</button></li>
       <li id="menu-custom"><button onclick="switchTab('custom')">💬 カスタムメッセージ</button></li>
+      <li id="menu-notices"><button onclick="switchTab('notices')">⚙️ 通知メッセージ設定</button></li>
       <li id="menu-logs"><button onclick="switchTab('logs')">📜 稼働ログ</button></li>
       <li style="margin-top: 16px;"><a href="./" style="display:block; padding:12px 16px; color:var(--text-muted); text-decoration:none; font-size:0.95rem;">← メイン管理に戻る</a></li>
     </ul>
@@ -632,10 +674,26 @@
       <p id="page-desc">piyobot の稼働ステータスやコントロールを行います。</p>
     </header>
 
-    <!-- 1. ダッシュボード画面 -->
+    <!-- 1. ダッシュボード画面（詳細ステータス表示追加） -->
     <section id="section-dashboard" class="content-section active">
       <div class="card">
-        <h2>ボットステータス制御</h2>
+        <h2>システムステータス</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-title">ボット稼働状態</div>
+            <div class="stat-value" id="dash-status-text" style="color: var(--accent-green); font-size: 1.1rem;">オンライン</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">導入サーバー数</div>
+            <div class="stat-value" id="dash-guilds-count">-</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">レイテンシー (Ping)</div>
+            <div class="stat-value" id="dash-ping">- ms</div>
+          </div>
+        </div>
+
+        <h2>ボットコントロール</h2>
         <div class="status-text">
           現在の状態: <span class="status-badge" id="status-badge"></span><strong id="status-label">有効 (稼働中)</strong>
         </div>
@@ -650,7 +708,6 @@
         <div class="card" style="margin-bottom: 0;">
           <h2>カスタムメッセージ送信</h2>
           
-          <!-- サーバー選択 -->
           <div class="form-group">
             <label>送信先サーバー</label>
             <div class="custom-select-container" id="guild-dropdown">
@@ -659,7 +716,6 @@
             </div>
           </div>
 
-          <!-- チャンネル選択 -->
           <div class="form-group">
             <label>送信先チャンネル</label>
             <div class="custom-select-container" id="channel-dropdown">
@@ -668,7 +724,6 @@
             </div>
           </div>
 
-          <!-- アクセントカラー選択 -->
           <div class="form-group">
             <label for="color-text">アクセントカラー（サイドバーの色）</label>
             <div class="color-picker-wrapper">
@@ -676,7 +731,6 @@
               <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
             </div>
 
-            <!-- 自作カラーパレットポップアップ -->
             <div class="custom-palette-popup" id="palette-popup">
               <div class="palette-canvas-container" id="palette-container">
                 <canvas id="palette-canvas"></canvas>
@@ -696,7 +750,7 @@
           <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
         </div>
 
-        <!-- 右側：Discord風プレビュー構想図 -->
+        <!-- 右側：プレビュー -->
         <div>
           <div class="card" style="margin-bottom: 0;">
             <h2>送信プレビュー（構想図）</h2>
@@ -704,7 +758,6 @@
             
             <div class="preview-card-container">
               <div class="preview-header">
-                <!-- cat.png をアバターに適用 -->
                 <img src="cat.png" alt="bot avatar" class="preview-bot-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                 <div class="preview-bot-avatar" style="display:none; align-items:center; justify-content:center; font-weight:bold;">P</div>
                 <div>
@@ -724,7 +777,35 @@
       </div>
     </section>
 
-    <!-- 3. 稼働ログ画面 -->
+    <!-- 3. 通知メッセージ設定画面（新設） -->
+    <section id="section-notices" class="content-section">
+      <div class="card">
+        <h2>自動通知メッセージの編集</h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+          サーバーイベント発生時にボットが自動投稿する文面をカスタマイズできます。<br>
+          利用可能な変数: <code>{user}</code> (ユーザーメンション), <code>{channel}</code> (チャンネル名)
+        </p>
+
+        <div class="form-group">
+          <label>🎉 ウェルカムメッセージ (メンバー参加時)</label>
+          <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>🔊 ボイスチャンネル参加メッセージ</label>
+          <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>🔇 ボイスチャンネル退出メッセージ</label>
+          <textarea id="notif-leave" class="form-textarea" placeholder="{user} さんが通話を退出しました。（{channel}）"></textarea>
+        </div>
+
+        <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
+      </div>
+    </section>
+
+    <!-- 4. 稼働ログ画面 -->
     <section id="section-logs" class="content-section">
       <div class="card">
         <h2>リアルタイム稼働ログ</h2>
@@ -739,18 +820,18 @@
   <div class="modal-overlay" id="success-modal">
     <div class="modal-card">
       <div class="modal-icon">✓</div>
-      <h3>送信完了</h3>
-      <p>メッセージの送信リクエストを正しく受け付けました。</p>
+      <h3 id="success-title">送信完了</h3>
+      <p id="success-desc">メッセージの送信リクエストを正しく受け付けました。</p>
       <button class="btn btn-blue" style="width: 100%;" onclick="closeModal('success-modal')">閉じる</button>
     </div>
   </div>
 
-  <!-- 未入力・エラー用オリジナルモーダル -->
+  <!-- エラーモーダル -->
   <div class="modal-overlay" id="error-modal">
     <div class="modal-card">
       <div class="modal-icon error">!</div>
-      <h3>入力エラー</h3>
-      <p id="error-msg">送信先のサーバー・チャンネルとメッセージ内容をすべて選択・入力してください。</p>
+      <h3>通知</h3>
+      <p id="error-msg">エラーが発生しました。</p>
       <button class="btn btn-blue" style="width: 100%;" onclick="closeModal('error-modal')">閉じる</button>
     </div>
   </div>
@@ -800,6 +881,11 @@
         document.getElementById('menu-custom').classList.add('active');
         document.getElementById('page-title').textContent = 'カスタムメッセージ';
         document.getElementById('page-desc').textContent = 'ボットが導入されているサーバーとチャンネルを選択してメッセージを送信します。';
+      } else if (tabName === 'notices') {
+        document.getElementById('section-notices').classList.add('active');
+        document.getElementById('menu-notices').classList.add('active');
+        document.getElementById('page-title').textContent = '通知メッセージ設定';
+        document.getElementById('page-desc').textContent = 'ウェルカムメッセージや通話通知の文面をウェブから自由に編集できます。';
       } else if (tabName === 'logs') {
         document.getElementById('section-logs').classList.add('active');
         document.getElementById('menu-logs').classList.add('active');
@@ -811,6 +897,52 @@
     window.closeModal = function(modalId) {
       document.getElementById(modalId).classList.remove('show');
     };
+
+    // --- 自動通知文面のロード ＆ 保存 ---
+    const notifWelcome = document.getElementById("notif-welcome");
+    const notifJoin = document.getElementById("notif-join");
+    const notifLeave = document.getElementById("notif-leave");
+    const saveNotifsBtn = document.getElementById("save-notifs-btn");
+
+    async function loadNotificationConfig() {
+      try {
+        const docSnap = await getDoc(doc(db, "settings", "bot_config"));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.welcomeTemplate) notifWelcome.value = data.welcomeTemplate;
+          if (data.voiceJoinTemplate) notifJoin.value = data.voiceJoinTemplate;
+          if (data.voiceLeaveTemplate) notifLeave.value = data.voiceLeaveTemplate;
+        }
+      } catch (e) {
+        console.error("通知設定の読み込みエラー:", e);
+      }
+    }
+    loadNotificationConfig();
+
+    saveNotifsBtn.addEventListener("click", async () => {
+      try {
+        saveNotifsBtn.disabled = true;
+        saveNotifsBtn.textContent = "保存中...";
+
+        await setDoc(doc(db, "settings", "bot_config"), {
+          welcomeTemplate: notifWelcome.value,
+          voiceJoinTemplate: notifJoin.value,
+          voiceLeaveTemplate: notifLeave.value,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        document.getElementById('success-title').textContent = "保存完了";
+        document.getElementById('success-desc').textContent = "通知メッセージの設定を正常に保存しました！";
+        document.getElementById('success-modal').classList.add('show');
+      } catch (e) {
+        console.error("設定保存エラー:", e);
+        document.getElementById('error-msg').textContent = "設定の保存に失敗しました。";
+        document.getElementById('error-modal').classList.add('show');
+      } finally {
+        saveNotifsBtn.disabled = false;
+        saveNotifsBtn.textContent = "設定を保存する";
+      }
+    });
 
     // --- カラーピッカー ＆ プレビュー連動ロジック ---
     const colorPreview = document.getElementById("color-preview");
@@ -865,7 +997,6 @@
       return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
     }
 
-    // パレットポップアップの開閉制御
     colorPreview.addEventListener("click", (e) => {
       e.stopPropagation();
       const isOpen = palettePopup.classList.contains("open");
@@ -877,14 +1008,8 @@
       }
     });
 
-    // パレット内部をクリックしても閉じないようにする
-    palettePopup.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-
-    document.addEventListener("click", () => {
-      palettePopup.classList.remove("open");
-    });
+    palettePopup.addEventListener("click", (e) => { e.stopPropagation(); });
+    document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
       paletteCanvas.width = paletteCanvas.offsetWidth;
@@ -909,14 +1034,9 @@
     }
 
     let isMouseDown = false;
-    paletteCanvas.addEventListener("mousedown", (e) => {
-      isMouseDown = true;
-      pickColorFromCanvas(e);
-    });
+    paletteCanvas.addEventListener("mousedown", (e) => { isMouseDown = true; pickColorFromCanvas(e); });
     window.addEventListener("mouseup", () => { isMouseDown = false; });
-    paletteCanvas.addEventListener("mousemove", (e) => {
-      if (isMouseDown) pickColorFromCanvas(e);
-    });
+    paletteCanvas.addEventListener("mousemove", (e) => { if (isMouseDown) pickColorFromCanvas(e); });
 
     function pickColorFromCanvas(e) {
       const rect = paletteCanvas.getBoundingClientRect();
@@ -934,9 +1054,7 @@
 
     colorText.addEventListener("input", (e) => {
       let val = e.target.value;
-      if (/^#[0-9A-F]{6}$/i.test(val)) {
-        updateColor(val, true);
-      }
+      if (/^#[0-9A-F]{6}$/i.test(val)) { updateColor(val, true); }
     });
 
     messageInput.addEventListener("input", (e) => {
@@ -944,7 +1062,6 @@
       previewMsgBox.textContent = text || "ここにメッセージの内容がリアルタイムで反映されます...";
     });
 
-    // カラーテンプレート（プリセット）
     const presetColors = [
       "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
       "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
@@ -956,18 +1073,18 @@
       const item = document.createElement("div");
       item.className = "palette-preset-item";
       item.style.backgroundColor = hex;
-      item.addEventListener("click", () => {
-        updateColor(hex, true);
-        // テンプレート選択時はパレットを開いたままにするか閉じたい場合はここで制御（現在は開いたまま微調整可能）
-      });
+      item.addEventListener("click", () => { updateColor(hex, true); });
       presetGrid.appendChild(item);
     });
 
-    // --- その他操作ロジック ---
+    // --- ダッシュボードのステータス情報＆ボットコントロール ---
     const logListEl = document.getElementById("log-list");
     const toggleBtn = document.getElementById("toggle-btn");
     const statusBadge = document.getElementById("status-badge");
     const statusLabel = document.getElementById("status-label");
+    const dashStatusText = document.getElementById("dash-status-text");
+    const dashGuildsCount = document.getElementById("dash-guilds-count");
+    const dashPing = document.getElementById("dash-ping");
     const sendMsgBtn = document.getElementById("send-msg-btn");
 
     const guildDropdown = document.getElementById("guild-dropdown");
@@ -1003,7 +1120,9 @@
       try {
         const docSnap = await getDoc(doc(db, "settings", "guilds_cache"));
         if (docSnap.exists()) {
-          loadedGuilds = docSnap.data().guilds || [];
+          const data = docSnap.data();
+          loadedGuilds = data.guilds || [];
+          dashGuildsCount.textContent = loadedGuilds.length + " 個";
           guildOptions.innerHTML = "";
 
           loadedGuilds.forEach(g => {
@@ -1015,6 +1134,7 @@
           });
         } else {
           guildTrigger.textContent = "サーバーが見つかりません";
+          dashGuildsCount.textContent = "0 個";
         }
       } catch (e) {
         console.error("サーバー読み込みエラー:", e);
@@ -1052,11 +1172,7 @@
       }
     }
 
-    const q = query(
-      collection(db, "bot_logs"), 
-      orderBy("timestamp", "desc"), 
-      limit(25)
-    );
+    const q = query(collection(db, "bot_logs"), orderBy("timestamp", "desc"), limit(25));
 
     onSnapshot(q, (snapshot) => {
       logListEl.innerHTML = "";
@@ -1104,11 +1220,15 @@
         statusBadge.style.backgroundColor = "var(--accent-green)";
         statusBadge.style.boxShadow = "0 0 8px var(--accent-green)";
         statusLabel.textContent = "有効 (稼働中)";
+        dashStatusText.textContent = "オンライン (稼働中)";
+        dashStatusText.style.color = "var(--accent-green)";
         toggleBtn.textContent = "ボットを停止する";
       } else {
         statusBadge.style.backgroundColor = "var(--accent-red)";
         statusBadge.style.boxShadow = "0 0 8px var(--accent-red)";
         statusLabel.textContent = "停止中";
+        dashStatusText.textContent = "停止中";
+        dashStatusText.style.color = "var(--accent-red)";
         toggleBtn.textContent = "ボットを再開する";
       }
     });
@@ -1146,6 +1266,8 @@
 
         messageInput.value = "";
         previewMsgBox.textContent = "ここにメッセージの内容がリアルタイムで反映されます...";
+        document.getElementById('success-title').textContent = "送信完了";
+        document.getElementById('success-desc').textContent = "メッセージの送信リクエストを正しく受け付けました。";
         document.getElementById('success-modal').classList.add('show');
       } catch (error) {
         console.error("送信エラー:", error);
