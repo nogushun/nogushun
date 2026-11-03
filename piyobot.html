@@ -198,7 +198,7 @@
       margin-bottom: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
       position: relative;
-      overflow: visible; /* ポップアップがカードからはみ出せるようにする */
+      overflow: visible;
     }
 
     .card h2 {
@@ -326,12 +326,12 @@
       font-family: monospace;
     }
 
-    /* カラーパレットポップアップ（ジャストサイズ設計） */
+    /* カラーパレットポップアップ（幅・高さコンパクト化） */
     .custom-palette-popup {
       position: absolute;
       top: calc(100% + 8px);
       left: 0;
-      width: 230px;
+      width: 250px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
       border-radius: 10px;
@@ -350,7 +350,7 @@
     .palette-canvas-container {
       position: relative;
       width: 100%;
-      height: 100px;
+      height: 90px;
       border-radius: 6px;
       overflow: hidden;
       cursor: crosshair;
@@ -1297,8 +1297,8 @@
       let currentHue = 120;
 
       function drawCanvas(hue) {
-        canvas.width = 206;
-        canvas.height = 100;
+        canvas.width = 226;
+        canvas.height = 90;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1364,8 +1364,8 @@
 
       const canvas = document.getElementById(conf.canvasId);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      canvas.width = 206;
-      canvas.height = 100;
+      canvas.width = 226;
+      canvas.height = 90;
       ctx.fillStyle = `hsl(120, 100%, 50%)`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
@@ -1522,8 +1522,8 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = 206;
-      paletteCanvas.height = 100;
+      paletteCanvas.width = 226;
+      paletteCanvas.height = 90;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
 
