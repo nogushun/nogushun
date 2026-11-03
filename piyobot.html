@@ -6,15 +6,16 @@
   <title>piyobot 管理パネル</title>
   <style>
     :root {
-      --bg-color: #000000;
-      --card-bg: #09090b;
+      --bg-color: #0c0c0e;
+      --sidebar-bg: #121216;
+      --card-bg: #18181c;
       --card-border: #27272a;
       --text-main: #f4f4f5;
       --text-muted: #a1a1aa;
       --accent-green: #22c55e;
       --accent-red: #ef4444;
       --accent-blue: #3b82f6;
-      --log-bg: #030305;
+      --log-bg: #09090b;
     }
 
     body {
@@ -24,29 +25,77 @@
       background-color: var(--bg-color);
       color: var(--text-main);
       display: flex;
-      justify-content: center;
       min-height: 100vh;
     }
 
-    .container {
-      width: 100%;
-      max-width: 800px;
-      padding: 40px 20px;
+    /* サイドメニュー */
+    aside {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 16px;
       box-sizing: border-box;
     }
 
+    .sidebar-brand {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sidebar-menu li a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-menu li a:hover, .sidebar-menu li.active a {
+      background-color: #27272a;
+      color: #ffffff;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* メインコンテンツ */
+    main {
+      flex: 1;
+      padding: 40px;
+      box-sizing: border-box;
+      max-width: 900px;
+    }
+
     header {
-      text-align: center;
       margin-bottom: 30px;
     }
 
     header h1 {
-      font-size: 2rem;
-      margin: 0 0 8px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      font-size: 1.8rem;
+      margin: 0 0 6px 0;
       color: #ffffff;
     }
 
@@ -62,11 +111,11 @@
       border-radius: 12px;
       padding: 24px;
       margin-bottom: 24px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     .card h2 {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       margin-top: 0;
       margin-bottom: 16px;
       border-bottom: 1px solid var(--card-border);
@@ -94,7 +143,7 @@
       color: var(--text-main);
     }
 
-    /* フォーム用スタイル */
+    /* フォーム要素 */
     .form-group {
       margin-bottom: 16px;
     }
@@ -108,10 +157,10 @@
 
     .form-input, .form-textarea {
       width: 100%;
-      background-color: #030305;
+      background-color: var(--log-bg);
       border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 10px 12px;
+      border-radius: 8px;
+      padding: 10px 14px;
       color: var(--text-main);
       font-size: 0.95rem;
       box-sizing: border-box;
@@ -129,34 +178,36 @@
     }
 
     .btn {
-      background-color: #18181b;
-      color: var(--accent-red);
+      background-color: #27272a;
+      color: var(--text-main);
       border: 1px solid #3f3f46;
       padding: 10px 20px;
       font-size: 0.95rem;
       font-weight: bold;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    .btn:hover {
+    .btn-danger {
+      color: var(--accent-red);
+    }
+    .btn-danger:hover {
       background-color: var(--accent-red);
       color: #ffffff;
       border-color: var(--accent-red);
     }
 
     .btn-blue {
-      color: #ffffff;
       background-color: var(--accent-blue);
+      color: #ffffff;
       border-color: var(--accent-blue);
     }
-
     .btn-blue:hover {
       background-color: #2563eb;
-      border-color: #2563eb;
     }
 
+    /* ログコンテナ */
     .log-container {
       background-color: var(--log-bg);
       border: 1px solid var(--card-border);
@@ -164,7 +215,7 @@
       padding: 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.88rem;
-      max-height: 380px;
+      max-height: 320px;
       overflow-y: auto;
     }
 
@@ -172,14 +223,11 @@
       width: 8px;
     }
     .log-container::-webkit-scrollbar-track {
-      background: #030305;
+      background: var(--log-bg);
     }
     .log-container::-webkit-scrollbar-thumb {
       background: #27272a;
       border-radius: 4px;
-    }
-    .log-container::-webkit-scrollbar-thumb:hover {
-      background: #3f3f46;
     }
 
     .log-item {
@@ -202,30 +250,42 @@
       color: #ffffff;
     }
 
-    footer {
-      text-align: center;
-      margin-top: 32px;
-    }
-
-    footer a {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.2s;
-    }
-
-    footer a:hover {
-      color: #ffffff;
-      text-decoration: underline;
+    /* レスポンシブ対応 */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        padding: 16px;
+      }
+      main {
+        padding: 20px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
+  <!-- 左側サイドメニュー -->
+  <aside>
+    <div class="sidebar-brand">
+      🐤 piyobot
+    </div>
+    <ul class="sidebar-menu">
+      <li class="active"><a href="#">📊 ダッシュボード</a></li>
+      <li><a href="./">← メイン管理に戻る</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <span style="font-size: 0.8rem; color: var(--text-muted);">Status: Online</span>
+    </div>
+  </aside>
+
+  <!-- メインコンテンツエリア -->
+  <main>
     <header>
-      <h1>🐤 piyobot 管理パネル</h1>
-      <p>Discordボットの稼働状態やログをリアルタイムで管理します。</p>
+      <h1>管理ダッシュボード</h1>
+      <p>piyobot の稼働ステータス監視、Discordメッセージ送信、リアルタイムログ確認を行います。</p>
     </header>
 
     <!-- ボットステータス制御 -->
@@ -234,35 +294,31 @@
       <div class="status-text">
         現在の状態: <span class="status-badge" id="status-badge"></span><strong id="status-label">有効 (稼働中)</strong>
       </div>
-      <button class="btn" id="toggle-btn">ボットを停止する</button>
+      <button class="btn btn-danger" id="toggle-btn">ボットを停止する</button>
     </div>
 
-    <!-- メッセージ送信フォーム (新規追加) -->
+    <!-- カスタムメッセージ送信フォーム -->
     <div class="card">
-      <h2>Discord メッセージ送信</h2>
+      <h2>カスタムメッセージ送信</h2>
       <div class="form-group">
-        <label for="channel-id-input">チャンネルID</label>
+        <label for="channel-id-input">送信先チャンネルID</label>
         <input type="text" id="channel-id-input" class="form-input" placeholder="例: 123456789012345678" />
       </div>
       <div class="form-group">
-        <label for="message-input">送信メッセージ</label>
-        <textarea id="message-input" class="form-textarea" placeholder="Discordに送信したいメッセージを入力..."></textarea>
+        <label for="message-input">メッセージ内容</label>
+        <textarea id="message-input" class="form-textarea" placeholder="Discordに送信するメッセージを入力してください..."></textarea>
       </div>
-      <button class="btn btn-blue" id="send-msg-btn">メッセージを送信</button>
+      <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
     </div>
 
     <!-- 最新の稼働ログ -->
     <div class="card">
-      <h2>最新の稼働ログ</h2>
+      <h2>リアルタイム稼働ログ</h2>
       <div class="log-container" id="log-list">
         <div class="log-item" style="color: var(--text-muted);">ログを読み込んでいます...</div>
       </div>
     </div>
-
-    <footer>
-      <a href="./">← 管理者ページに戻る</a>
-    </footer>
-  </div>
+  </main>
 
   <!-- Firebase SDK (Modular v10+) -->
   <script type="module">
@@ -384,7 +440,7 @@
       const content = messageInput.value.trim();
 
       if (!channelId || !content) {
-        alert("チャンネルIDと送信メッセージの両方を入力してください。");
+        alert("チャンネルIDとメッセージ内容の両方を入力してください。");
         return;
       }
 
@@ -392,7 +448,6 @@
         sendMsgBtn.disabled = true;
         sendMsgBtn.textContent = "送信中...";
 
-        // Firestoreの send_requests コレクションにリクエストを追加
         await addDoc(collection(db, "send_requests"), {
           channelId: channelId,
           content: content,
@@ -401,13 +456,13 @@
         });
 
         messageInput.value = "";
-        alert("送信リクエストを出しました！");
+        alert("Discordへの送信リクエストを送信しました！");
       } catch (error) {
         console.error("送信エラー:", error);
         alert("送信リクエストの追加に失敗しました。");
       } finally {
         sendMsgBtn.disabled = false;
-        sendMsgBtn.textContent = "メッセージを送信";
+        sendMsgBtn.textContent = "Discordに送信";
       }
     });
   </script>
