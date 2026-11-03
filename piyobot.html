@@ -16,6 +16,7 @@
       --accent-red: #ef4444;
       --accent-blue: #3b82f6;
       --log-bg: #09090b;
+      --input-bg: #121215;
     }
 
     body {
@@ -115,7 +116,7 @@
       font-size: 0.95rem;
     }
 
-    /* 画面切り替え用セクション */
+    /* 画面切り替えセクション */
     .content-section {
       display: none;
     }
@@ -163,36 +164,101 @@
 
     /* フォーム要素 */
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 20px;
+      position: relative;
     }
 
     .form-group label {
       display: block;
       font-size: 0.88rem;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
-    .form-select, .form-textarea {
-      width: 100%;
-      background-color: var(--log-bg);
+    /* オリジナル・カスタムドロップダウン */
+    .custom-select-container {
+      position: relative;
+      user-select: none;
+    }
+
+    .custom-select-trigger {
+      background-color: var(--input-bg);
       border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 12px 16px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .custom-select-trigger:hover {
+      border-color: #3f3f46;
+    }
+
+    .custom-select-trigger::after {
+      content: '▾';
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      transition: transform 0.2s;
+    }
+
+    .custom-select-container.open .custom-select-trigger::after {
+      transform: rotate(180deg);
+    }
+
+    .custom-select-options {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background-color: #16161a;
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      max-height: 220px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+    }
+
+    .custom-select-container.open .custom-select-options {
+      display: block;
+    }
+
+    .custom-option {
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s;
+    }
+
+    .custom-option:hover, .custom-option.selected {
+      background-color: #27272a;
+      color: #ffffff;
+    }
+
+    .form-textarea {
+      width: 100%;
+      background-color: var(--input-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px 16px;
       color: var(--text-main);
       font-size: 0.95rem;
       box-sizing: border-box;
       outline: none;
+      resize: vertical;
+      min-height: 120px;
       transition: border-color 0.2s;
     }
 
-    .form-select:focus, .form-textarea:focus {
+    .form-textarea:focus {
       border-color: var(--accent-blue);
-    }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 120px;
     }
 
     .btn {
@@ -237,13 +303,10 @@
       overflow-y: auto;
     }
 
-    .log-container::-webkit-scrollbar {
-      width: 8px;
+    .log-container::-webkit-scrollbar, .custom-select-options::-webkit-scrollbar {
+      width: 6px;
     }
-    .log-container::-webkit-scrollbar-track {
-      background: var(--log-bg);
-    }
-    .log-container::-webkit-scrollbar-thumb {
+    .log-container::-webkit-scrollbar-thumb, .custom-select-options::-webkit-scrollbar-thumb {
       background: #27272a;
       border-radius: 4px;
     }
@@ -255,23 +318,81 @@
       word-break: break-all;
     }
 
-    .log-item:last-child {
-      margin-bottom: 0;
-    }
-
     .log-time {
       color: #71717a;
       margin-right: 8px;
     }
 
-    .log-item strong {
+    /* オリジナル完了モーダル */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 32px;
+      text-align: center;
+      max-width: 360px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-overlay.show .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-icon {
+      width: 60px;
+      height: 60px;
+      background-color: rgba(34, 197, 94, 0.15);
+      color: var(--accent-green);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 16px auto;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .modal-card h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.3rem;
       color: #ffffff;
+    }
+
+    .modal-card p {
+      margin: 0 0 24px 0;
+      color: var(--text-muted);
+      font-size: 0.9rem;
     }
   </style>
 </head>
 <body>
 
-  <!-- 左側サイドメニュー（タブ切り替え） -->
+  <!-- 左側サイドメニュー -->
   <aside>
     <div class="sidebar-brand">
       🐤 piyobot
@@ -305,22 +426,29 @@
       </div>
     </section>
 
-    <!-- 2. カスタムメッセージ画面（サーバー自動検知式） -->
+    <!-- 2. カスタムメッセージ画面（オリジナルUI式） -->
     <section id="section-custom" class="content-section">
       <div class="card">
         <h2>カスタムメッセージ送信</h2>
+        
+        <!-- オリジナル・サーバー選択 -->
         <div class="form-group">
-          <label for="guild-select">送信先サーバー</label>
-          <select id="guild-select" class="form-select">
-            <option value="">サーバーを読み込んでいます...</option>
-          </select>
+          <label>送信先サーバー</label>
+          <div class="custom-select-container" id="guild-dropdown">
+            <div class="custom-select-trigger" id="guild-trigger">サーバーを選択してください</div>
+            <div class="custom-select-options" id="guild-options"></div>
+          </div>
         </div>
+
+        <!-- オリジナル・チャンネル選択 -->
         <div class="form-group">
-          <label for="channel-select">送信先チャンネル</label>
-          <select id="channel-select" class="form-select">
-            <option value="">先にサーバーを選択してください</option>
-          </select>
+          <label>送信先チャンネル</label>
+          <div class="custom-select-container" id="channel-dropdown">
+            <div class="custom-select-trigger" id="channel-trigger">先にサーバーを選択してください</div>
+            <div class="custom-select-options" id="channel-options"></div>
+          </div>
         </div>
+
         <div class="form-group">
           <label for="message-input">メッセージ内容</label>
           <textarea id="message-input" class="form-textarea" placeholder="Discordに送信するメッセージを入力してください..."></textarea>
@@ -340,7 +468,17 @@
     </section>
   </main>
 
-  <!-- Firebase SDK & 画面切り替えロジック -->
+  <!-- オリジナル送信完了モーダル -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="modal-card">
+      <div class="modal-icon">✓</div>
+      <h3>送信完了</h3>
+      <p>メッセージの送信リクエストを正しく受け付けました。</p>
+      <button class="btn btn-blue" style="width: 100%;" onclick="closeModal()">閉じる</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK & JS制御 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -370,7 +508,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // タブ切り替え関数をグローバルに定義
+    // タブ切り替え
     window.switchTab = function(tabName) {
       document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
@@ -393,32 +531,66 @@
       }
     };
 
+    // モーダル閉じる
+    window.closeModal = function() {
+      document.getElementById('success-modal').classList.remove('show');
+    };
+
     const logListEl = document.getElementById("log-list");
     const toggleBtn = document.getElementById("toggle-btn");
     const statusBadge = document.getElementById("status-badge");
     const statusLabel = document.getElementById("status-label");
     const sendMsgBtn = document.getElementById("send-msg-btn");
-    const guildSelect = document.getElementById("guild-select");
-    const channelSelect = document.getElementById("channel-select");
     const messageInput = document.getElementById("message-input");
 
-    let loadedGuilds = [];
+    // カスタムドロップダウン関連
+    const guildDropdown = document.getElementById("guild-dropdown");
+    const guildTrigger = document.getElementById("guild-trigger");
+    const guildOptions = document.getElementById("guild-options");
 
-    // 1. ボットが参加しているサーバー一覧をFirestoreから読み込む
+    const channelDropdown = document.getElementById("channel-dropdown");
+    const channelTrigger = document.getElementById("channel-trigger");
+    const channelOptions = document.getElementById("channel-options");
+
+    let loadedGuilds = [];
+    let selectedChannelId = "";
+
+    // ドロップダウン開閉の制御
+    guildTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      channelDropdown.classList.remove("open");
+      guildDropdown.classList.toggle("open");
+    });
+
+    channelTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!channelTrigger.dataset.enabled) return;
+      guildDropdown.classList.remove("open");
+      channelDropdown.classList.toggle("open");
+    });
+
+    document.addEventListener("click", () => {
+      guildDropdown.classList.remove("open");
+      channelDropdown.classList.remove("open");
+    });
+
+    // 1. サーバー＆チャンネルデータの読み込みと反映
     async function loadGuilds() {
       try {
         const docSnap = await getDoc(doc(db, "settings", "guilds_cache"));
         if (docSnap.exists()) {
           loadedGuilds = docSnap.data().guilds || [];
-          guildSelect.innerHTML = '<option value="">サーバーを選択してください</option>';
+          guildOptions.innerHTML = "";
+
           loadedGuilds.forEach(g => {
-            const opt = document.createElement("option");
-            opt.value = g.id;
+            const opt = document.createElement("div");
+            opt.className = "custom-option";
             opt.textContent = g.name;
-            guildSelect.appendChild(opt);
+            opt.addEventListener("click", () => selectGuild(g));
+            guildOptions.appendChild(opt);
           });
         } else {
-          guildSelect.innerHTML = '<option value="">サーバーが見つかりません（ボットを起動してください）</option>';
+          guildTrigger.textContent = "サーバーが見つかりません";
         }
       } catch (e) {
         console.error("サーバー読み込みエラー:", e);
@@ -426,21 +598,30 @@
     }
     loadGuilds();
 
-    // サーバーが変更されたら、そのサーバー内のチャンネルをセレクトボックスに反映
-    guildSelect.addEventListener("change", (e) => {
-      const guildId = e.target.value;
-      channelSelect.innerHTML = '<option value="">チャンネルを選択してください</option>';
+    function selectGuild(guild) {
+      guildTrigger.textContent = guild.name;
+      guildDropdown.classList.remove("open");
 
-      const selectedGuild = loadedGuilds.find(g => g.id === guildId);
-      if (selectedGuild && selectedGuild.channels) {
-        selectedGuild.channels.forEach(c => {
-          const opt = document.createElement("option");
-          opt.value = c.id;
+      // チャンネルの選択肢を初期化して構成
+      channelTrigger.textContent = "チャンネルを選択してください";
+      channelTrigger.dataset.enabled = "true";
+      channelOptions.innerHTML = "";
+      selectedChannelId = "";
+
+      if (guild.channels) {
+        guild.channels.forEach(c => {
+          const opt = document.createElement("div");
+          opt.className = "custom-option";
           opt.textContent = `# ${c.name}`;
-          channelSelect.appendChild(opt);
+          opt.addEventListener("click", () => {
+            channelTrigger.textContent = `# ${c.name}`;
+            selectedChannelId = c.id;
+            channelDropdown.classList.remove("open");
+          });
+          channelOptions.appendChild(opt);
         });
       }
-    });
+    }
 
     // 2. リアルタイムログ監視
     const q = query(
@@ -516,11 +697,10 @@
 
     // 4. メッセージ送信処理
     sendMsgBtn.addEventListener("click", async () => {
-      const channelId = channelSelect.value;
       const content = messageInput.value.trim();
 
-      if (!channelId || !content) {
-        alert("送信先のサーバー・チャンネルとメッセージ内容をすべて入力してください。");
+      if (!selectedChannelId || !content) {
+        alert("送信先のサーバー・チャンネルとメッセージ内容をすべて選択・入力してください。");
         return;
       }
 
@@ -529,14 +709,16 @@
         sendMsgBtn.textContent = "送信中...";
 
         await addDoc(collection(db, "send_requests"), {
-          channelId: channelId,
+          channelId: selectedChannelId,
           content: content,
           status: "pending",
           createdAt: serverTimestamp()
         });
 
         messageInput.value = "";
-        alert("Discordへの送信リクエストを送信しました！");
+        
+        // カスタム完了モーダルの表示
+        document.getElementById('success-modal').classList.add('show');
       } catch (error) {
         console.error("送信エラー:", error);
         alert("送信リクエストの追加に失敗しました。");
