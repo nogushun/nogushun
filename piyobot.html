@@ -97,7 +97,7 @@
       margin-left: 260px;
       padding: 40px;
       box-sizing: border-box;
-      max-width: 900px;
+      max-width: 1100px;
     }
 
     header {
@@ -116,12 +116,25 @@
       font-size: 0.95rem;
     }
 
-    /* 画面切り替えセクション */
     .content-section {
       display: none;
     }
     .content-section.active {
       display: block;
+    }
+
+    /* 2カラムレイアウト（左：フォーム、右：プレビュー構想図） */
+    .custom-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .custom-layout {
+        grid-template-columns: 1fr;
+      }
     }
 
     .card {
@@ -176,7 +189,7 @@
       margin-bottom: 8px;
     }
 
-    /* 自作ブラック・カラーピッカーコンポーネント */
+    /* カラーピッカーコンポーネント */
     .color-picker-wrapper {
       display: flex;
       gap: 12px;
@@ -215,7 +228,7 @@
       border-color: var(--accent-blue);
     }
 
-    /* 完全オリジナルのカスタムカラーパレット（ポップアップ） */
+    /* 自作カラーパレットポップアップ */
     .custom-palette-popup {
       position: absolute;
       top: calc(100% + 6px);
@@ -302,6 +315,75 @@
     .palette-preset-item:hover {
       transform: scale(1.15);
       border-color: #ffffff;
+    }
+
+    /* Discord風プレビュー構想図カード */
+    .preview-card-container {
+      background-color: #313338;
+      border-radius: 8px;
+      padding: 16px;
+      color: #dbdee1;
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      border: 1px solid #3f4147;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .preview-bot-avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #5865f2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .preview-bot-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-bot-name {
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .preview-bot-tag {
+      background-color: #5865f2;
+      color: #ffffff;
+      font-size: 0.7rem;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .preview-time {
+      font-size: 0.75rem;
+      color: #949ba4;
+    }
+
+    .preview-message-box {
+      position: relative;
+      background-color: #2b2d31;
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-left: 52px;
+      border-left: 4px solid #32CD32; /* ここがカラーと連動 */
+      word-break: break-all;
+      white-space: pre-wrap;
+      min-height: 24px;
+      color: #dbdee1;
     }
 
     /* カスタムドロップダウン */
@@ -562,53 +644,80 @@
 
     <!-- 2. カスタムメッセージ画面 -->
     <section id="section-custom" class="content-section">
-      <div class="card">
-        <h2>カスタムメッセージ送信</h2>
-        
-        <!-- サーバー選択 -->
-        <div class="form-group">
-          <label>送信先サーバー</label>
-          <div class="custom-select-container" id="guild-dropdown">
-            <div class="custom-select-trigger" id="guild-trigger">サーバーを選択してください</div>
-            <div class="custom-select-options" id="guild-options"></div>
-          </div>
-        </div>
-
-        <!-- チャンネル選択 -->
-        <div class="form-group">
-          <label>送信先チャンネル</label>
-          <div class="custom-select-container" id="channel-dropdown">
-            <div class="custom-select-trigger" id="channel-trigger">先にサーバーを選択してください</div>
-            <div class="custom-select-options" id="channel-options"></div>
-          </div>
-        </div>
-
-        <!-- 完全オリジナル・ダークカラーピッカー -->
-        <div class="form-group">
-          <label for="color-text">アクセントカラー（サイドバーの色）</label>
-          <div class="color-picker-wrapper">
-            <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;" title="クリックしてカラーパレットを開く"></div>
-            <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
-          </div>
-
-          <!-- 自作カラーパレットポップアップ -->
-          <div class="custom-palette-popup" id="palette-popup">
-            <div class="palette-canvas-container" id="palette-container">
-              <canvas id="palette-canvas"></canvas>
+      <div class="custom-layout">
+        <!-- 左側：入力フォーム -->
+        <div class="card" style="margin-bottom: 0;">
+          <h2>カスタムメッセージ送信</h2>
+          
+          <!-- サーバー選択 -->
+          <div class="form-group">
+            <label>送信先サーバー</label>
+            <div class="custom-select-container" id="guild-dropdown">
+              <div class="custom-select-trigger" id="guild-trigger">サーバーを選択してください</div>
+              <div class="custom-select-options" id="guild-options"></div>
             </div>
-            <div class="palette-sliders">
-              <input type="range" min="0" max="360" value="120" class="palette-slider" id="hue-slider">
-            </div>
-            <div class="palette-presets-label">カラーテンプレート</div>
-            <div class="palette-presets-grid" id="preset-grid"></div>
           </div>
+
+          <!-- チャンネル選択 -->
+          <div class="form-group">
+            <label>送信先チャンネル</label>
+            <div class="custom-select-container" id="channel-dropdown">
+              <div class="custom-select-trigger" id="channel-trigger">先にサーバーを選択してください</div>
+              <div class="custom-select-options" id="channel-options"></div>
+            </div>
+          </div>
+
+          <!-- アクセントカラー選択 -->
+          <div class="form-group">
+            <label for="color-text">アクセントカラー（サイドバーの色）</label>
+            <div class="color-picker-wrapper">
+              <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;" title="クリックしてカラーパレットを開く"></div>
+              <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
+            </div>
+
+            <!-- 自作カラーパレットポップアップ -->
+            <div class="custom-palette-popup" id="palette-popup">
+              <div class="palette-canvas-container" id="palette-container">
+                <canvas id="palette-canvas"></canvas>
+              </div>
+              <div class="palette-sliders">
+                <input type="range" min="0" max="360" value="120" class="palette-slider" id="hue-slider">
+              </div>
+              <div class="palette-presets-label">カラーテンプレート</div>
+              <div class="palette-presets-grid" id="preset-grid"></div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="message-input">メッセージ内容</label>
+            <textarea id="message-input" class="form-textarea" placeholder="Discordに送信するメッセージを入力してください..."></textarea>
+          </div>
+          <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
         </div>
 
-        <div class="form-group">
-          <label for="message-input">メッセージ内容</label>
-          <textarea id="message-input" class="form-textarea" placeholder="Discordに送信するメッセージを入力してください..."></textarea>
+        <!-- 右側：Discord風プレビュー構想図 -->
+        <div>
+          <div class="card" style="margin-bottom: 0;">
+            <h2>送信プレビュー（構想図）</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Discordで実際にどのように表示されるかのイメージです。</p>
+            
+            <div class="preview-card-container">
+              <div class="preview-header">
+                <div class="preview-bot-avatar">P</div>
+                <div>
+                  <div class="preview-bot-info">
+                    <span class="preview-bot-name">piyobot</span>
+                    <span class="preview-bot-tag">アプリ</span>
+                    <span class="preview-time">今日 16:20</span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-message-box" id="preview-msg-box">
+                ここにメッセージの内容がリアルタイムで反映されます...
+              </div>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
       </div>
     </section>
 
@@ -633,7 +742,7 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & 完全自作カラーピッカーロジック -->
+  <!-- Firebase & ロジック -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -690,7 +799,7 @@
       document.getElementById('success-modal').classList.remove('show');
     };
 
-    // --- 完全自作ダークカラーピッカーのロジック ---
+    // --- カラーピッカー ＆ プレビュー連動ロジック ---
     const colorPreview = document.getElementById("color-preview");
     const colorText = document.getElementById("color-text");
     const palettePopup = document.getElementById("palette-popup");
@@ -698,15 +807,54 @@
     const ctx = paletteCanvas.getContext("2d");
     const hueSlider = document.getElementById("hue-slider");
     const presetGrid = document.getElementById("preset-grid");
+    const messageInput = document.getElementById("message-input");
+    const previewMsgBox = document.getElementById("preview-msg-box");
 
-    let currentHue = 120; // 初期色（緑系）
+    let currentHue = 120;
 
-    function updateColor(hex) {
+    // カラーを更新してプレビューやパレット側にも反映させる関数
+    function updateColor(hex, syncHue = true) {
       colorPreview.style.backgroundColor = hex;
       colorText.value = hex;
+      previewMsgBox.style.borderLeftColor = hex; // 右側の構図カードのバーの色を連動
+
+      // もし有効なHEXカラーなら、可能な限りスライダーやパレット側の色相も合わせる
+      if (syncHue && /^#[0-9A-F]{6}$/i.test(hex)) {
+        const rgb = hexToRgb(hex);
+        if (rgb) {
+          const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+          currentHue = hsl.h;
+          hueSlider.value = currentHue;
+          drawPalette(currentHue);
+        }
+      }
     }
 
-    // プレビューボックスクリックでパレット表示/非表示
+    // HEXからRGB、HSLへの変換ヘルパー（パレット自動連動用）
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.replace('#',''), 16);
+      return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max === min) {
+        h = s = 0;
+      } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
+
     colorPreview.addEventListener("click", (e) => {
       e.stopPropagation();
       palettePopup.classList.toggle("open");
@@ -719,7 +867,6 @@
       }
     });
 
-    // パレットキャンバスの描画
     function drawPalette(hue) {
       paletteCanvas.width = paletteCanvas.offsetWidth;
       paletteCanvas.height = paletteCanvas.offsetHeight;
@@ -742,7 +889,6 @@
       ctx.fillRect(0, 0, width, height);
     }
 
-    // キャンバス上のクリックでカラー取得
     let isMouseDown = false;
     paletteCanvas.addEventListener("mousedown", (e) => {
       isMouseDown = true;
@@ -759,7 +905,7 @@
       const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.height));
       const pixel = ctx.getImageData(x, y, 1, 1).data;
       const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
-      updateColor(hex);
+      updateColor(hex, false); // パレット内からの選択時は色相固定でスムーズに色取得
     }
 
     hueSlider.addEventListener("input", (e) => {
@@ -767,14 +913,21 @@
       drawPalette(currentHue);
     });
 
+    // テキスト入力欄にカラーコードを直接打ったときも連動
     colorText.addEventListener("input", (e) => {
       let val = e.target.value;
       if (/^#[0-9A-F]{6}$/i.test(val)) {
-        updateColor(val);
+        updateColor(val, true);
       }
     });
 
-    // カラーテンプレート（プリセット）の自動生成
+    // メッセージ入力欄の文字をリアルタイムプレビューに反映
+    messageInput.addEventListener("input", (e) => {
+      const text = e.target.value.trim();
+      previewMsgBox.textContent = text || "ここにメッセージの内容がリアルタイムで反映されます...";
+    });
+
+    // カラーテンプレート（プリセット）
     const presetColors = [
       "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
       "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
@@ -787,19 +940,18 @@
       item.className = "palette-preset-item";
       item.style.backgroundColor = hex;
       item.addEventListener("click", () => {
-        updateColor(hex);
+        updateColor(hex, true);
         palettePopup.classList.remove("open");
       });
       presetGrid.appendChild(item);
     });
 
-    // --- 各種操作ロジック ---
+    // --- その他操作ロジック ---
     const logListEl = document.getElementById("log-list");
     const toggleBtn = document.getElementById("toggle-btn");
     const statusBadge = document.getElementById("status-badge");
     const statusLabel = document.getElementById("status-label");
     const sendMsgBtn = document.getElementById("send-msg-btn");
-    const messageInput = document.getElementById("message-input");
 
     const guildDropdown = document.getElementById("guild-dropdown");
     const guildTrigger = document.getElementById("guild-trigger");
@@ -975,6 +1127,7 @@
         });
 
         messageInput.value = "";
+        previewMsgBox.textContent = "ここにメッセージの内容がリアルタイムで反映されます...";
         document.getElementById('success-modal').classList.add('show');
       } catch (error) {
         console.error("送信エラー:", error);
