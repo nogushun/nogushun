@@ -325,16 +325,16 @@
       font-family: monospace;
     }
 
-    /* カラーパレットポップアップ（位置ズレを完全になくす固定サイズ） */
+    /* ちょうどいい大きさに整えられたカラーパレットポップアップ */
     .custom-palette-popup {
       position: absolute;
       top: 42px;
       left: 0;
-      width: 240px;
+      width: 220px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
       border-radius: 10px;
-      padding: 12px;
+      padding: 10px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
       z-index: 3000;
       display: none;
@@ -349,11 +349,11 @@
     .palette-canvas-container {
       position: relative;
       width: 100%;
-      height: 85px;
+      height: 75px;
       border-radius: 6px;
       overflow: hidden;
       cursor: crosshair;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .palette-canvas {
@@ -365,14 +365,14 @@
     .palette-sliders {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-bottom: 8px;
+      gap: 4px;
+      margin-bottom: 6px;
     }
 
     .palette-slider {
       width: 100%;
-      height: 8px;
-      border-radius: 4px;
+      height: 6px;
+      border-radius: 3px;
       outline: none;
       cursor: pointer;
       -webkit-appearance: none;
@@ -382,8 +382,8 @@
 
     .palette-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid #000000;
@@ -391,16 +391,16 @@
     }
 
     .palette-presets-label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .palette-presets-grid {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
-      gap: 4px;
-      margin-bottom: 8px;
+      gap: 3px;
+      margin-bottom: 6px;
     }
 
     .palette-preset-item {
@@ -422,9 +422,9 @@
       background-color: #27272a;
       border: 1px solid #3f3f46;
       color: var(--text-main);
-      font-size: 0.75rem;
-      padding: 6px;
-      border-radius: 5px;
+      font-size: 0.7rem;
+      padding: 5px;
+      border-radius: 4px;
       cursor: pointer;
       text-align: center;
       transition: background-color 0.2s;
@@ -1295,8 +1295,8 @@
       let currentHue = 120;
 
       function drawCanvas(hue) {
-        canvas.width = 214;
-        canvas.height = 85;
+        canvas.width = 200;
+        canvas.height = 75;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1362,8 +1362,8 @@
 
       const canvas = document.getElementById(conf.canvasId);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      canvas.width = 214;
-      canvas.height = 85;
+      canvas.width = 200;
+      canvas.height = 75;
       ctx.fillStyle = `hsl(120, 100%, 50%)`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
@@ -1520,8 +1520,8 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = 214;
-      paletteCanvas.height = 85;
+      paletteCanvas.width = 200;
+      paletteCanvas.height = 75;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
 
