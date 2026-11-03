@@ -13,6 +13,7 @@
       --text-muted: #a1a1aa;
       --accent-green: #22c55e;
       --accent-red: #ef4444;
+      --accent-blue: #3b82f6;
       --log-bg: #030305;
     }
 
@@ -93,6 +94,40 @@
       color: var(--text-main);
     }
 
+    /* フォーム用スタイル */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      background-color: #030305;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
     .btn {
       background-color: #18181b;
       color: var(--accent-red);
@@ -111,6 +146,17 @@
       border-color: var(--accent-red);
     }
 
+    .btn-blue {
+      color: #ffffff;
+      background-color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .btn-blue:hover {
+      background-color: #2563eb;
+      border-color: #2563eb;
+    }
+
     .log-container {
       background-color: var(--log-bg);
       border: 1px solid var(--card-border);
@@ -122,7 +168,6 @@
       overflow-y: auto;
     }
 
-    /* カスタムスクロールバー */
     .log-container::-webkit-scrollbar {
       width: 8px;
     }
@@ -192,6 +237,20 @@
       <button class="btn" id="toggle-btn">ボットを停止する</button>
     </div>
 
+    <!-- メッセージ送信フォーム (新規追加) -->
+    <div class="card">
+      <h2>Discord メッセージ送信</h2>
+      <div class="form-group">
+        <label for="channel-id-input">チャンネルID</label>
+        <input type="text" id="channel-id-input" class="form-input" placeholder="例: 123456789012345678" />
+      </div>
+      <div class="form-group">
+        <label for="message-input">送信メッセージ</label>
+        <textarea id="message-input" class="form-textarea" placeholder="Discordに送信したいメッセージを入力..."></textarea>
+      </div>
+      <button class="btn btn-blue" id="send-msg-btn">メッセージを送信</button>
+    </div>
+
     <!-- 最新の稼働ログ -->
     <div class="card">
       <h2>最新の稼働ログ</h2>
@@ -217,10 +276,11 @@
       onSnapshot,
       doc,
       setDoc,
-      getDoc
+      addDoc,
+      serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // 1. 正しいFirebase設定情報
+    // Firebase設定情報
     const firebaseConfig = {
       apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
       authDomain: "mywebsite-72df0.firebaseapp.com",
@@ -231,7 +291,6 @@
       measurementId: "G-XGGF1946BT"
     };
 
-    // Firebase初期化
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -239,8 +298,11 @@
     const toggleBtn = document.getElementById("toggle-btn");
     const statusBadge = document.getElementById("status-badge");
     const statusLabel = document.getElementById("status-label");
+    const sendMsgBtn = document.getElementById("send-msg-btn");
+    const channelInput = document.getElementById("channel-id-input");
+    const messageInput = document.getElementById("message-input");
 
-    // 2. Firestoreの 'bot_logs' コレクションをリアルタイム監視（onSnapshot）
+    // 1. リアルタイムログ監視
     const q = query(
       collection(db, "bot_logs"), 
       orderBy("timestamp", "desc"), 
@@ -257,8 +319,6 @@
 
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
-        
-        // タイムスタンプのフォーマット処理
         let timeStr = "";
         if (data.timestamp && data.timestamp.toDate) {
           const date = data.timestamp.toDate();
@@ -269,41 +329,33 @@
           timeStr = `[直近]`;
         }
 
-        // マークダウン太字(** text **)をHTMLの <strong> タグに変換
         let messageHtml = (data.message || "")
           .replace(/&/g, "&amp;")
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-        // ログ要素の追加
         const logItem = document.createElement("div");
         logItem.className = "log-item";
         logItem.innerHTML = `<span class="log-time">${timeStr}</span> ${messageHtml}`;
         
         logListEl.appendChild(logItem);
       });
-    }, (error) => {
-      console.error("Firestoreリアルタイム取得エラー:", error);
-      logListEl.innerHTML = '<div class="log-item" style="color:var(--accent-red);">ログの取得に失敗しました（権限または接続エラー）。</div>';
     });
 
-    // 3. ボットの稼働状態（停止/開始ボタン）のリアルタイム監視と切り替え処理
+    // 2. ボットステータス制御
     let isRunning = true;
     const statusRef = doc(db, "settings", "bot_status");
 
-    // ステータス変更の監視
     onSnapshot(statusRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
-        isRunning = data.running !== false; // デフォルトは true
+        isRunning = data.running !== false;
       } else {
-        // ドキュメントがなければ初期作成
         setDoc(statusRef, { running: true });
         isRunning = true;
       }
 
-      // UIの反映
       if (isRunning) {
         statusBadge.style.backgroundColor = "var(--accent-green)";
         statusBadge.style.boxShadow = "0 0 8px var(--accent-green)";
@@ -317,14 +369,45 @@
       }
     });
 
-    // ボタンをクリックしたときの処理
     toggleBtn.addEventListener("click", async () => {
       try {
         const nextState = !isRunning;
         await setDoc(statusRef, { running: nextState }, { merge: true });
       } catch (e) {
-        console.error("ステータスの変更に失敗しました:", e);
         alert("ステータスの変更に失敗しました。");
+      }
+    });
+
+    // 3. WebからDiscordへのメッセージ送信処理
+    sendMsgBtn.addEventListener("click", async () => {
+      const channelId = channelInput.value.trim();
+      const content = messageInput.value.trim();
+
+      if (!channelId || !content) {
+        alert("チャンネルIDと送信メッセージの両方を入力してください。");
+        return;
+      }
+
+      try {
+        sendMsgBtn.disabled = true;
+        sendMsgBtn.textContent = "送信中...";
+
+        // Firestoreの send_requests コレクションにリクエストを追加
+        await addDoc(collection(db, "send_requests"), {
+          channelId: channelId,
+          content: content,
+          status: "pending",
+          createdAt: serverTimestamp()
+        });
+
+        messageInput.value = "";
+        alert("送信リクエストを出しました！");
+      } catch (error) {
+        console.error("送信エラー:", error);
+        alert("送信リクエストの追加に失敗しました。");
+      } finally {
+        sendMsgBtn.disabled = false;
+        sendMsgBtn.textContent = "メッセージを送信";
       }
     });
   </script>
