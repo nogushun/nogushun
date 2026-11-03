@@ -175,7 +175,6 @@
       color: var(--text-main);
     }
 
-    /* ダッシュボード用グリッドカード */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -221,10 +220,29 @@
       margin-bottom: 8px;
     }
 
-    .form-hint {
+    /* 変数挿入用チップボタン群 */
+    .variable-chips {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .var-chip {
+      background-color: #27272a;
+      border: 1px solid #3f3f46;
+      color: #38bdf8;
       font-size: 0.78rem;
-      color: var(--text-muted);
-      margin-top: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-family: monospace;
+      transition: all 0.15s ease;
+    }
+
+    .var-chip:hover {
+      background-color: #3f3f46;
+      border-color: #71717a;
+      color: #ffffff;
     }
 
     /* カラーピッカーコンポーネント */
@@ -417,6 +435,27 @@
       white-space: pre-wrap;
       min-height: 24px;
       color: #dbdee1;
+    }
+
+    /* タブ切り替え用プレビュー用 Embed カード風 */
+    .preview-embed-box {
+      background-color: #2b2d31;
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-left: 52px;
+      border-left: 4px solid #FFB6C1;
+      word-break: break-all;
+      white-space: pre-wrap;
+      color: #dbdee1;
+    }
+
+    .preview-embed-title {
+      font-weight: bold;
+      color: #ffffff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
     /* カスタムドロップダウン */
@@ -674,7 +713,7 @@
       <p id="page-desc">piyobot の稼働ステータスやコントロールを行います。</p>
     </header>
 
-    <!-- 1. ダッシュボード画面（詳細ステータス表示追加） -->
+    <!-- 1. ダッシュボード画面 -->
     <section id="section-dashboard" class="content-section active">
       <div class="card">
         <h2>システムステータス</h2>
@@ -704,7 +743,6 @@
     <!-- 2. カスタムメッセージ画面 -->
     <section id="section-custom" class="content-section">
       <div class="custom-layout">
-        <!-- 左側：入力フォーム -->
         <div class="card" style="margin-bottom: 0;">
           <h2>カスタムメッセージ送信</h2>
           
@@ -750,7 +788,6 @@
           <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
         </div>
 
-        <!-- 右側：プレビュー -->
         <div>
           <div class="card" style="margin-bottom: 0;">
             <h2>送信プレビュー（構想図）</h2>
@@ -777,31 +814,71 @@
       </div>
     </section>
 
-    <!-- 3. 通知メッセージ設定画面（新設） -->
+    <!-- 3. 通知メッセージ設定画面（構想図＆ワンタップ変数挿入対応） -->
     <section id="section-notices" class="content-section">
-      <div class="card">
-        <h2>自動通知メッセージの編集</h2>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-          サーバーイベント発生時にボットが自動投稿する文面をカスタマイズできます。<br>
-          利用可能な変数: <code>{user}</code> (ユーザーメンション), <code>{channel}</code> (チャンネル名)
-        </p>
+      <div class="custom-layout">
+        <!-- 左側：編集フォーム -->
+        <div class="card" style="margin-bottom: 0;">
+          <h2>自動通知メッセージの編集</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+            チップボタンをタップすると、カーソル位置に変数を挿入できます。
+          </p>
 
-        <div class="form-group">
-          <label>🎉 ウェルカムメッセージ (メンバー参加時)</label>
-          <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！"></textarea>
+          <div class="form-group">
+            <label>🎉 ウェルカムメッセージ (メンバー参加時)</label>
+            <div class="variable-chips">
+              <span class="var-chip" onclick="insertVariable('notif-welcome', '{user}')">+ {user}</span>
+              <span class="var-chip" onclick="insertVariable('notif-welcome', '{channel}')">+ {channel}</span>
+            </div>
+            <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>🔊 ボイスチャンネル参加メッセージ</label>
+            <div class="variable-chips">
+              <span class="var-chip" onclick="insertVariable('notif-join', '{user}')">+ {user}</span>
+              <span class="var-chip" onclick="insertVariable('notif-join', '{channel}')">+ {channel}</span>
+            </div>
+            <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>🔇 ボイスチャンネル退出メッセージ</label>
+            <div class="variable-chips">
+              <span class="var-chip" onclick="insertVariable('notif-leave', '{user}')">+ {user}</span>
+              <span class="var-chip" onclick="insertVariable('notif-leave', '{channel}')">+ {channel}</span>
+            </div>
+            <textarea id="notif-leave" class="form-textarea" placeholder="{user} さんが通話を退出しました。（{channel}）"></textarea>
+          </div>
+
+          <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
         </div>
 
-        <div class="form-group">
-          <label>🔊 ボイスチャンネル参加メッセージ</label>
-          <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）"></textarea>
+        <!-- 右側：通知プレビュー構想図 -->
+        <div>
+          <div class="card" style="margin-bottom: 0;">
+            <h2>通知プレビュー（構想図）</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">イベント発生時の見た目を確認できます。</p>
+            
+            <div class="preview-card-container">
+              <div class="preview-header">
+                <img src="cat.png" alt="bot avatar" class="preview-bot-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="preview-bot-avatar" style="display:none; align-items:center; justify-content:center; font-weight:bold;">P</div>
+                <div>
+                  <div class="preview-bot-info">
+                    <span class="preview-bot-name">piyobot</span>
+                    <span class="preview-bot-tag">アプリ</span>
+                    <span class="preview-time">今日 16:45</span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-embed-box" id="preview-notice-box">
+                <div class="preview-embed-title" id="preview-notice-title">🎉 メンバーが参加しました！</div>
+                <div id="preview-notice-desc">ここに通知メッセージがリアルタイムで反映されます...</div>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div class="form-group">
-          <label>🔇 ボイスチャンネル退出メッセージ</label>
-          <textarea id="notif-leave" class="form-textarea" placeholder="{user} さんが通話を退出しました。（{channel}）"></textarea>
-        </div>
-
-        <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
       </div>
     </section>
 
@@ -886,6 +963,7 @@
         document.getElementById('menu-notices').classList.add('active');
         document.getElementById('page-title').textContent = '通知メッセージ設定';
         document.getElementById('page-desc').textContent = 'ウェルカムメッセージや通話通知の文面をウェブから自由に編集できます。';
+        updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1');
       } else if (tabName === 'logs') {
         document.getElementById('section-logs').classList.add('active');
         document.getElementById('menu-logs').classList.add('active');
@@ -898,11 +976,44 @@
       document.getElementById(modalId).classList.remove('show');
     };
 
-    // --- 自動通知文面のロード ＆ 保存 ---
+    // --- 変数をテキストエリアに挿入する関数 ---
+    window.insertVariable = function(elementId, variableText) {
+      const textarea = document.getElementById(elementId);
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const text = textarea.value;
+      textarea.value = text.substring(0, start) + variableText + text.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + variableText.length;
+      textarea.focus();
+      textarea.dispatchEvent(new Event('input'));
+    };
+
+    // --- 自動通知文面のロード ＆ プレビュー連動 ---
     const notifWelcome = document.getElementById("notif-welcome");
     const notifJoin = document.getElementById("notif-join");
     const notifLeave = document.getElementById("notif-leave");
     const saveNotifsBtn = document.getElementById("save-notifs-btn");
+
+    const previewNoticeBox = document.getElementById("preview-notice-box");
+    const previewNoticeTitle = document.getElementById("preview-notice-title");
+    const previewNoticeDesc = document.getElementById("preview-notice-desc");
+
+    function updateNoticePreview(activeId, title, colorHex) {
+      previewNoticeBox.style.borderLeftColor = colorHex;
+      previewNoticeTitle.textContent = title;
+      const textarea = document.getElementById(activeId);
+      let val = textarea.value.trim() || textarea.placeholder;
+      val = val.replace(/{user}/g, "@nogushunN").replace(/{channel}/g, "雑談");
+      previewNoticeDesc.textContent = val;
+    }
+
+    notifWelcome.addEventListener("input", () => { updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1'); });
+    notifJoin.addEventListener("input", () => { updateNoticePreview('notif-join', '🔊 通話参加通知', '#57F287'); });
+    notifLeave.addEventListener("input", () => { updateNoticePreview('notif-leave', '🔇 通話退出通知', '#ED4245'); });
+
+    notifWelcome.addEventListener("focus", () => { updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1'); });
+    notifJoin.addEventListener("focus", () => { updateNoticePreview('notif-join', '🔊 通話参加通知', '#57F287'); });
+    notifLeave.addEventListener("focus", () => { updateNoticePreview('notif-leave', '🔇 通話退出通知', '#ED4245'); });
 
     async function loadNotificationConfig() {
       try {
@@ -912,6 +1023,7 @@
           if (data.welcomeTemplate) notifWelcome.value = data.welcomeTemplate;
           if (data.voiceJoinTemplate) notifJoin.value = data.voiceJoinTemplate;
           if (data.voiceLeaveTemplate) notifLeave.value = data.voiceLeaveTemplate;
+          updateNoticePreview('notif-welcome', '🎉 メンバーが参加しました！', '#FFB6C1');
         }
       } catch (e) {
         console.error("通知設定の読み込みエラー:", e);
@@ -1084,7 +1196,6 @@
     const statusLabel = document.getElementById("status-label");
     const dashStatusText = document.getElementById("dash-status-text");
     const dashGuildsCount = document.getElementById("dash-guilds-count");
-    const dashPing = document.getElementById("dash-ping");
     const sendMsgBtn = document.getElementById("send-msg-btn");
 
     const guildDropdown = document.getElementById("guild-dropdown");
