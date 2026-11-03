@@ -122,7 +122,7 @@
       overflow-y: auto;
     }
 
-    /* カスタムスクロールバー（黒テーマ用） */
+    /* カスタムスクロールバー */
     .log-container::-webkit-scrollbar {
       width: 8px;
     }
@@ -187,7 +187,7 @@
     <div class="card">
       <h2>ボットステータス制御</h2>
       <div class="status-text">
-        現在の状態: <span class="status-badge"></span><strong>有効 (稼働中)</strong>
+        現在の状態: <span class="status-badge" id="status-badge"></span><strong id="status-label">有効 (稼働中)</strong>
       </div>
       <button class="btn" id="toggle-btn">ボットを停止する</button>
     </div>
@@ -214,17 +214,21 @@
       query, 
       orderBy, 
       limit, 
-      onSnapshot 
+      onSnapshot,
+      doc,
+      setDoc,
+      getDoc
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // 1. Firebaseの設定情報（ご自身のFirebaseプロジェクトの設定に差し替えてください）
+    // 1. 正しいFirebase設定情報
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
+      authDomain: "mywebsite-72df0.firebaseapp.com",
+      projectId: "mywebsite-72df0",
+      storageBucket: "mywebsite-72df0.firebasestorage.app",
+      messagingSenderId: "538159276455",
+      appId: "1:538159276455:web:3b61ea7c2b427ee6c11682",
+      measurementId: "G-XGGF1946BT"
     };
 
     // Firebase初期化
@@ -232,10 +236,13 @@
     const db = getFirestore(app);
 
     const logListEl = document.getElementById("log-list");
+    const toggleBtn = document.getElementById("toggle-btn");
+    const statusBadge = document.getElementById("status-badge");
+    const statusLabel = document.getElementById("status-label");
 
-    // 2. Firestoreの 'logs' コレクションをリアルタイム監視（onSnapshot）
+    // 2. Firestoreの 'bot_logs' コレクションをリアルタイム監視（onSnapshot）
     const q = query(
-      collection(db, "logs"), 
+      collection(db, "bot_logs"), 
       orderBy("timestamp", "desc"), 
       limit(20)
     );
@@ -248,8 +255,8 @@
         return;
       }
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
         
         // タイムスタンプのフォーマット処理
         let timeStr = "";
@@ -278,7 +285,47 @@
       });
     }, (error) => {
       console.error("Firestoreリアルタイム取得エラー:", error);
-      logListEl.innerHTML = '<div class="log-item" style="color:var(--accent-red);">ログの取得に失敗しました。</div>';
+      logListEl.innerHTML = '<div class="log-item" style="color:var(--accent-red);">ログの取得に失敗しました（権限または接続エラー）。</div>';
+    });
+
+    // 3. ボットの稼働状態（停止/開始ボタン）のリアルタイム監視と切り替え処理
+    let isRunning = true;
+    const statusRef = doc(db, "settings", "bot_status");
+
+    // ステータス変更の監視
+    onSnapshot(statusRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        isRunning = data.running !== false; // デフォルトは true
+      } else {
+        // ドキュメントがなければ初期作成
+        setDoc(statusRef, { running: true });
+        isRunning = true;
+      }
+
+      // UIの反映
+      if (isRunning) {
+        statusBadge.style.backgroundColor = "var(--accent-green)";
+        statusBadge.style.boxShadow = "0 0 8px var(--accent-green)";
+        statusLabel.textContent = "有効 (稼働中)";
+        toggleBtn.textContent = "ボットを停止する";
+      } else {
+        statusBadge.style.backgroundColor = "var(--accent-red)";
+        statusBadge.style.boxShadow = "0 0 8px var(--accent-red)";
+        statusLabel.textContent = "停止中";
+        toggleBtn.textContent = "ボットを再開する";
+      }
+    });
+
+    // ボタンをクリックしたときの処理
+    toggleBtn.addEventListener("click", async () => {
+      try {
+        const nextState = !isRunning;
+        await setDoc(statusRef, { running: nextState }, { merge: true });
+      } catch (e) {
+        console.error("ステータスの変更に失敗しました:", e);
+        alert("ステータスの変更に失敗しました。");
+      }
     });
   </script>
 </body>
