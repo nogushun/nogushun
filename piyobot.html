@@ -123,7 +123,7 @@
       display: block;
     }
 
-    /* 2カラムレイアウト（左：フォーム、右：プレビュー構想図） */
+    /* 2カラムレイアウト */
     .custom-layout {
       display: grid;
       grid-template-columns: 1fr 380px;
@@ -338,14 +338,9 @@
     .preview-bot-avatar {
       width: 40px;
       height: 40px;
-      background-color: #5865f2;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #ffffff;
-      font-weight: bold;
-      font-size: 1.1rem;
+      object-fit: cover;
+      background-color: #5865f2;
     }
 
     .preview-bot-info {
@@ -379,7 +374,7 @@
       border-radius: 4px;
       padding: 10px 14px;
       margin-left: 52px;
-      border-left: 4px solid #32CD32; /* ここがカラーと連動 */
+      border-left: 4px solid #32CD32;
       word-break: break-all;
       white-space: pre-wrap;
       min-height: 24px;
@@ -539,7 +534,7 @@
       margin-right: 8px;
     }
 
-    /* 送信完了モーダル */
+    /* モーダル共通オーバーレイ */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -591,6 +586,12 @@
       font-size: 2rem;
       margin: 0 auto 16px auto;
       border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .modal-icon.error {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+      border-color: rgba(239, 68, 68, 0.3);
     }
 
     .modal-card h3 {
@@ -703,7 +704,9 @@
             
             <div class="preview-card-container">
               <div class="preview-header">
-                <div class="preview-bot-avatar">P</div>
+                <!-- cat.png をアバターに適用 -->
+                <img src="cat.png" alt="bot avatar" class="preview-bot-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="preview-bot-avatar" style="display:none; align-items:center; justify-content:center; font-weight:bold;">P</div>
                 <div>
                   <div class="preview-bot-info">
                     <span class="preview-bot-name">piyobot</span>
@@ -738,7 +741,17 @@
       <div class="modal-icon">✓</div>
       <h3>送信完了</h3>
       <p>メッセージの送信リクエストを正しく受け付けました。</p>
-      <button class="btn btn-blue" style="width: 100%;" onclick="closeModal()">閉じる</button>
+      <button class="btn btn-blue" style="width: 100%;" onclick="closeModal('success-modal')">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 未入力・エラー用オリジナルモーダル -->
+  <div class="modal-overlay" id="error-modal">
+    <div class="modal-card">
+      <div class="modal-icon error">!</div>
+      <h3>入力エラー</h3>
+      <p id="error-msg">送信先のサーバー・チャンネルとメッセージ内容をすべて選択・入力してください。</p>
+      <button class="btn btn-blue" style="width: 100%;" onclick="closeModal('error-modal')">閉じる</button>
     </div>
   </div>
 
@@ -795,8 +808,8 @@
       }
     };
 
-    window.closeModal = function() {
-      document.getElementById('success-modal').classList.remove('show');
+    window.closeModal = function(modalId) {
+      document.getElementById(modalId).classList.remove('show');
     };
 
     // --- カラーピッカー ＆ プレビュー連動ロジック ---
@@ -812,13 +825,11 @@
 
     let currentHue = 120;
 
-    // カラーを更新してプレビューやパレット側にも反映させる関数
     function updateColor(hex, syncHue = true) {
       colorPreview.style.backgroundColor = hex;
       colorText.value = hex;
-      previewMsgBox.style.borderLeftColor = hex; // 右側の構図カードのバーの色を連動
+      previewMsgBox.style.borderLeftColor = hex;
 
-      // もし有効なHEXカラーなら、可能な限りスライダーやパレット側の色相も合わせる
       if (syncHue && /^#[0-9A-F]{6}$/i.test(hex)) {
         const rgb = hexToRgb(hex);
         if (rgb) {
@@ -830,7 +841,6 @@
       }
     }
 
-    // HEXからRGB、HSLへの変換ヘルパー（パレット自動連動用）
     function hexToRgb(hex) {
       const bigint = parseInt(hex.replace('#',''), 16);
       return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
@@ -855,16 +865,25 @@
       return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
     }
 
+    // パレットポップアップの開閉制御
     colorPreview.addEventListener("click", (e) => {
       e.stopPropagation();
-      palettePopup.classList.toggle("open");
-      drawPalette(currentHue);
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!palettePopup.contains(e.target) && e.target !== colorPreview) {
+      const isOpen = palettePopup.classList.contains("open");
+      if (!isOpen) {
+        palettePopup.classList.add("open");
+        drawPalette(currentHue);
+      } else {
         palettePopup.classList.remove("open");
       }
+    });
+
+    // パレット内部をクリックしても閉じないようにする
+    palettePopup.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+
+    document.addEventListener("click", () => {
+      palettePopup.classList.remove("open");
     });
 
     function drawPalette(hue) {
@@ -905,7 +924,7 @@
       const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.height));
       const pixel = ctx.getImageData(x, y, 1, 1).data;
       const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
-      updateColor(hex, false); // パレット内からの選択時は色相固定でスムーズに色取得
+      updateColor(hex, false);
     }
 
     hueSlider.addEventListener("input", (e) => {
@@ -913,7 +932,6 @@
       drawPalette(currentHue);
     });
 
-    // テキスト入力欄にカラーコードを直接打ったときも連動
     colorText.addEventListener("input", (e) => {
       let val = e.target.value;
       if (/^#[0-9A-F]{6}$/i.test(val)) {
@@ -921,7 +939,6 @@
       }
     });
 
-    // メッセージ入力欄の文字をリアルタイムプレビューに反映
     messageInput.addEventListener("input", (e) => {
       const text = e.target.value.trim();
       previewMsgBox.textContent = text || "ここにメッセージの内容がリアルタイムで反映されます...";
@@ -941,7 +958,7 @@
       item.style.backgroundColor = hex;
       item.addEventListener("click", () => {
         updateColor(hex, true);
-        palettePopup.classList.remove("open");
+        // テンプレート選択時はパレットを開いたままにするか閉じたい場合はここで制御（現在は開いたまま微調整可能）
       });
       presetGrid.appendChild(item);
     });
@@ -1110,7 +1127,8 @@
       const color = colorText.value.trim() || "#32CD32";
 
       if (!selectedChannelId || !content) {
-        alert("送信先のサーバー・チャンネルとメッセージ内容をすべて選択・入力してください。");
+        document.getElementById('error-msg').textContent = "送信先のサーバー・チャンネルとメッセージ内容をすべて選択・入力してください。";
+        document.getElementById('error-modal').classList.add('show');
         return;
       }
 
@@ -1131,7 +1149,8 @@
         document.getElementById('success-modal').classList.add('show');
       } catch (error) {
         console.error("送信エラー:", error);
-        alert("送信リクエストの追加に失敗しました。");
+        document.getElementById('error-msg').textContent = "送信リクエストの追加に失敗しました。";
+        document.getElementById('error-modal').classList.add('show');
       } finally {
         sendMsgBtn.disabled = false;
         sendMsgBtn.textContent = "Discordに送信";
