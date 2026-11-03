@@ -18,10 +18,6 @@
       --log-bg: #09090b;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       margin: 0;
       padding: 0;
@@ -32,7 +28,7 @@
       min-height: 100vh;
     }
 
-    /* サイドメニュー（固定配置） */
+    /* 固定サイドメニュー */
     aside {
       width: 260px;
       height: 100vh;
@@ -67,19 +63,23 @@
       gap: 8px;
     }
 
-    .sidebar-menu li a {
+    .sidebar-menu li button {
+      width: 100%;
       display: flex;
       align-items: center;
       gap: 10px;
       padding: 12px 16px;
       color: var(--text-muted);
-      text-decoration: none;
+      background: none;
+      border: none;
+      text-align: left;
       border-radius: 8px;
       font-size: 0.95rem;
+      cursor: pointer;
       transition: all 0.2s ease;
     }
 
-    .sidebar-menu li a:hover, .sidebar-menu li.active a {
+    .sidebar-menu li button:hover, .sidebar-menu li.active button {
       background-color: #27272a;
       color: #ffffff;
     }
@@ -90,7 +90,7 @@
       border-top: 1px solid var(--card-border);
     }
 
-    /* メインコンテンツエリア（サイドバーの幅分マージンを空ける） */
+    /* メインコンテンツエリア */
     main {
       flex: 1;
       margin-left: 260px;
@@ -115,6 +115,14 @@
       font-size: 0.95rem;
     }
 
+    /* 画面切り替え用セクション */
+    .content-section {
+      display: none;
+    }
+    .content-section.active {
+      display: block;
+    }
+
     .card {
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -122,7 +130,6 @@
       padding: 24px;
       margin-bottom: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-      scroll-margin-top: 40px;
     }
 
     .card h2 {
@@ -166,7 +173,7 @@
       margin-bottom: 6px;
     }
 
-    .form-input, .form-textarea {
+    .form-select, .form-textarea {
       width: 100%;
       background-color: var(--log-bg);
       border: 1px solid var(--card-border);
@@ -179,13 +186,13 @@
       transition: border-color 0.2s;
     }
 
-    .form-input:focus, .form-textarea:focus {
+    .form-select:focus, .form-textarea:focus {
       border-color: var(--accent-blue);
     }
 
     .form-textarea {
       resize: vertical;
-      min-height: 100px;
+      min-height: 120px;
     }
 
     .btn {
@@ -226,7 +233,7 @@
       padding: 16px;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.88rem;
-      max-height: 320px;
+      max-height: 450px;
       overflow-y: auto;
     }
 
@@ -260,36 +267,20 @@
     .log-item strong {
       color: #ffffff;
     }
-
-    /* レスポンシブ対応 */
-    @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
-      aside {
-        position: relative;
-        width: 100%;
-        height: auto;
-      }
-      main {
-        margin-left: 0;
-        padding: 20px;
-      }
-    }
   </style>
 </head>
 <body>
 
-  <!-- 左側サイドメニュー（固定配置） -->
+  <!-- 左側サイドメニュー（タブ切り替え） -->
   <aside>
     <div class="sidebar-brand">
       🐤 piyobot
     </div>
     <ul class="sidebar-menu">
-      <li class="active"><a href="#status-card">📊 ダッシュボード</a></li>
-      <li><a href="#custom-message-card">💬 カスタムメッセージ</a></li>
-      <li><a href="#log-card">📜 稼働ログ</a></li>
-      <li style="margin-top: 12px;"><a href="./">← メイン管理に戻る</a></li>
+      <li class="active" id="menu-dashboard"><button onclick="switchTab('dashboard')">📊 ダッシュボード</button></li>
+      <li id="menu-custom"><button onclick="switchTab('custom')">💬 カスタムメッセージ</button></li>
+      <li id="menu-logs"><button onclick="switchTab('logs')">📜 稼働ログ</button></li>
+      <li style="margin-top: 16px;"><a href="./" style="display:block; padding:12px 16px; color:var(--text-muted); text-decoration:none; font-size:0.95rem;">← メイン管理に戻る</a></li>
     </ul>
     <div class="sidebar-footer">
       <span style="font-size: 0.8rem; color: var(--text-muted);">Status: Online</span>
@@ -299,43 +290,57 @@
   <!-- メインコンテンツエリア -->
   <main>
     <header>
-      <h1>管理ダッシュボード</h1>
-      <p>piyobot の稼働ステータス監視、Discordメッセージ送信、リアルタイムログ確認を行います。</p>
+      <h1 id="page-title">ダッシュボード</h1>
+      <p id="page-desc">piyobot の稼働ステータスやコントロールを行います。</p>
     </header>
 
-    <!-- ボットステータス制御 -->
-    <div class="card" id="status-card">
-      <h2>ボットステータス制御</h2>
-      <div class="status-text">
-        現在の状態: <span class="status-badge" id="status-badge"></span><strong id="status-label">有効 (稼働中)</strong>
+    <!-- 1. ダッシュボード画面 -->
+    <section id="section-dashboard" class="content-section active">
+      <div class="card">
+        <h2>ボットステータス制御</h2>
+        <div class="status-text">
+          現在の状態: <span class="status-badge" id="status-badge"></span><strong id="status-label">有効 (稼働中)</strong>
+        </div>
+        <button class="btn btn-danger" id="toggle-btn">ボットを停止する</button>
       </div>
-      <button class="btn btn-danger" id="toggle-btn">ボットを停止する</button>
-    </div>
+    </section>
 
-    <!-- カスタムメッセージ送信フォーム -->
-    <div class="card" id="custom-message-card">
-      <h2>カスタムメッセージ送信</h2>
-      <div class="form-group">
-        <label for="channel-id-input">送信先チャンネルID</label>
-        <input type="text" id="channel-id-input" class="form-input" placeholder="例: 123456789012345678" />
+    <!-- 2. カスタムメッセージ画面（サーバー自動検知式） -->
+    <section id="section-custom" class="content-section">
+      <div class="card">
+        <h2>カスタムメッセージ送信</h2>
+        <div class="form-group">
+          <label for="guild-select">送信先サーバー</label>
+          <select id="guild-select" class="form-select">
+            <option value="">サーバーを読み込んでいます...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="channel-select">送信先チャンネル</label>
+          <select id="channel-select" class="form-select">
+            <option value="">先にサーバーを選択してください</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message-input">メッセージ内容</label>
+          <textarea id="message-input" class="form-textarea" placeholder="Discordに送信するメッセージを入力してください..."></textarea>
+        </div>
+        <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
       </div>
-      <div class="form-group">
-        <label for="message-input">メッセージ内容</label>
-        <textarea id="message-input" class="form-textarea" placeholder="Discordに送信するメッセージを入力してください..."></textarea>
-      </div>
-      <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
-    </div>
+    </section>
 
-    <!-- 最新の稼働ログ -->
-    <div class="card" id="log-card">
-      <h2>リアルタイム稼働ログ</h2>
-      <div class="log-container" id="log-list">
-        <div class="log-item" style="color: var(--text-muted);">ログを読み込んでいます...</div>
+    <!-- 3. 稼働ログ画面 -->
+    <section id="section-logs" class="content-section">
+      <div class="card">
+        <h2>リアルタイム稼働ログ</h2>
+        <div class="log-container" id="log-list">
+          <div class="log-item" style="color: var(--text-muted);">ログを読み込んでいます...</div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 
-  <!-- Firebase SDK (Modular v10+) -->
+  <!-- Firebase SDK & 画面切り替えロジック -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -347,11 +352,11 @@
       onSnapshot,
       doc,
       setDoc,
+      getDoc,
       addDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Firebase設定情報
     const firebaseConfig = {
       apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
       authDomain: "mywebsite-72df0.firebaseapp.com",
@@ -365,24 +370,87 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // タブ切り替え関数をグローバルに定義
+    window.switchTab = function(tabName) {
+      document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+      document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
+
+      if (tabName === 'dashboard') {
+        document.getElementById('section-dashboard').classList.add('active');
+        document.getElementById('menu-dashboard').classList.add('active');
+        document.getElementById('page-title').textContent = 'ダッシュボード';
+        document.getElementById('page-desc').textContent = 'piyobot の稼働ステータスやコントロールを行います。';
+      } else if (tabName === 'custom') {
+        document.getElementById('section-custom').classList.add('active');
+        document.getElementById('menu-custom').classList.add('active');
+        document.getElementById('page-title').textContent = 'カスタムメッセージ';
+        document.getElementById('page-desc').textContent = 'ボットが導入されているサーバーとチャンネルを選択してメッセージを送信します。';
+      } else if (tabName === 'logs') {
+        document.getElementById('section-logs').classList.add('active');
+        document.getElementById('menu-logs').classList.add('active');
+        document.getElementById('page-title').textContent = '稼働ログ';
+        document.getElementById('page-desc').textContent = 'ボットの動作やイベント履歴をリアルタイムで確認できます。';
+      }
+    };
+
     const logListEl = document.getElementById("log-list");
     const toggleBtn = document.getElementById("toggle-btn");
     const statusBadge = document.getElementById("status-badge");
     const statusLabel = document.getElementById("status-label");
     const sendMsgBtn = document.getElementById("send-msg-btn");
-    const channelInput = document.getElementById("channel-id-input");
+    const guildSelect = document.getElementById("guild-select");
+    const channelSelect = document.getElementById("channel-select");
     const messageInput = document.getElementById("message-input");
 
-    // 1. リアルタイムログ監視
+    let loadedGuilds = [];
+
+    // 1. ボットが参加しているサーバー一覧をFirestoreから読み込む
+    async function loadGuilds() {
+      try {
+        const docSnap = await getDoc(doc(db, "settings", "guilds_cache"));
+        if (docSnap.exists()) {
+          loadedGuilds = docSnap.data().guilds || [];
+          guildSelect.innerHTML = '<option value="">サーバーを選択してください</option>';
+          loadedGuilds.forEach(g => {
+            const opt = document.createElement("option");
+            opt.value = g.id;
+            opt.textContent = g.name;
+            guildSelect.appendChild(opt);
+          });
+        } else {
+          guildSelect.innerHTML = '<option value="">サーバーが見つかりません（ボットを起動してください）</option>';
+        }
+      } catch (e) {
+        console.error("サーバー読み込みエラー:", e);
+      }
+    }
+    loadGuilds();
+
+    // サーバーが変更されたら、そのサーバー内のチャンネルをセレクトボックスに反映
+    guildSelect.addEventListener("change", (e) => {
+      const guildId = e.target.value;
+      channelSelect.innerHTML = '<option value="">チャンネルを選択してください</option>';
+
+      const selectedGuild = loadedGuilds.find(g => g.id === guildId);
+      if (selectedGuild && selectedGuild.channels) {
+        selectedGuild.channels.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = `# ${c.name}`;
+          channelSelect.appendChild(opt);
+        });
+      }
+    });
+
+    // 2. リアルタイムログ監視
     const q = query(
       collection(db, "bot_logs"), 
       orderBy("timestamp", "desc"), 
-      limit(20)
+      limit(25)
     );
 
     onSnapshot(q, (snapshot) => {
       logListEl.innerHTML = "";
-
       if (snapshot.empty) {
         logListEl.innerHTML = '<div class="log-item" style="color: var(--text-muted);">ログはありません。</div>';
         return;
@@ -394,8 +462,6 @@
         if (data.timestamp && data.timestamp.toDate) {
           const date = data.timestamp.toDate();
           timeStr = `[${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}]`;
-        } else if (typeof data.timestamp === 'string') {
-          timeStr = `[${data.timestamp}]`;
         } else {
           timeStr = `[直近]`;
         }
@@ -409,12 +475,11 @@
         const logItem = document.createElement("div");
         logItem.className = "log-item";
         logItem.innerHTML = `<span class="log-time">${timeStr}</span> ${messageHtml}`;
-        
         logListEl.appendChild(logItem);
       });
     });
 
-    // 2. ボットステータス制御
+    // 3. ボットステータス制御
     let isRunning = true;
     const statusRef = doc(db, "settings", "bot_status");
 
@@ -449,13 +514,13 @@
       }
     });
 
-    // 3. WebからDiscordへのメッセージ送信処理
+    // 4. メッセージ送信処理
     sendMsgBtn.addEventListener("click", async () => {
-      const channelId = channelInput.value.trim();
+      const channelId = channelSelect.value;
       const content = messageInput.value.trim();
 
       if (!channelId || !content) {
-        alert("チャンネルIDとメッセージ内容の両方を入力してください。");
+        alert("送信先のサーバー・チャンネルとメッセージ内容をすべて入力してください。");
         return;
       }
 
