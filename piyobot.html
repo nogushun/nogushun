@@ -176,11 +176,12 @@
       margin-bottom: 8px;
     }
 
-    /* ブラック仕様カスタムカラー選択エリア */
+    /* 自作ブラック・カラーピッカーコンポーネント */
     .color-picker-wrapper {
       display: flex;
       gap: 12px;
       align-items: center;
+      margin-bottom: 10px;
     }
 
     .color-preview-box {
@@ -190,24 +191,11 @@
       border: 1px solid var(--card-border);
       background-color: #32CD32;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
       transition: border-color 0.2s;
     }
 
     .color-preview-box:hover {
       border-color: #3f3f46;
-    }
-
-    /* ネイティブのカラーピッカーを透明にして重ねることでブラウザ標準のポップアップを維持しつつ見た目を完全ブラック化 */
-    .color-input-native {
-      position: absolute;
-      top: -10px;
-      left: -10px;
-      width: 64px;
-      height: 60px;
-      opacity: 0;
-      cursor: pointer;
     }
 
     .color-text-input {
@@ -227,25 +215,92 @@
       border-color: var(--accent-blue);
     }
 
-    /* カラーテンプレート（プリセット）ボタン一覧 */
-    .color-presets {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
+    /* 完全オリジナルのカスタムカラーパレット（ポップアップ） */
+    .custom-palette-popup {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      width: 280px;
+      background-color: #16161a;
+      border: 1px solid #3f3f46;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      display: none;
+      user-select: none;
     }
 
-    .color-preset-btn {
-      width: 28px;
-      height: 28px;
+    .custom-palette-popup.open {
+      display: block;
+    }
+
+    .palette-canvas-container {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: crosshair;
+      margin-bottom: 12px;
+    }
+
+    #palette-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .palette-sliders {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .palette-slider {
+      width: 100%;
+      height: 12px;
       border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+      -webkit-appearance: none;
+      background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+    }
+
+    .palette-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2px solid #000000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .palette-presets-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .palette-presets-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 6px;
+    }
+
+    .palette-preset-item {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 4px;
       border: 1px solid var(--card-border);
       cursor: pointer;
-      transition: transform 0.15s, border-color 0.15s;
+      transition: transform 0.15s;
     }
 
-    .color-preset-btn:hover {
-      transform: scale(1.1);
+    .palette-preset-item:hover {
+      transform: scale(1.15);
       border-color: #ffffff;
     }
 
@@ -528,26 +583,24 @@
           </div>
         </div>
 
-        <!-- アクセントカラー選択（ブラック仕様 ＆ テンプレート一覧） -->
+        <!-- 完全オリジナル・ダークカラーピッカー -->
         <div class="form-group">
-          <label for="color-picker">アクセントカラー（サイドバーの色）</label>
+          <label for="color-text">アクセントカラー（サイドバーの色）</label>
           <div class="color-picker-wrapper">
-            <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;">
-              <input type="color" id="color-picker" class="color-input-native" value="#32CD32">
-            </div>
+            <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;" title="クリックしてカラーパレットを開く"></div>
             <input type="text" id="color-text" class="color-text-input" value="#32CD32" placeholder="#32CD32">
           </div>
-          <!-- カラーテンプレート（よく使う色をワンクリック選択） -->
-          <div class="color-presets">
-            <button type="button" class="color-preset-btn" style="background-color: #32CD32;" data-color="#32CD32" title="ライムグリーン"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #3b82f6;" data-color="#3b82f6" title="ブルー"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #ef4444;" data-color="#ef4444" title="レッド"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #eab308;" data-color="#eab308" title="イエロー"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #a855f7;" data-color="#a855f7" title="パープル"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #ec4899;" data-color="#ec4899" title="ピンク"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #06b6d4;" data-color="#06b6d4" title="シアン"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #ffffff;" data-color="#ffffff" title="ホワイト"></button>
-            <button type="button" class="color-preset-btn" style="background-color: #71717a;" data-color="#71717a" title="グレー"></button>
+
+          <!-- 自作カラーパレットポップアップ -->
+          <div class="custom-palette-popup" id="palette-popup">
+            <div class="palette-canvas-container" id="palette-container">
+              <canvas id="palette-canvas"></canvas>
+            </div>
+            <div class="palette-sliders">
+              <input type="range" min="0" max="360" value="120" class="palette-slider" id="hue-slider">
+            </div>
+            <div class="palette-presets-label">カラーテンプレート</div>
+            <div class="palette-presets-grid" id="preset-grid"></div>
           </div>
         </div>
 
@@ -580,7 +633,7 @@
     </div>
   </div>
 
-  <!-- Firebase SDK & ロジック -->
+  <!-- Firebase SDK & 完全自作カラーピッカーロジック -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { 
@@ -637,26 +690,81 @@
       document.getElementById('success-modal').classList.remove('show');
     };
 
-    const logListEl = document.getElementById("log-list");
-    const toggleBtn = document.getElementById("toggle-btn");
-    const statusBadge = document.getElementById("status-badge");
-    const statusLabel = document.getElementById("status-label");
-    const sendMsgBtn = document.getElementById("send-msg-btn");
-    const messageInput = document.getElementById("message-input");
-
-    // カラーピッカー・プレビュー・テキスト連動
-    const colorPicker = document.getElementById("color-picker");
-    const colorText = document.getElementById("color-text");
+    // --- 完全自作ダークカラーピッカーのロジック ---
     const colorPreview = document.getElementById("color-preview");
+    const colorText = document.getElementById("color-text");
+    const palettePopup = document.getElementById("palette-popup");
+    const paletteCanvas = document.getElementById("palette-canvas");
+    const ctx = paletteCanvas.getContext("2d");
+    const hueSlider = document.getElementById("hue-slider");
+    const presetGrid = document.getElementById("preset-grid");
 
-    function updateColor(colorHex) {
-      colorPicker.value = colorHex;
-      colorText.value = colorHex;
-      colorPreview.style.backgroundColor = colorHex;
+    let currentHue = 120; // 初期色（緑系）
+
+    function updateColor(hex) {
+      colorPreview.style.backgroundColor = hex;
+      colorText.value = hex;
     }
 
-    colorPicker.addEventListener("input", (e) => {
-      updateColor(e.target.value);
+    // プレビューボックスクリックでパレット表示/非表示
+    colorPreview.addEventListener("click", (e) => {
+      e.stopPropagation();
+      palettePopup.classList.toggle("open");
+      drawPalette(currentHue);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!palettePopup.contains(e.target) && e.target !== colorPreview) {
+        palettePopup.classList.remove("open");
+      }
+    });
+
+    // パレットキャンバスの描画
+    function drawPalette(hue) {
+      paletteCanvas.width = paletteCanvas.offsetWidth;
+      paletteCanvas.height = paletteCanvas.offsetHeight;
+      const width = paletteCanvas.width;
+      const height = paletteCanvas.height;
+
+      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+      ctx.fillRect(0, 0, width, height);
+
+      const gradWhite = ctx.createLinearGradient(0, 0, width, 0);
+      gradWhite.addColorStop(0, "rgba(255, 255, 255, 1)");
+      gradWhite.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = gradWhite;
+      ctx.fillRect(0, 0, width, height);
+
+      const gradBlack = ctx.createLinearGradient(0, 0, 0, height);
+      gradBlack.addColorStop(0, "rgba(0, 0, 0, 0)");
+      gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
+      ctx.fillStyle = gradBlack;
+      ctx.fillRect(0, 0, width, height);
+    }
+
+    // キャンバス上のクリックでカラー取得
+    let isMouseDown = false;
+    paletteCanvas.addEventListener("mousedown", (e) => {
+      isMouseDown = true;
+      pickColorFromCanvas(e);
+    });
+    window.addEventListener("mouseup", () => { isMouseDown = false; });
+    paletteCanvas.addEventListener("mousemove", (e) => {
+      if (isMouseDown) pickColorFromCanvas(e);
+    });
+
+    function pickColorFromCanvas(e) {
+      const rect = paletteCanvas.getBoundingClientRect();
+      const x = Math.max(0, Math.min(e.clientX - rect.left, paletteCanvas.width));
+      const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.height));
+      const pixel = ctx.getImageData(x, y, 1, 1).data;
+      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+      updateColor(hex);
+    }
+
+    hueSlider.addEventListener("input", (e) => {
+      currentHue = e.target.value;
+      drawPalette(currentHue);
     });
 
     colorText.addEventListener("input", (e) => {
@@ -666,12 +774,32 @@
       }
     });
 
-    // カラーテンプレート（プリセット）ボタンのクリックイベント
-    document.querySelectorAll(".color-preset-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        updateColor(btn.dataset.color);
+    // カラーテンプレート（プリセット）の自動生成
+    const presetColors = [
+      "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
+      "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
+      "#ec4899", "#f43f5e", "#ef4444", "#f97316", 
+      "#eab308", "#84cc16", "#ffffff", "#000000"
+    ];
+
+    presetColors.forEach(hex => {
+      const item = document.createElement("div");
+      item.className = "palette-preset-item";
+      item.style.backgroundColor = hex;
+      item.addEventListener("click", () => {
+        updateColor(hex);
+        palettePopup.classList.remove("open");
       });
+      presetGrid.appendChild(item);
     });
+
+    // --- 各種操作ロジック ---
+    const logListEl = document.getElementById("log-list");
+    const toggleBtn = document.getElementById("toggle-btn");
+    const statusBadge = document.getElementById("status-badge");
+    const statusLabel = document.getElementById("status-label");
+    const sendMsgBtn = document.getElementById("send-msg-btn");
+    const messageInput = document.getElementById("message-input");
 
     const guildDropdown = document.getElementById("guild-dropdown");
     const guildTrigger = document.getElementById("guild-trigger");
@@ -684,7 +812,6 @@
     let loadedGuilds = [];
     let selectedChannelId = "";
 
-    // ドロップダウン開閉の制御
     guildTrigger.addEventListener("click", (e) => {
       e.stopPropagation();
       channelDropdown.classList.remove("open");
@@ -703,7 +830,6 @@
       channelDropdown.classList.remove("open");
     });
 
-    // 1. サーバー＆チャンネル読み込み
     async function loadGuilds() {
       try {
         const docSnap = await getDoc(doc(db, "settings", "guilds_cache"));
@@ -757,7 +883,6 @@
       }
     }
 
-    // 2. リアルタイムログ監視
     const q = query(
       collection(db, "bot_logs"), 
       orderBy("timestamp", "desc"), 
@@ -794,7 +919,6 @@
       });
     });
 
-    // 3. ボットステータス制御
     let isRunning = true;
     const statusRef = doc(db, "settings", "bot_status");
 
@@ -829,7 +953,6 @@
       }
     });
 
-    // 4. メッセージ送信処理
     sendMsgBtn.addEventListener("click", async () => {
       const content = messageInput.value.trim();
       const color = colorText.value.trim() || "#32CD32";
