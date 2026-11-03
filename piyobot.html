@@ -29,7 +29,51 @@
       min-height: 100vh;
     }
 
-    /* 固定サイドメニュー */
+    /* モバイル用トップバー（初期状態は隠す） */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background-color: var(--sidebar-bg);
+      border-bottom: 1px solid var(--card-border);
+      padding: 0 16px;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 500;
+    }
+
+    .mobile-brand {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .hamburger-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    /* モバイル用オーバーレイ背景 */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 900;
+    }
+
+    /* サイドメニュー */
     aside {
       width: 260px;
       height: 100vh;
@@ -42,7 +86,8 @@
       flex-direction: column;
       padding: 24px 16px;
       box-sizing: border-box;
-      z-index: 100;
+      z-index: 1000;
+      transition: transform 0.3s ease;
     }
 
     .sidebar-brand {
@@ -52,7 +97,16 @@
       margin-bottom: 32px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      justify-content: space-between;
+    }
+
+    .close-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
     }
 
     .sidebar-menu {
@@ -98,6 +152,7 @@
       padding: 40px;
       box-sizing: border-box;
       max-width: 1100px;
+      width: 100%;
     }
 
     header {
@@ -128,12 +183,6 @@
       grid-template-columns: 1fr 380px;
       gap: 24px;
       align-items: start;
-    }
-
-    @media (max-width: 1024px) {
-      .custom-layout {
-        grid-template-columns: 1fr;
-      }
     }
 
     .sticky-preview-wrapper {
@@ -187,12 +236,6 @@
       margin-bottom: 24px;
     }
 
-    @media (max-width: 768px) {
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .stat-card {
       background-color: var(--input-bg);
       border: 1px solid var(--card-border);
@@ -226,6 +269,7 @@
 
     .variable-chips {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 6px;
     }
@@ -235,7 +279,7 @@
       border: 1px solid #3f3f46;
       color: #38bdf8;
       font-size: 0.78rem;
-      padding: 3px 8px;
+      padding: 4px 8px;
       border-radius: 6px;
       cursor: pointer;
       font-family: monospace;
@@ -280,7 +324,6 @@
       font-family: monospace;
     }
 
-    /* 飛び出し防止を最適化したカラーパレットポップアップ */
     .custom-palette-popup {
       position: absolute;
       top: calc(100% + 4px);
@@ -388,7 +431,6 @@
       background-color: #3f3f46;
     }
 
-    /* Discord風プレビュー構想図カード */
     .preview-card-container {
       background-color: #313338;
       border-radius: 8px;
@@ -472,7 +514,6 @@
       gap: 6px;
     }
 
-    /* カスタムドロップダウン */
     .custom-select-container {
       position: relative;
       user-select: none;
@@ -596,7 +637,6 @@
       background-color: #2563eb;
     }
 
-    /* 通知設定画面の個別セクション（overflowをvisibleに変更してポップアップがはみ出せるようにする） */
     .notice-setting-card {
       background-color: var(--input-bg);
       border: 1px solid var(--card-border);
@@ -612,7 +652,6 @@
       border-color: var(--accent-blue);
     }
 
-    /* ログコンテナ */
     .log-container {
       background-color: var(--log-bg);
       border: 1px solid var(--card-border);
@@ -644,7 +683,6 @@
       margin-right: 8px;
     }
 
-    /* モーダル */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -715,14 +753,83 @@
       color: var(--text-muted);
       font-size: 0.9rem;
     }
+
+    /* ==========================================
+       📱 スマホ対応レスポンシブ CSS (幅768px以下)
+       ========================================== */
+    @media (max-width: 768px) {
+      .mobile-header {
+        display: flex; /* モバイル用ヘッダーを表示 */
+      }
+
+      aside {
+        transform: translateX(-100%); /* 初期状態で左に隠す */
+        width: 280px;
+        box-shadow: 8px 0 24px rgba(0,0,0,0.8);
+      }
+
+      aside.open {
+        transform: translateX(0); /* メニュー展開時表示 */
+      }
+
+      .close-menu-btn {
+        display: block; /* メニュー内の閉じるボタンを表示 */
+      }
+
+      .sidebar-overlay.open {
+        display: block; /* 暗い背景を表示 */
+      }
+
+      main {
+        margin-left: 0;
+        padding: 80px 16px 24px 16px; /* モバイルヘッダー分の余白を空ける */
+      }
+
+      header h1 {
+        font-size: 1.4rem;
+      }
+
+      .custom-layout {
+        grid-template-columns: 1fr; /* 1列に並べる */
+        gap: 16px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .sticky-preview-wrapper {
+        position: static; /* スマホではスクロール追従を解除 */
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .preview-message-box, .preview-embed-box {
+        margin-left: 0;
+        margin-top: 8px;
+      }
+    }
   </style>
 </head>
 <body>
 
+  <!-- モバイル用ヘッダー -->
+  <div class="mobile-header">
+    <div class="mobile-brand">🐤 piyobot</div>
+    <button class="hamburger-btn" id="open-menu-btn">≡</button>
+  </div>
+
+  <!-- モバイル用背景暗転オーバーレイ -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
   <!-- 左側サイドメニュー -->
-  <aside>
+  <aside id="sidebar">
     <div class="sidebar-brand">
-      🐤 piyobot
+      <span>🐤 piyobot</span>
+      <button class="close-menu-btn" id="close-menu-btn">✕</button>
     </div>
     <ul class="sidebar-menu">
       <li class="active" id="menu-dashboard"><button onclick="switchTab('dashboard')">📊 ダッシュボード</button></li>
@@ -871,7 +978,6 @@
             </div>
             <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！" onclick="event.stopPropagation(); selectNoticeTab('welcome')"></textarea>
             
-            <!-- 通知設定カード専用カラーパレットポップアップ -->
             <div class="custom-palette-popup" id="palette-popup-welcome">
               <div class="palette-canvas-container">
                 <canvas class="palette-canvas" id="canvas-welcome"></canvas>
@@ -899,7 +1005,7 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-join', '{user}')">+ {user}</span>
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-join', '{channel}')">+ {channel}</span>
             </div>
-            <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）" onclick="event.stopPropagation(); selectNoticeTab('join')"></textarea>
+            <textarea id="notif-join" class="form-textarea" placeholder="{user}さんがボイスチャンネル[{channel}]に参加しました。" onclick="event.stopPropagation(); selectNoticeTab('join')"></textarea>
             
             <div class="custom-palette-popup" id="palette-popup-join">
               <div class="palette-canvas-container">
@@ -929,7 +1035,7 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-move', '{old_channel}')">+ {old_channel}</span>
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-move', '{new_channel}')">+ {new_channel}</span>
             </div>
-            <textarea id="notif-move" class="form-textarea" placeholder="{user} さんが通話を移動しました。（{old_channel} ➔ {new_channel}）" onclick="event.stopPropagation(); selectNoticeTab('move')"></textarea>
+            <textarea id="notif-move" class="form-textarea" placeholder="👥{user}さんがボイスチャンネル[{old_channel}]から[{new_channel}]に移動しました。" onclick="event.stopPropagation(); selectNoticeTab('move')"></textarea>
             
             <div class="custom-palette-popup" id="palette-popup-move">
               <div class="palette-canvas-container">
@@ -958,7 +1064,7 @@
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-leave', '{user}')">+ {user}</span>
               <span class="var-chip" onclick="event.stopPropagation(); insertVariable('notif-leave', '{channel}')">+ {channel}</span>
             </div>
-            <textarea id="notif-leave" class="form-textarea" placeholder="{user} さんが通話を退出しました。（{channel}）" onclick="event.stopPropagation(); selectNoticeTab('leave')"></textarea>
+            <textarea id="notif-leave" class="form-textarea" placeholder="{user}さんがボイスチャンネル[{channel}]を退出しました。" onclick="event.stopPropagation(); selectNoticeTab('leave')"></textarea>
             
             <div class="custom-palette-popup" id="palette-popup-leave">
               <div class="palette-canvas-container">
@@ -976,7 +1082,7 @@
           <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
         </div>
 
-        <!-- 右側：通知プレビュー構想図（固定） -->
+        <!-- 右側：通知プレビュー構想図 -->
         <div class="sticky-preview-wrapper">
           <div class="card" style="margin-bottom: 0;">
             <h2>通知プレビュー（構想図）</h2>
@@ -1065,7 +1171,27 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // タブ切り替え
+    // --- スマホ用ハンバーガーメニュー制御 ---
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const openMenuBtn = document.getElementById('open-menu-btn');
+    const closeMenuBtn = document.getElementById('close-menu-btn');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('open');
+    }
+
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('open');
+    }
+
+    openMenuBtn.addEventListener('click', openSidebar);
+    closeMenuBtn.addEventListener('click', closeSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // タブ切り替え（スマホの時は選択後にメニューを自動で閉じる）
     window.switchTab = function(tabName) {
       document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
       document.querySelectorAll('.sidebar-menu li').forEach(li => li.classList.remove('active'));
@@ -1092,6 +1218,8 @@
         document.getElementById('page-title').textContent = '稼働ログ';
         document.getElementById('page-desc').textContent = 'ボットの動作やイベント履歴をリアルタイムで確認できます。';
       }
+
+      closeSidebar();
     };
 
     window.closeModal = function(modalId) {
@@ -1196,6 +1324,11 @@
       window.addEventListener("mouseup", () => { isDrawing = false; });
       canvas.addEventListener("mousemove", (e) => { if (isDrawing) pickColor(e); });
 
+      // タッチ操作（スマホ）のサポート
+      canvas.addEventListener("touchstart", (e) => { isDrawing = true; pickColor(e.touches[0]); });
+      window.addEventListener("touchend", () => { isDrawing = false; });
+      canvas.addEventListener("touchmove", (e) => { if (isDrawing) pickColor(e.touches[0]); });
+
       function pickColor(e) {
         const rect = canvas.getBoundingClientRect();
         const x = Math.max(0, Math.min(e.clientX - rect.left, canvas.width));
@@ -1221,7 +1354,6 @@
       event.stopPropagation();
       selectNoticeTab(type);
       
-      // 他のポップアップをすべて閉じる
       Object.keys(noticeConfigData).forEach(k => {
         document.getElementById(noticeConfigData[k].popupId).classList.remove("open");
       });
@@ -1230,7 +1362,6 @@
       const popup = document.getElementById(conf.popupId);
       popup.classList.add("open");
 
-      // キャンバスを再描画
       const canvas = document.getElementById(conf.canvasId);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       canvas.width = 196;
@@ -1262,7 +1393,6 @@
       document.getElementById(conf.popupId).classList.remove("open");
     };
 
-    // パレット外クリックで閉じる
     document.addEventListener("click", (e) => {
       if (!e.target.closest('.custom-palette-popup') && !e.target.classList.contains('notice-color-preview')) {
         Object.keys(noticeConfigData).forEach(k => {
@@ -1417,6 +1547,10 @@
     paletteCanvas.addEventListener("mousedown", (e) => { isMouseDown = true; pickColorFromCanvas(e); });
     window.addEventListener("mouseup", () => { isMouseDown = false; });
     paletteCanvas.addEventListener("mousemove", (e) => { if (isMouseDown) pickColorFromCanvas(e); });
+
+    paletteCanvas.addEventListener("touchstart", (e) => { isMouseDown = true; pickColorFromCanvas(e.touches[0]); });
+    window.addEventListener("touchend", () => { isMouseDown = false; });
+    paletteCanvas.addEventListener("touchmove", (e) => { if (isMouseDown) pickColorFromCanvas(e.touches[0]); });
 
     function pickColorFromCanvas(e) {
       const rect = paletteCanvas.getBoundingClientRect();
@@ -1646,7 +1780,7 @@
         document.getElementById('error-msg').textContent = "送信リクエストの追加に失敗しました。";
         document.getElementById('error-modal').classList.add('show');
       } finally {
-        sendMsgBtn.disabled, sendMsgBtn.disabled = false;
+        sendMsgBtn.disabled = false;
         sendMsgBtn.textContent = "Discordに送信";
       }
     });
