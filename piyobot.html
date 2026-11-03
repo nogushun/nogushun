@@ -18,6 +18,10 @@
       --log-bg: #09090b;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       padding: 0;
@@ -28,15 +32,20 @@
       min-height: 100vh;
     }
 
-    /* サイドメニュー */
+    /* サイドメニュー（固定配置） */
     aside {
       width: 260px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
       background-color: var(--sidebar-bg);
       border-right: 1px solid var(--card-border);
       display: flex;
       flex-direction: column;
       padding: 24px 16px;
       box-sizing: border-box;
+      z-index: 100;
     }
 
     .sidebar-brand {
@@ -81,9 +90,10 @@
       border-top: 1px solid var(--card-border);
     }
 
-    /* メインコンテンツ */
+    /* メインコンテンツエリア（サイドバーの幅分マージンを空ける） */
     main {
       flex: 1;
+      margin-left: 260px;
       padding: 40px;
       box-sizing: border-box;
       max-width: 900px;
@@ -112,6 +122,7 @@
       padding: 24px;
       margin-bottom: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      scroll-margin-top: 40px;
     }
 
     .card h2 {
@@ -256,10 +267,12 @@
         flex-direction: column;
       }
       aside {
+        position: relative;
         width: 100%;
-        padding: 16px;
+        height: auto;
       }
       main {
+        margin-left: 0;
         padding: 20px;
       }
     }
@@ -267,14 +280,16 @@
 </head>
 <body>
 
-  <!-- 左側サイドメニュー -->
+  <!-- 左側サイドメニュー（固定配置） -->
   <aside>
     <div class="sidebar-brand">
       🐤 piyobot
     </div>
     <ul class="sidebar-menu">
-      <li class="active"><a href="#">📊 ダッシュボード</a></li>
-      <li><a href="./">← メイン管理に戻る</a></li>
+      <li class="active"><a href="#status-card">📊 ダッシュボード</a></li>
+      <li><a href="#custom-message-card">💬 カスタムメッセージ</a></li>
+      <li><a href="#log-card">📜 稼働ログ</a></li>
+      <li style="margin-top: 12px;"><a href="./">← メイン管理に戻る</a></li>
     </ul>
     <div class="sidebar-footer">
       <span style="font-size: 0.8rem; color: var(--text-muted);">Status: Online</span>
@@ -289,7 +304,7 @@
     </header>
 
     <!-- ボットステータス制御 -->
-    <div class="card">
+    <div class="card" id="status-card">
       <h2>ボットステータス制御</h2>
       <div class="status-text">
         現在の状態: <span class="status-badge" id="status-badge"></span><strong id="status-label">有効 (稼働中)</strong>
@@ -298,7 +313,7 @@
     </div>
 
     <!-- カスタムメッセージ送信フォーム -->
-    <div class="card">
+    <div class="card" id="custom-message-card">
       <h2>カスタムメッセージ送信</h2>
       <div class="form-group">
         <label for="channel-id-input">送信先チャンネルID</label>
@@ -312,7 +327,7 @@
     </div>
 
     <!-- 最新の稼働ログ -->
-    <div class="card">
+    <div class="card" id="log-card">
       <h2>リアルタイム稼働ログ</h2>
       <div class="log-container" id="log-list">
         <div class="log-item" style="color: var(--text-muted);">ログを読み込んでいます...</div>
