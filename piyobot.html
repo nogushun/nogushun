@@ -136,6 +136,12 @@
       }
     }
 
+    /* プレビュー側を画面に固定するスタイル */
+    .sticky-preview-wrapper {
+      position: sticky;
+      top: 40px;
+    }
+
     .card {
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -278,20 +284,21 @@
       font-family: monospace;
     }
 
-    /* 自作カラーパレットポップアップ */
+    /* 修正済みの自作カラーパレットポップアップ（飛び出し防止＆サイズ最適化） */
     .custom-palette-popup {
       position: absolute;
       top: calc(100% + 6px);
       left: 0;
-      width: 280px;
+      width: 250px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
       border-radius: 12px;
-      padding: 16px;
+      padding: 14px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
       z-index: 1000;
       display: none;
       user-select: none;
+      box-sizing: border-box;
     }
 
     .custom-palette-popup.open {
@@ -301,11 +308,11 @@
     .palette-canvas-container {
       position: relative;
       width: 100%;
-      height: 140px;
-      border-radius: 8px;
+      height: 120px;
+      border-radius: 6px;
       overflow: hidden;
       cursor: crosshair;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .palette-canvas {
@@ -317,14 +324,14 @@
     .palette-sliders {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-bottom: 14px;
+      gap: 6px;
+      margin-bottom: 10px;
     }
 
     .palette-slider {
       width: 100%;
-      height: 12px;
-      border-radius: 6px;
+      height: 10px;
+      border-radius: 5px;
       outline: none;
       cursor: pointer;
       -webkit-appearance: none;
@@ -333,8 +340,8 @@
 
     .palette-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid #000000;
@@ -342,15 +349,16 @@
     }
 
     .palette-presets-label {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .palette-presets-grid {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
-      gap: 6px;
+      gap: 5px;
+      margin-bottom: 10px;
     }
 
     .palette-preset-item {
@@ -365,6 +373,23 @@
     .palette-preset-item:hover {
       transform: scale(1.15);
       border-color: #ffffff;
+    }
+
+    .palette-default-btn {
+      width: 100%;
+      background-color: #27272a;
+      border: 1px solid #3f3f46;
+      color: var(--text-main);
+      font-size: 0.78rem;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.2s;
+    }
+
+    .palette-default-btn:hover {
+      background-color: #3f3f46;
     }
 
     /* Discord風プレビュー構想図カード */
@@ -785,6 +810,7 @@
               </div>
               <div class="palette-presets-label">カラーテンプレート</div>
               <div class="palette-presets-grid" id="preset-grid"></div>
+              <div class="palette-default-btn" onclick="updateColor('#32CD32', true); palettePopup.classList.remove('open');">デフォルトに戻す (#32CD32)</div>
             </div>
           </div>
 
@@ -795,7 +821,7 @@
           <button class="btn btn-blue" id="send-msg-btn">Discordに送信</button>
         </div>
 
-        <div>
+        <div class="sticky-preview-wrapper">
           <div class="card" style="margin-bottom: 0;">
             <h2>送信プレビュー（構想図）</h2>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Discordで実際にどのように表示されるかのイメージです。</p>
@@ -821,7 +847,7 @@
       </div>
     </section>
 
-    <!-- 3. 通知メッセージ設定画面（全通知にカラーピッカー＆通話移動追加） -->
+    <!-- 3. 通知メッセージ設定画面 -->
     <section id="section-notices" class="content-section">
       <div class="custom-layout">
         <!-- 左側：編集フォーム -->
@@ -865,7 +891,7 @@
             <textarea id="notif-join" class="form-textarea" placeholder="{user} さんが通話に参加しました。（{channel}）" onclick="event.stopPropagation(); selectNoticeTab('join')"></textarea>
           </div>
 
-          <!-- 3. 通話移動メッセージ設定 (新規追加) -->
+          <!-- 3. 通話移動メッセージ設定 -->
           <div class="notice-setting-card" id="card-move" onclick="selectNoticeTab('move')">
             <div class="form-group" style="margin-bottom: 12px;">
               <label>🔄 ボイスチャンネル移動メッセージ</label>
@@ -903,8 +929,8 @@
           <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
         </div>
 
-        <!-- 右側：通知プレビュー構想図 -->
-        <div>
+        <!-- 右側：通知プレビュー構想図（固定） -->
+        <div class="sticky-preview-wrapper">
           <div class="card" style="margin-bottom: 0;">
             <h2>通知プレビュー（構想図）</h2>
             <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">選択中のイベント通知の見た目です。</p>
@@ -931,7 +957,7 @@
       </div>
     </section>
 
-    <!-- 共有用カラーパレットポップアップ（通知設定画面用） -->
+    <!-- 共有用カラーパレットポップアップ（通知設定画面用・デフォルトボタン付き） -->
     <div class="custom-palette-popup" id="notice-palette-popup">
       <div class="palette-canvas-container">
         <canvas class="palette-canvas" id="notice-palette-canvas"></canvas>
@@ -941,6 +967,7 @@
       </div>
       <div class="palette-presets-label">カラーテンプレート</div>
       <div class="palette-presets-grid" id="notice-preset-grid"></div>
+      <div class="palette-default-btn" onclick="applyNoticeDefaultColor()">デフォルトに戻す</div>
     </div>
 
     <!-- 4. 稼働ログ画面 -->
@@ -1080,7 +1107,6 @@
       document.getElementById("preview-notice-desc").textContent = val;
     }
 
-    // 各テキストエリアの入力時にプレビューを同期
     Object.keys(noticeConfigData).forEach(type => {
       const conf = noticeConfigData[type];
       const ta = document.getElementById(conf.inputId);
@@ -1103,19 +1129,18 @@
       activeNoticeType = type;
       selectNoticeTab(type);
       const conf = noticeConfigData[type];
-      const colorInput = document.getElementById(conf.colorInputId);
       editingColorInputId = conf.colorInputId;
 
       const rect = document.getElementById(conf.previewBoxId).getBoundingClientRect();
       noticePalettePopup.style.top = (rect.bottom + window.scrollY + 6) + 'px';
-      noticePalettePopup.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 300) + 'px';
+      noticePalettePopup.style.left = Math.min(rect.left + window.scrollX, window.innerWidth - 270) + 'px';
       noticePalettePopup.classList.add("open");
       drawNoticePalette(currentNoticeHue);
     };
 
     function drawNoticePalette(hue) {
-      noticePaletteCanvas.width = 248;
-      noticePaletteCanvas.height = 140;
+      noticePaletteCanvas.width = 220;
+      noticePaletteCanvas.height = 120;
       const width = noticePaletteCanvas.width;
       const height = noticePaletteCanvas.height;
 
@@ -1173,14 +1198,21 @@
       }
     }
 
-    // パレット外クリックで閉じる
+    window.applyNoticeDefaultColor = function() {
+      const type = Object.keys(noticeConfigData).find(k => noticeConfigData[k].colorInputId === editingColorInputId);
+      if (type) {
+        const defaultHex = noticeConfigData[type].defaultColor;
+        applyNoticeColor(defaultHex);
+        noticePalettePopup.classList.remove("open");
+      }
+    };
+
     document.addEventListener("click", (e) => {
       if (!noticePalettePopup.contains(e.target) && !e.target.classList.contains('notice-color-preview')) {
         noticePalettePopup.classList.remove("open");
       }
     });
 
-    // テンプレート生成
     const presetColors = [
       "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
       "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
@@ -1198,7 +1230,6 @@
       });
       noticePresetGrid.appendChild(item);
     });
-
 
     // --- 設定保存処理 ---
     const saveNotifsBtn = document.getElementById("save-notifs-btn");
@@ -1321,8 +1352,8 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = paletteCanvas.offsetWidth;
-      paletteCanvas.height = paletteCanvas.offsetHeight;
+      paletteCanvas.width = 220;
+      paletteCanvas.height = 120;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
 
