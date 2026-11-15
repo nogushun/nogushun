@@ -325,12 +325,12 @@
       font-family: monospace;
     }
 
-    /* 完全にコンパクトに小型化したカラーパレットポップアップ */
+    /* 140pxに調整されたコンパクトなカラーパレットポップアップ */
     .custom-palette-popup {
       position: absolute;
       top: 40px;
       left: 0;
-      width: 180px;
+      width: 140px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
       border-radius: 8px;
@@ -349,7 +349,7 @@
     .palette-canvas-container {
       position: relative;
       width: 100%;
-      height: 60px;
+      height: 50px;
       border-radius: 5px;
       overflow: hidden;
       cursor: crosshair;
@@ -371,7 +371,7 @@
 
     .palette-slider {
       width: 100%;
-      height: 6px;
+      height: 5px;
       border-radius: 3px;
       outline: none;
       cursor: pointer;
@@ -382,8 +382,8 @@
 
     .palette-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid #000000;
@@ -396,7 +396,6 @@
       margin-bottom: 3px;
     }
 
-    /* カラーテンプレートを8列からスッキリ4列に変更してコンパクトに収納 */
     .palette-presets-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -423,7 +422,7 @@
       background-color: #27272a;
       border: 1px solid #3f3f46;
       color: var(--text-main);
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       padding: 4px;
       border-radius: 4px;
       cursor: pointer;
@@ -1296,8 +1295,8 @@
       let currentHue = 120;
 
       function drawCanvas(hue) {
-        canvas.width = 164;
-        canvas.height = 60;
+        canvas.width = 124;
+        canvas.height = 50;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1363,8 +1362,8 @@
 
       const canvas = document.getElementById(conf.canvasId);
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      canvas.width = 164;
-      canvas.height = 60;
+      canvas.width = 124;
+      canvas.height = 50;
       ctx.fillStyle = `hsl(120, 100%, 50%)`;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     };
@@ -1521,8 +1520,8 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue) {
-      paletteCanvas.width = 164;
-      paletteCanvas.height = 60;
+      paletteCanvas.width = 124;
+      paletteCanvas.height = 50;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
 
@@ -1590,6 +1589,7 @@
     const statusLabel = document.getElementById("status-label");
     const dashStatusText = document.getElementById("dash-status-text");
     const dashGuildsCount = document.getElementById("dash-guilds-count");
+    const dashPingEl = document.getElementById("dash-ping");
     const sendMsgBtn = document.getElementById("send-msg-btn");
 
     const guildDropdown = document.getElementById("guild-dropdown");
@@ -1716,8 +1716,13 @@
       if (docSnap.exists()) {
         const data = docSnap.data();
         isRunning = data.running !== false;
+        
+        // Ping値のリアルタイム反映
+        if (data.ping !== undefined) {
+          dashPingEl.textContent = data.ping + " ms";
+        }
       } else {
-        setDoc(statusRef, { running: true });
+        setDoc(statusRef, { running: true, ping: 0 });
         isRunning = true;
       }
 

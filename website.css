@@ -33,10 +33,12 @@ body {
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-/* プロフィールヘッダー */
+/* プロフィールヘッダー (1番目に登場) */
 .profile-header {
     text-align: center;
     margin-bottom: 30px;
+    opacity: 0;
+    animation: sequentialShow 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
 }
 
 .profile-avatar {
@@ -60,7 +62,36 @@ body {
     margin: 0;
 }
 
-/* 各種リンクボタン */
+/* 自己紹介カード (2番目に登場) */
+main > .card:nth-of-type(1) {
+    opacity: 0;
+    animation: sequentialShow 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+}
+
+/* リンクカード (3番目に登場) */
+main > .card:nth-of-type(2) {
+    opacity: 0;
+    animation: sequentialShow 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+
+/* メッセージカード (4番目に登場) */
+main > .card:nth-of-type(3) {
+    opacity: 0;
+    animation: sequentialShow 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards;
+}
+
+/* フッター (最後に登場) */
+footer {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-top: 40px;
+    margin-bottom: 20px;
+    opacity: 0;
+    animation: sequentialShow 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+}
+
+/* 各種リンクボタン（ホバーアニメーション付き） */
 .btn {
     display: flex;
     align-items: center;
@@ -71,7 +102,13 @@ body {
     text-decoration: none;
     font-weight: bold;
     font-size: 14px;
-    transition: 0.2s;
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.92;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
 }
 
 .btn-bluesky {
@@ -101,15 +138,6 @@ body {
 .message-page-link:hover {
     text-decoration: underline;
     opacity: 0.85;
-}
-
-/* フッター */
-footer {
-    text-align: center;
-    font-size: 12px;
-    color: var(--text-sub);
-    margin-top: 40px;
-    margin-bottom: 20px;
 }
 
 /* アクションボタン（編集・削除） */
@@ -193,7 +221,7 @@ footer {
     padding: 12px 16px;
     flex-grow: 1;
     position: relative;
-    overflow: hidden; /* はみ出し防止の追加設定 */
+    overflow: hidden;
     word-break: break-all;
     overflow-wrap: break-word;
 }
@@ -288,23 +316,22 @@ footer {
     color: #fff;
     border-color: #3b82f6;
 }
-/* メッセージ入力欄やフォーム要素が枠からはみ出さないようにする設定 */
+
 textarea, input {
     box-sizing: border-box;
     max-width: 100%;
 }
-/* 投稿されたチャット画像の画質と表示の鮮明化 */
+
 .chat-bubble img {
     max-width: 100%;
-    height: auto !important; /* 高さを固定せず縦横比を綺麗に維持 */
-    max-height: 250px;       /* 大きすぎる場合は適度な高さに制限 */
+    height: auto !important;
+    max-height: 250px;
     border-radius: 8px;
     cursor: pointer;
-    object-fit: contain;     /* 画像全体を綺麗に収める */
+    object-fit: contain;
     background: rgba(0, 0, 0, 0.2);
 }
 
-/* メディアタブのグリッド画像の鮮明化 */
 #media-container img {
     width: calc(33.333% - 6px);
     height: 120px;
@@ -315,4 +342,33 @@ textarea, input {
 }
 #media-container img:hover {
     opacity: 0.85;
+}
+
+/* ------------------------------------------
+   1, 2, 3 とテンポよく出現するアニメーション
+------------------------------------------ */
+@keyframes sequentialShow {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 2.8s linear infinite;
+    margin: 20px auto;
 }
