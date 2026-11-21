@@ -19,14 +19,18 @@
       --input-bg: #121215;
     }
 
+    *, *:before, *:after {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
       font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
       background-color: var(--bg-color);
       color: var(--text-main);
-      display: flex;
       min-height: 100vh;
+      overflow-x: hidden;
     }
 
     /* モバイル用トップバー */
@@ -85,9 +89,7 @@
       display: flex;
       flex-direction: column;
       padding: 24px 16px;
-      box-sizing: border-box;
       z-index: 1000;
-      transition: transform 0.3s ease;
     }
 
     .sidebar-brand {
@@ -147,12 +149,11 @@
 
     /* メインコンテンツエリア */
     main {
-      flex: 1;
       margin-left: 260px;
       padding: 40px;
-      box-sizing: border-box;
       max-width: 1100px;
-      width: 100%;
+      width: calc(100% - 260px);
+      min-height: 100vh;
     }
 
     header {
@@ -180,7 +181,7 @@
 
     .custom-layout {
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: minmax(0, 1fr) 380px;
       gap: 24px;
       align-items: start;
     }
@@ -198,6 +199,7 @@
       margin-bottom: 24px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
       position: relative;
+      width: 100%;
     }
 
     .card h2 {
@@ -258,6 +260,7 @@
     .form-group {
       margin-bottom: 20px;
       position: relative;
+      width: 100%;
     }
 
     .form-group label {
@@ -298,6 +301,7 @@
       gap: 10px;
       margin-bottom: 8px;
       position: relative;
+      flex-wrap: nowrap;
     }
 
     .color-preview-box {
@@ -307,6 +311,7 @@
       border: 1px solid var(--card-border);
       cursor: pointer;
       transition: border-color 0.2s;
+      flex-shrink: 0;
     }
 
     .color-preview-box:hover {
@@ -323,23 +328,23 @@
       font-size: 0.85rem;
       outline: none;
       font-family: monospace;
+      flex-shrink: 0;
     }
 
-    /* 140pxに調整されたコンパクトなカラーパレットポップアップ */
+    /* カラーパレットポップアップ */
     .custom-palette-popup {
       position: absolute;
       top: 40px;
       left: 0;
-      width: 140px;
+      width: 240px;
       background-color: #16161a;
       border: 1px solid #3f3f46;
-      border-radius: 8px;
-      padding: 8px;
+      border-radius: 10px;
+      padding: 10px;
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
       z-index: 3000;
       display: none;
       user-select: none;
-      box-sizing: border-box;
     }
 
     .custom-palette-popup.open {
@@ -349,11 +354,15 @@
     .palette-canvas-container {
       position: relative;
       width: 100%;
-      height: 50px;
-      border-radius: 5px;
+      height: 130px;
+      border-radius: 6px;
       overflow: hidden;
-      cursor: crosshair;
-      margin-bottom: 6px;
+      cursor: grab;
+      margin-bottom: 8px;
+      touch-action: none;
+    }
+    .palette-canvas-container:active {
+      cursor: grabbing;
     }
 
     .palette-canvas {
@@ -365,25 +374,24 @@
     .palette-sliders {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      margin-bottom: 6px;
+      gap: 6px;
+      margin-bottom: 8px;
     }
 
     .palette-slider {
       width: 100%;
-      height: 5px;
+      height: 6px;
       border-radius: 3px;
       outline: none;
       cursor: pointer;
       -webkit-appearance: none;
       background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
-      box-sizing: border-box;
     }
 
     .palette-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 8px;
-      height: 8px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: #ffffff;
       border: 2px solid #000000;
@@ -391,25 +399,25 @@
     }
 
     .palette-presets-label {
-      font-size: 0.6rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
-      margin-bottom: 3px;
+      margin-bottom: 4px;
     }
 
     .palette-presets-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 4px;
-      margin-bottom: 6px;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 3px;
+      margin-bottom: 8px;
     }
 
     .palette-preset-item {
       width: 100%;
       aspect-ratio: 1;
       border-radius: 3px;
-      border: 1px solid var(--card-border);
+      border: 1px solid #52525b;
       cursor: pointer;
-      transition: transform 0.15s;
+      transition: transform 0.15s, border-color 0.15s;
     }
 
     .palette-preset-item:hover {
@@ -422,13 +430,12 @@
       background-color: #27272a;
       border: 1px solid #3f3f46;
       color: var(--text-main);
-      font-size: 0.6rem;
-      padding: 4px;
+      font-size: 0.65rem;
+      padding: 5px;
       border-radius: 4px;
       cursor: pointer;
       text-align: center;
       transition: background-color 0.2s;
-      box-sizing: border-box;
     }
 
     .palette-default-btn:hover {
@@ -443,6 +450,7 @@
       font-size: 0.9rem;
       box-shadow: 0 4px 12px rgba(0,0,0,0.5);
       border: 1px solid #3f4147;
+      word-break: break-all;
     }
 
     .preview-header {
@@ -458,6 +466,7 @@
       border-radius: 50%;
       object-fit: cover;
       background-color: #5865f2;
+      flex-shrink: 0;
     }
 
     .preview-bot-info {
@@ -491,7 +500,6 @@
       border-radius: 4px;
       padding: 10px 14px;
       margin-left: 52px;
-      border-left: 4px solid #32CD32;
       word-break: break-all;
       white-space: pre-wrap;
       min-height: 24px;
@@ -509,18 +517,10 @@
       color: #dbdee1;
     }
 
-    .preview-embed-title {
-      font-weight: bold;
-      color: #ffffff;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
     .custom-select-container {
       position: relative;
       user-select: none;
+      width: 100%;
     }
 
     .custom-select-trigger {
@@ -535,6 +535,7 @@
       align-items: center;
       cursor: pointer;
       transition: all 0.2s ease;
+      width: 100%;
     }
 
     .custom-select-trigger:hover {
@@ -577,7 +578,6 @@
       color: var(--text-muted);
       cursor: pointer;
       border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      transition: background-color 0.15s, color 0.15s;
     }
 
     .custom-option:last-child {
@@ -597,7 +597,6 @@
       padding: 12px 16px;
       color: var(--text-main);
       font-size: 0.95rem;
-      box-sizing: border-box;
       outline: none;
       transition: border-color 0.2s;
     }
@@ -621,6 +620,7 @@
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s ease;
+      width: 100%;
     }
 
     .btn-danger {
@@ -757,8 +757,11 @@
       font-size: 0.9rem;
     }
 
-    /* スマホ対応レスポンシブ CSS */
     @media (max-width: 768px) {
+      body {
+        overflow-x: hidden;
+      }
+
       .mobile-header {
         display: flex;
       }
@@ -784,10 +787,8 @@
       main {
         margin-left: 0;
         padding: 80px 16px 24px 16px;
-      }
-
-      header h1 {
-        font-size: 1.4rem;
+        max-width: 100vw;
+        width: 100vw;
       }
 
       .custom-layout {
@@ -812,6 +813,14 @@
         margin-left: 0;
         margin-top: 8px;
       }
+
+      .custom-palette-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 280px;
+      }
     }
   </style>
 </head>
@@ -823,10 +832,10 @@
     <button class="hamburger-btn" id="open-menu-btn">≡</button>
   </div>
 
-  <!-- モバイル用背景暗転オーバーレイ -->
+  <!-- オーバーレイ背景 -->
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-  <!-- 左側サイドメニュー -->
+  <!-- サイドメニュー -->
   <aside id="sidebar">
     <div class="sidebar-brand">
       <span>🐤 piyobot</span>
@@ -834,7 +843,7 @@
     </div>
     <ul class="sidebar-menu">
       <li class="active" id="menu-dashboard"><button onclick="switchTab('dashboard')">📊 ダッシュボード</button></li>
-      <li id="menu-custom"><button onclick="switchTab('custom')">💬 カスタムメッセージ</button></li>
+      <li id="menu-custom"><button onclick="switchTab('custom')">💬 メッセージ送信テスト</button></li>
       <li id="menu-notices"><button onclick="switchTab('notices')">⚙️ 通知メッセージ設定</button></li>
       <li id="menu-logs"><button onclick="switchTab('logs')">📜 稼働ログ</button></li>
       <li style="margin-top: 16px;"><a href="./" style="display:block; padding:12px 16px; color:var(--text-muted); text-decoration:none; font-size:0.95rem;">← メイン管理に戻る</a></li>
@@ -844,7 +853,7 @@
     </div>
   </aside>
 
-  <!-- メインコンテンツエリア -->
+  <!-- メインコンテンツ -->
   <main>
     <header>
       <h1 id="page-title">ダッシュボード</h1>
@@ -882,7 +891,7 @@
     <section id="section-custom" class="content-section">
       <div class="custom-layout">
         <div class="card">
-          <h2>カスタムメッセージ送信</h2>
+          <h2>メッセージ送信テスト</h2>
           
           <div class="form-group">
             <label>送信先サーバー</label>
@@ -893,14 +902,23 @@
           </div>
 
           <div class="form-group">
-            <label>送信先チャンネル</label>
+            <label>送信先チャンネル（※テキストチャンネルを選択してください）</label>
             <div class="custom-select-container" id="channel-dropdown">
               <div class="custom-select-trigger" id="channel-trigger">先にサーバーを選択してください</div>
               <div class="custom-select-options" id="channel-options"></div>
             </div>
           </div>
 
+          <!-- バナー追加のチェックボックス -->
           <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
+              <input type="checkbox" id="enable-banner-checkbox" style="width: 16px; height: 16px; accent-color: var(--accent-blue); cursor: pointer;">
+              <span>バナーを追加する（Embedサイドバーカラー）</span>
+            </label>
+          </div>
+
+          <!-- カラー選択エリア -->
+          <div class="form-group" id="banner-color-section" style="display: none;">
             <label for="color-text">アクセントカラー（サイドバーの色）</label>
             <div class="color-picker-row">
               <div class="color-preview-box" id="color-preview" style="background-color: #32CD32;" title="クリックしてカラーパレットを開く"></div>
@@ -962,21 +980,21 @@
             チップボタンをタップするとカーソル位置に変数を挿入できます。各カードを選択して色をカスタマイズ可能です。
           </p>
 
-          <!-- 1. ウェルカムメッセージ設定 -->
+          <!-- ウェルカムメッセージ -->
           <div class="notice-setting-card active-notice" id="card-welcome" onclick="selectNoticeTab('welcome')">
             <div class="form-group" style="margin-bottom: 12px;">
-              <label>🎉 ウェルカムメッセージ (メンバー参加時)</label>
+              <label>ウェルカムメッセージ</label>
               <div class="color-picker-row">
                 <div class="color-preview-box notice-color-preview" id="preview-box-welcome" style="background-color: #FFB6C1;" onclick="event.stopPropagation(); openNoticePalette('welcome')"></div>
                 <input type="text" id="color-welcome" class="color-text-input notice-color-input" value="#FFB6C1" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('welcome', this.value)">
-                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
                 <div class="custom-palette-popup" id="palette-popup-welcome">
                   <div class="palette-canvas-container">
                     <canvas class="palette-canvas" id="canvas-welcome"></canvas>
                   </div>
                   <div class="palette-sliders">
-                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-welcome">
+                    <input type="range" min="0" max="360" value="0" class="palette-slider" id="slider-welcome">
                   </div>
                   <div class="palette-presets-label">カラーテンプレート</div>
                   <div class="palette-presets-grid" id="presets-welcome"></div>
@@ -991,21 +1009,21 @@
             <textarea id="notif-welcome" class="form-textarea" placeholder="{user} さんサーバーへようこそ！" onclick="event.stopPropagation(); selectNoticeTab('welcome')"></textarea>
           </div>
 
-          <!-- 2. 通話参加メッセージ設定 -->
+          <!-- ボイス参加メッセージ -->
           <div class="notice-setting-card" id="card-join" onclick="selectNoticeTab('join')">
             <div class="form-group" style="margin-bottom: 12px;">
-              <label>🔊 ボイスチャンネル参加メッセージ</label>
+              <label>ボイスチャンネル参加通知</label>
               <div class="color-picker-row">
                 <div class="color-preview-box notice-color-preview" id="preview-box-join" style="background-color: #57F287;" onclick="event.stopPropagation(); openNoticePalette('join')"></div>
                 <input type="text" id="color-join" class="color-text-input notice-color-input" value="#57F287" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('join', this.value)">
-                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
                 <div class="custom-palette-popup" id="palette-popup-join">
                   <div class="palette-canvas-container">
                     <canvas class="palette-canvas" id="canvas-join"></canvas>
                   </div>
                   <div class="palette-sliders">
-                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-join">
+                    <input type="range" min="0" max="360" value="0" class="palette-slider" id="slider-join">
                   </div>
                   <div class="palette-presets-label">カラーテンプレート</div>
                   <div class="palette-presets-grid" id="presets-join"></div>
@@ -1020,21 +1038,21 @@
             <textarea id="notif-join" class="form-textarea" placeholder="{user}さんがボイスチャンネル[{channel}]に参加しました。" onclick="event.stopPropagation(); selectNoticeTab('join')"></textarea>
           </div>
 
-          <!-- 3. 通話移動メッセージ設定 -->
+          <!-- ボイス移動メッセージ -->
           <div class="notice-setting-card" id="card-move" onclick="selectNoticeTab('move')">
             <div class="form-group" style="margin-bottom: 12px;">
-              <label>🔄 ボイスチャンネル移動メッセージ</label>
+              <label>ボイスチャンネル移動通知</label>
               <div class="color-picker-row">
                 <div class="color-preview-box notice-color-preview" id="preview-box-move" style="background-color: #FEE75C;" onclick="event.stopPropagation(); openNoticePalette('move')"></div>
                 <input type="text" id="color-move" class="color-text-input notice-color-input" value="#FEE75C" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('move', this.value)">
-                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
                 <div class="custom-palette-popup" id="palette-popup-move">
                   <div class="palette-canvas-container">
                     <canvas class="palette-canvas" id="canvas-move"></canvas>
                   </div>
                   <div class="palette-sliders">
-                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-move">
+                    <input type="range" min="0" max="360" value="0" class="palette-slider" id="slider-move">
                   </div>
                   <div class="palette-presets-label">カラーテンプレート</div>
                   <div class="palette-presets-grid" id="presets-move"></div>
@@ -1050,21 +1068,21 @@
             <textarea id="notif-move" class="form-textarea" placeholder="👥{user}さんがボイスチャンネル[{old_channel}]から[{new_channel}]に移動しました。" onclick="event.stopPropagation(); selectNoticeTab('move')"></textarea>
           </div>
 
-          <!-- 4. 通話退出メッセージ設定 -->
+          <!-- ボイス退出メッセージ -->
           <div class="notice-setting-card" id="card-leave" onclick="selectNoticeTab('leave')">
             <div class="form-group" style="margin-bottom: 12px;">
-              <label>🔇 ボイスチャンネル退出メッセージ</label>
+              <label>ボイスチャンネル退出通知</label>
               <div class="color-picker-row">
                 <div class="color-preview-box notice-color-preview" id="preview-box-leave" style="background-color: #ED4245;" onclick="event.stopPropagation(); openNoticePalette('leave')"></div>
                 <input type="text" id="color-leave" class="color-text-input notice-color-input" value="#ED4245" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('leave', this.value)">
-                <span style="font-size: 0.8rem; color: var(--text-muted);">バナーカラー</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
                 <div class="custom-palette-popup" id="palette-popup-leave">
                   <div class="palette-canvas-container">
                     <canvas class="palette-canvas" id="canvas-leave"></canvas>
                   </div>
                   <div class="palette-sliders">
-                    <input type="range" min="0" max="360" value="120" class="palette-slider" id="slider-leave">
+                    <input type="range" min="0" max="360" value="0" class="palette-slider" id="slider-leave">
                   </div>
                   <div class="palette-presets-label">カラーテンプレート</div>
                   <div class="palette-presets-grid" id="presets-leave"></div>
@@ -1082,7 +1100,7 @@
           <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
         </div>
 
-        <!-- 右側：通知プレビュー構想図 -->
+        <!-- 通知プレビュー -->
         <div class="sticky-preview-wrapper">
           <div class="card" style="margin-bottom: 0;">
             <h2>通知プレビュー（構想図）</h2>
@@ -1101,7 +1119,6 @@
                 </div>
               </div>
               <div class="preview-embed-box" id="preview-notice-box">
-                <div class="preview-embed-title" id="preview-notice-title">🎉 メンバーが参加しました！</div>
                 <div id="preview-notice-desc">ここに通知メッセージがリアルタイムで反映されます...</div>
               </div>
             </div>
@@ -1121,7 +1138,7 @@
     </section>
   </main>
 
-  <!-- 送信完了モーダル -->
+  <!-- モーダル系 -->
   <div class="modal-overlay" id="success-modal">
     <div class="modal-card">
       <div class="modal-icon">✓</div>
@@ -1131,11 +1148,10 @@
     </div>
   </div>
 
-  <!-- エラーモーダル -->
   <div class="modal-overlay" id="error-modal">
     <div class="modal-card">
       <div class="modal-icon error">!</div>
-      <h3>通知</h3>
+      <h3 id="error-modal-title">通知</h3>
       <p id="error-msg">エラーが発生しました。</p>
       <button class="btn btn-blue" style="width: 100%;" onclick="closeModal('error-modal')">閉じる</button>
     </div>
@@ -1171,7 +1187,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // スマホ用ハンバーガーメニュー制御
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
     const openMenuBtn = document.getElementById('open-menu-btn');
@@ -1203,8 +1218,8 @@
       } else if (tabName === 'custom') {
         document.getElementById('section-custom').classList.add('active');
         document.getElementById('menu-custom').classList.add('active');
-        document.getElementById('page-title').textContent = 'カスタムメッセージ';
-        document.getElementById('page-desc').textContent = 'ボットが導入されているサーバーとチャンネルを選択してメッセージを送信します。';
+        document.getElementById('page-title').textContent = 'メッセージ送信テスト';
+        document.getElementById('page-desc').textContent = 'ボットが導入されているテキストチャンネルを選択してメッセージの送信テストを行います。';
       } else if (tabName === 'notices') {
         document.getElementById('section-notices').classList.add('active');
         document.getElementById('menu-notices').classList.add('active');
@@ -1236,13 +1251,12 @@
       textarea.dispatchEvent(new Event('input'));
     };
 
-    // --- 通知メッセージ設定関連のロジック ---
     let activeNoticeType = 'welcome';
     const noticeConfigData = {
-      welcome: { title: '🎉 メンバーが参加しました！', inputId: 'notif-welcome', colorInputId: 'color-welcome', previewBoxId: 'preview-box-welcome', popupId: 'palette-popup-welcome', canvasId: 'canvas-welcome', sliderId: 'slider-welcome', presetsId: 'presets-welcome', defaultColor: '#FFB6C1' },
-      join: { title: '🔊 通話参加通知', inputId: 'notif-join', colorInputId: 'color-join', previewBoxId: 'preview-box-join', popupId: 'palette-popup-join', canvasId: 'canvas-join', sliderId: 'slider-join', presetsId: 'presets-join', defaultColor: '#57F287' },
-      move: { title: '🔄 通話移動通知', inputId: 'notif-move', colorInputId: 'color-move', previewBoxId: 'preview-box-move', popupId: 'palette-popup-move', canvasId: 'canvas-move', sliderId: 'slider-move', presetsId: 'presets-move', defaultColor: '#FEE75C' },
-      leave: { title: '🔇 通話退出通知', inputId: 'notif-leave', colorInputId: 'color-leave', previewBoxId: 'preview-box-leave', popupId: 'palette-popup-leave', canvasId: 'canvas-leave', sliderId: 'slider-leave', presetsId: 'presets-leave', defaultColor: '#ED4245' }
+      welcome: { inputId: 'notif-welcome', colorInputId: 'color-welcome', previewBoxId: 'preview-box-welcome', popupId: 'palette-popup-welcome', canvasId: 'canvas-welcome', sliderId: 'slider-welcome', presetsId: 'presets-welcome', defaultColor: '#FFB6C1', markerX: 110, markerY: 60 },
+      join: { inputId: 'notif-join', colorInputId: 'color-join', previewBoxId: 'preview-box-join', popupId: 'palette-popup-join', canvasId: 'canvas-join', sliderId: 'slider-join', presetsId: 'presets-join', defaultColor: '#57F287', markerX: 110, markerY: 60 },
+      move: { inputId: 'notif-move', colorInputId: 'color-move', previewBoxId: 'preview-box-move', popupId: 'palette-popup-move', canvasId: 'canvas-move', sliderId: 'slider-move', presetsId: 'presets-move', defaultColor: '#FEE75C', markerX: 110, markerY: 60 },
+      leave: { inputId: 'notif-leave', colorInputId: 'color-leave', previewBoxId: 'preview-box-leave', popupId: 'palette-popup-leave', canvasId: 'canvas-leave', sliderId: 'slider-leave', presetsId: 'presets-leave', defaultColor: '#ED4245', markerX: 110, markerY: 60 }
     };
 
     window.selectNoticeTab = function(type) {
@@ -1258,7 +1272,6 @@
       const colorHex = document.getElementById(conf.colorInputId).value || conf.defaultColor;
 
       document.getElementById("preview-notice-box").style.borderLeftColor = colorHex;
-      document.getElementById("preview-notice-title").textContent = conf.title;
 
       let val = textarea.value.trim() || textarea.placeholder;
       val = val.replace(/{user}/g, "nogushunN")
@@ -1276,13 +1289,37 @@
       });
     });
 
-    // --- カラーパレットの初期化 ---
     const presetColors = [
       "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
       "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
       "#ec4899", "#f43f5e", "#ef4444", "#f97316", 
       "#eab308", "#84cc16", "#ffffff", "#000000"
     ];
+
+    const noticePalettes = {};
+
+    function hexToRgb(hex) {
+      const bigint = parseInt(hex.replace('#',''), 16);
+      return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
+    }
+
+    function rgbToHsl(r, g, b) {
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      let h, s, l = (max + min) / 2;
+      if (max === min) { h = s = 0; }
+      else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+          case g: h = (b - r) / d + 2; break;
+          case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+      }
+      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+    }
 
     Object.keys(noticeConfigData).forEach(type => {
       const conf = noticeConfigData[type];
@@ -1292,11 +1329,9 @@
       const slider = document.getElementById(conf.sliderId);
       const presetsGrid = document.getElementById(conf.presetsId);
 
-      let currentHue = 120;
-
-      function drawCanvas(hue) {
-        canvas.width = 124;
-        canvas.height = 50;
+      function drawCanvas(hue, mx, my) {
+        canvas.width = 220;
+        canvas.height = 120;
         ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -1311,29 +1346,63 @@
         gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
         ctx.fillStyle = gradBlack;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (mx !== undefined && my !== undefined) {
+          ctx.save();
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+          ctx.shadowBlur = 4;
+          ctx.strokeStyle = "#ffffff";
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(mx, my, 5, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+        }
       }
 
+      noticePalettes[type] = { draw: drawCanvas };
+
       slider.addEventListener("input", (e) => {
-        currentHue = e.target.value;
-        drawCanvas(currentHue);
+        const hue = e.target.value;
+        drawCanvas(hue, conf.markerX, conf.markerY);
+        const pixel = ctx.getImageData(conf.markerX, conf.markerY, 1, 1).data;
+        const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
+        applyColorToNotice(type, hex, false);
       });
 
       let isDrawing = false;
+      
       canvas.addEventListener("mousedown", (e) => { isDrawing = true; pickColor(e); });
       window.addEventListener("mouseup", () => { isDrawing = false; });
       canvas.addEventListener("mousemove", (e) => { if (isDrawing) pickColor(e); });
 
-      canvas.addEventListener("touchstart", (e) => { isDrawing = true; pickColor(e.touches[0]); });
+      canvas.addEventListener("touchstart", (e) => { 
+        isDrawing = true; 
+        pickColor(e.touches[0]); 
+        e.preventDefault();
+      }, { passive: false });
+
       window.addEventListener("touchend", () => { isDrawing = false; });
-      canvas.addEventListener("touchmove", (e) => { if (isDrawing) pickColor(e.touches[0]); });
+      canvas.addEventListener("touchmove", (e) => { 
+        if (isDrawing) {
+          pickColor(e.touches[0]); 
+          e.preventDefault();
+        }
+      }, { passive: false });
 
       function pickColor(e) {
         const rect = canvas.getBoundingClientRect();
-        const x = Math.max(0, Math.min(e.clientX - rect.left, canvas.width));
-        const y = Math.max(0, Math.min(e.clientY - rect.top, canvas.height));
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const x = Math.max(0, Math.min((e.clientX - rect.left) * scaleX, canvas.width));
+        const y = Math.max(0, Math.min((e.clientY - rect.top) * scaleY, canvas.height));
+        conf.markerX = x;
+        conf.markerY = y;
+
         const pixel = ctx.getImageData(x, y, 1, 1).data;
         const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
-        applyColorToNotice(type, hex);
+        applyColorToNotice(type, hex, false);
+        drawCanvas(slider.value, x, y);
       }
 
       presetColors.forEach(hex => {
@@ -1341,7 +1410,7 @@
         item.className = "palette-preset-item";
         item.style.backgroundColor = hex;
         item.addEventListener("click", () => {
-          applyColorToNotice(type, hex);
+          applyColorToNotice(type, hex, true);
           popup.classList.remove("open");
         });
         presetsGrid.appendChild(item);
@@ -1360,18 +1429,36 @@
       const popup = document.getElementById(conf.popupId);
       popup.classList.add("open");
 
-      const canvas = document.getElementById(conf.canvasId);
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      canvas.width = 124;
-      canvas.height = 50;
-      ctx.fillStyle = `hsl(120, 100%, 50%)`;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const currentHex = document.getElementById(conf.colorInputId).value || conf.defaultColor;
+      const rgb = hexToRgb(currentHex);
+      if (rgb) {
+        const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+        const slider = document.getElementById(conf.sliderId);
+        slider.value = hsl.h;
+        if (noticePalettes[type]) {
+          noticePalettes[type].draw(hsl.h, conf.markerX, conf.markerY);
+        }
+      }
     };
 
-    window.applyColorToNotice = function(type, hex) {
+    window.applyColorToNotice = function(type, hex, resetMarker = false) {
       const conf = noticeConfigData[type];
       document.getElementById(conf.colorInputId).value = hex;
       document.getElementById(conf.previewBoxId).style.backgroundColor = hex;
+      
+      if (resetMarker) {
+        conf.markerX = 110;
+        conf.markerY = 60;
+        const rgb = hexToRgb(hex);
+        if (rgb) {
+          const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+          document.getElementById(conf.sliderId).value = hsl.h;
+          if (noticePalettes[type]) {
+            noticePalettes[type].draw(hsl.h, conf.markerX, conf.markerY);
+          }
+        }
+      }
+
       if (activeNoticeType === type) {
         updateNoticePreviewUI();
       }
@@ -1387,7 +1474,7 @@
 
     window.applyNoticeDefaultColor = function(type) {
       const conf = noticeConfigData[type];
-      applyColorToNotice(type, conf.defaultColor);
+      applyColorToNotice(type, conf.defaultColor, true);
       document.getElementById(conf.popupId).classList.remove("open");
     };
 
@@ -1399,7 +1486,6 @@
       }
     });
 
-    // --- 設定保存処理 ---
     const saveNotifsBtn = document.getElementById("save-notifs-btn");
 
     async function loadNotificationConfig() {
@@ -1412,10 +1498,10 @@
           if (data.voiceMoveTemplate) document.getElementById("notif-move").value = data.voiceMoveTemplate;
           if (data.voiceLeaveTemplate) document.getElementById("notif-leave").value = data.voiceLeaveTemplate;
 
-          if (data.welcomeColor) applyColorToNotice('welcome', data.welcomeColor);
-          if (data.joinColor) applyColorToNotice('join', data.joinColor);
-          if (data.moveColor) applyColorToNotice('move', data.moveColor);
-          if (data.leaveColor) applyColorToNotice('leave', data.leaveColor);
+          if (data.welcomeColor) applyColorToNotice('welcome', data.welcomeColor, true);
+          if (data.joinColor) applyColorToNotice('join', data.joinColor, true);
+          if (data.moveColor) applyColorToNotice('move', data.moveColor, true);
+          if (data.leaveColor) applyColorToNotice('leave', data.leaveColor, true);
 
           updateNoticePreviewUI();
         }
@@ -1447,6 +1533,7 @@
         document.getElementById('success-modal').classList.add('show');
       } catch (e) {
         console.error("設定保存エラー:", e);
+        document.getElementById('error-modal-title').textContent = "通知";
         document.getElementById('error-msg').textContent = "設定の保存に失敗しました。";
         document.getElementById('error-modal').classList.add('show');
       } finally {
@@ -1455,54 +1542,73 @@
       }
     });
 
-    // --- カスタムメッセージ画面のカラーピッカーロジック ---
+    const enableBannerCheckbox = document.getElementById("enable-banner-checkbox");
+    const bannerColorSection = document.getElementById("banner-color-section");
     const colorPreview = document.getElementById("color-preview");
     const colorText = document.getElementById("color-text");
     const palettePopup = document.getElementById("palette-popup");
     const paletteCanvas = document.getElementById("palette-canvas");
-    const ctx = paletteCanvas.getContext("2d");
+    const ctx = paletteCanvas.getContext("2d", { willReadFrequently: true });
     const hueSlider = document.getElementById("hue-slider");
     const presetGrid = document.getElementById("preset-grid");
     const messageInput = document.getElementById("message-input");
     const previewMsgBox = document.getElementById("preview-msg-box");
     let currentHue = 120;
+    let customMarkerX = 110;
+    let customMarkerY = 60;
+
+    function updateCustomPreview() {
+      const text = messageInput.value.trim() || "ここにメッセージの内容がリアルタイムで反映されます...";
+      const hex = colorText.value.trim() || "#32CD32";
+
+      if (enableBannerCheckbox.checked) {
+        previewMsgBox.className = "preview-embed-box";
+        previewMsgBox.style.borderLeftColor = hex;
+        previewMsgBox.innerHTML = `<div>${text}</div>`;
+      } else {
+        previewMsgBox.className = "preview-message-box";
+        previewMsgBox.style.borderLeft = "none";
+        previewMsgBox.style.paddingLeft = "0";
+        previewMsgBox.textContent = text;
+      }
+    }
+
+    enableBannerCheckbox.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        bannerColorSection.style.display = "block";
+      } else {
+        bannerColorSection.style.display = "none";
+        palettePopup.classList.remove("open");
+      }
+      updateCustomPreview();
+    });
 
     function updateColor(hex, syncHue = true) {
       colorPreview.style.backgroundColor = hex;
       colorText.value = hex;
-      previewMsgBox.style.borderLeftColor = hex;
+
       if (syncHue && /^#[0-9A-F]{6}$/i.test(hex)) {
-        const rgb = hexToRgb(hex);
-        if (rgb) {
-          const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
-          currentHue = hsl.h;
-          hueSlider.value = currentHue;
-          drawPalette(currentHue);
+        if (hex.toUpperCase() === "#FFFFFF") {
+          currentHue = 0;
+          customMarkerX = 0;
+          customMarkerY = 0;
+        } else if (hex.toUpperCase() === "#000000") {
+          currentHue = 0;
+          customMarkerX = 0;
+          customMarkerY = paletteCanvas.height || 120;
+        } else {
+          const rgb = hexToRgb(hex);
+          if (rgb) {
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            currentHue = hsl.h;
+            hueSlider.value = currentHue;
+            customMarkerX = 110;
+            customMarkerY = 60;
+          }
         }
+        drawPalette(currentHue, customMarkerX, customMarkerY);
       }
-    }
-
-    function hexToRgb(hex) {
-      const bigint = parseInt(hex.replace('#',''), 16);
-      return { r: (bigint >> 16) & 255, g: (bigint >> 8) & 255, b: bigint & 255 };
-    }
-
-    function rgbToHsl(r, g, b) {
-      r /= 255; g /= 255; b /= 255;
-      const max = Math.max(r, g, b), min = Math.min(r, g, b);
-      let h, s, l = (max + min) / 2;
-      if (max === min) { h = s = 0; }
-      else {
-        const d = max - min;
-        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        switch (max) {
-          case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-          case g: h = (b - r) / d + 2; break;
-          case b: h = (r - g) / d + 4; break;
-        }
-        h /= 6;
-      }
-      return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) };
+      updateCustomPreview();
     }
 
     colorPreview.addEventListener("click", (e) => {
@@ -1510,7 +1616,16 @@
       const isOpen = palettePopup.classList.contains("open");
       if (!isOpen) {
         palettePopup.classList.add("open");
-        drawPalette(currentHue);
+        const currentHex = colorText.value.trim() || "#32CD32";
+        if (currentHex.toUpperCase() !== "#FFFFFF" && currentHex.toUpperCase() !== "#000000") {
+          const rgb = hexToRgb(currentHex);
+          if (rgb) {
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            currentHue = hsl.h;
+            hueSlider.value = currentHue;
+          }
+        }
+        drawPalette(currentHue, customMarkerX, customMarkerY);
       } else {
         palettePopup.classList.remove("open");
       }
@@ -1519,9 +1634,9 @@
     palettePopup.addEventListener("click", (e) => { e.stopPropagation(); });
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
-    function drawPalette(hue) {
-      paletteCanvas.width = 124;
-      paletteCanvas.height = 50;
+    function drawPalette(hue, mx, my) {
+      paletteCanvas.width = 220;
+      paletteCanvas.height = 120;
       const width = paletteCanvas.width;
       const height = paletteCanvas.height;
 
@@ -1539,6 +1654,18 @@
       gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
       ctx.fillStyle = gradBlack;
       ctx.fillRect(0, 0, width, height);
+
+      if (mx !== undefined && my !== undefined) {
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 4;
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(mx, my, 5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
 
     let isMouseDown = false;
@@ -1546,22 +1673,41 @@
     window.addEventListener("mouseup", () => { isMouseDown = false; });
     paletteCanvas.addEventListener("mousemove", (e) => { if (isMouseDown) pickColorFromCanvas(e); });
 
-    paletteCanvas.addEventListener("touchstart", (e) => { isMouseDown = true; pickColorFromCanvas(e.touches[0]); });
+    paletteCanvas.addEventListener("touchstart", (e) => { 
+      isMouseDown = true; 
+      pickColorFromCanvas(e.touches[0]); 
+      e.preventDefault();
+    }, { passive: false });
+
     window.addEventListener("touchend", () => { isMouseDown = false; });
-    paletteCanvas.addEventListener("touchmove", (e) => { if (isMouseDown) pickColorFromCanvas(e.touches[0]); });
+    paletteCanvas.addEventListener("touchmove", (e) => { 
+      if (isMouseDown) {
+        pickColorFromCanvas(e.touches[0]); 
+        e.preventDefault();
+      }
+    }, { passive: false });
 
     function pickColorFromCanvas(e) {
       const rect = paletteCanvas.getBoundingClientRect();
-      const x = Math.max(0, Math.min(e.clientX - rect.left, paletteCanvas.width));
-      const y = Math.max(0, Math.min(e.clientY - rect.top, paletteCanvas.height));
+      const scaleX = paletteCanvas.width / rect.width;
+      const scaleY = paletteCanvas.height / rect.height;
+      const x = Math.max(0, Math.min((e.clientX - rect.left) * scaleX, paletteCanvas.width));
+      const y = Math.max(0, Math.min((e.clientY - rect.top) * scaleY, paletteCanvas.height));
+      customMarkerX = x;
+      customMarkerY = y;
+
       const pixel = ctx.getImageData(x, y, 1, 1).data;
-      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
       updateColor(hex, false);
+      drawPalette(currentHue, x, y);
     }
 
     hueSlider.addEventListener("input", (e) => {
       currentHue = e.target.value;
-      drawPalette(currentHue);
+      drawPalette(currentHue, customMarkerX, customMarkerY);
+      const pixel = ctx.getImageData(customMarkerX, customMarkerY, 1, 1).data;
+      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
+      updateColor(hex, false);
     });
 
     colorText.addEventListener("input", (e) => {
@@ -1569,9 +1715,8 @@
       if (/^#[0-9A-F]{6}$/i.test(val)) { updateColor(val, true); }
     });
 
-    messageInput.addEventListener("input", (e) => {
-      const text = e.target.value.trim();
-      previewMsgBox.textContent = text || "ここにメッセージの内容がリアルタイムで反映されます...";
+    messageInput.addEventListener("input", () => {
+      updateCustomPreview();
     });
 
     presetColors.forEach(hex => {
@@ -1582,7 +1727,6 @@
       presetGrid.appendChild(item);
     });
 
-    // --- ダッシュボードおよびその他操作ロジック ---
     const logListEl = document.getElementById("log-list");
     const toggleBtn = document.getElementById("toggle-btn");
     const statusBadge = document.getElementById("status-badge");
@@ -1660,9 +1804,17 @@
         guild.channels.forEach(c => {
           const opt = document.createElement("div");
           opt.className = "custom-option";
-          opt.textContent = `# ${c.name}`;
+          const isVoice = (c.type === 2 || c.type === 'GuildVoice' || c.type === 'GUILD_VOICE');
+          const icon = isVoice ? '🔊 ' : '# ';
+          opt.textContent = icon + c.name;
           opt.addEventListener("click", () => {
-            channelTrigger.textContent = `# ${c.name}`;
+            if (isVoice) {
+              document.getElementById('error-modal-title').textContent = "音声チャンネルの注意";
+              document.getElementById('error-msg').textContent = "Discordの仕様上、音声チャンネルに直接テキストメッセージは送信できません。テキストチャンネルを選択してください。";
+              document.getElementById('error-modal').classList.add('show');
+              return;
+            }
+            channelTrigger.textContent = icon + c.name;
             selectedChannelId = c.id;
             channelDropdown.classList.remove("open");
           });
@@ -1672,7 +1824,7 @@
         const opt = document.createElement("div");
         opt.className = "custom-option";
         opt.style.color = "var(--text-muted)";
-        opt.textContent = "利用可能なテキストチャンネルがありません";
+        opt.textContent = "利用可能なチャンネルがありません";
         channelOptions.appendChild(opt);
       }
     }
@@ -1717,7 +1869,6 @@
         const data = docSnap.data();
         isRunning = data.running !== false;
         
-        // Ping値のリアルタイム反映
         if (data.ping !== undefined) {
           dashPingEl.textContent = data.ping + " ms";
         }
@@ -1748,16 +1899,19 @@
         const nextState = !isRunning;
         await setDoc(statusRef, { running: nextState }, { merge: true });
       } catch (e) {
-        alert("ステータスの変更に失敗しました。");
+        document.getElementById('error-modal-title').textContent = "エラー";
+        document.getElementById('error-msg').textContent = "ステータスの変更に失敗しました。";
+        document.getElementById('error-modal').classList.add('show');
       }
     });
 
     sendMsgBtn.addEventListener("click", async () => {
       const content = messageInput.value.trim();
-      const color = colorText.value.trim() || "#32CD32";
+      const color = enableBannerCheckbox.checked ? (colorText.value.trim() || "#32CD32") : null;
 
       if (!selectedChannelId || !content) {
-        document.getElementById('error-msg').textContent = "送信先のサーバー・チャンネルとメッセージ内容をすべて選択・入力してください。";
+        document.getElementById('error-modal-title').textContent = "通知";
+        document.getElementById('error-msg').textContent = "送信先のテキストチャンネルとメッセージ内容をすべて選択・入力してください。";
         document.getElementById('error-modal').classList.add('show');
         return;
       }
@@ -1775,12 +1929,13 @@
         });
 
         messageInput.value = "";
-        previewMsgBox.textContent = "ここにメッセージの内容がリアルタイムで反映されます...";
+        updateCustomPreview();
         document.getElementById('success-title').textContent = "送信完了";
         document.getElementById('success-desc').textContent = "メッセージの送信リクエストを正しく受け付けました。";
         document.getElementById('success-modal').classList.add('show');
       } catch (error) {
-        console.error("送信エラー:", error);
+        console.error("送信エリア送信エラー:", error);
+        document.getElementById('error-modal-title').textContent = "エラー";
         document.getElementById('error-msg').textContent = "送信リクエストの追加に失敗しました。";
         document.getElementById('error-modal').classList.add('show');
       } finally {
