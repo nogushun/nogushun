@@ -4,827 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>piyobot 管理パネル</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    :root {
-      --bg-color: #0c0c0e;
-      --sidebar-bg: #121216;
-      --card-bg: #18181c;
-      --card-border: #27272a;
-      --text-main: #f4f4f5;
-      --text-muted: #a1a1aa;
-      --accent-green: #22c55e;
-      --accent-red: #ef4444;
-      --accent-blue: #3b82f6;
-      --log-bg: #09090b;
-      --input-bg: #121215;
-    }
-
-    *, *:before, *:after {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+    /* 認証ゲート用スタイル（style.css に移しても問題ありません） */
+    .auth-gate-overlay {
+      position: fixed;
+      inset: 0;
       background-color: var(--bg-color);
-      color: var(--text-main);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* モバイル用トップバー */
-    .mobile-header {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      background-color: var(--sidebar-bg);
-      border-bottom: 1px solid var(--card-border);
-      padding: 0 16px;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 500;
-    }
-
-    .mobile-brand {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-    .hamburger-btn {
-      background: none;
-      border: none;
-      color: var(--text-main);
-      font-size: 1.8rem;
-      cursor: pointer;
-      padding: 4px 8px;
-    }
-
-    /* モバイル用オーバーレイ背景 */
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(2px);
-      z-index: 900;
-    }
-
-    /* サイドメニュー */
-    aside {
-      width: 260px;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      background-color: var(--sidebar-bg);
-      border-right: 1px solid var(--card-border);
-      display: flex;
-      flex-direction: column;
-      padding: 24px 16px;
-      z-index: 1000;
-    }
-
-    .sidebar-brand {
-      font-size: 1.25rem;
-      font-weight: bold;
-      color: #ffffff;
-      margin-bottom: 32px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      padding: 20px;
+      z-index: 5000;
     }
-
-    .close-menu-btn {
+    .auth-gate-overlay.hidden {
       display: none;
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 1.5rem;
-      cursor: pointer;
     }
-
-    .sidebar-menu {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .sidebar-menu li button {
+    .auth-gate-card {
       width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      color: var(--text-muted);
-      background: none;
-      border: none;
-      text-align: left;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .sidebar-menu li button:hover, .sidebar-menu li.active button {
-      background-color: #27272a;
-      color: #ffffff;
-    }
-
-    .sidebar-footer {
-      margin-top: auto;
-      padding-top: 16px;
-      border-top: 1px solid var(--card-border);
-    }
-
-    /* メインコンテンツエリア */
-    main {
-      margin-left: 260px;
-      padding: 40px;
-      max-width: 1100px;
-      width: calc(100% - 260px);
-      min-height: 100vh;
-    }
-
-    header {
-      margin-bottom: 30px;
-    }
-
-    header h1 {
-      font-size: 1.8rem;
-      margin: 0 0 6px 0;
-      color: #ffffff;
-    }
-
-    header p {
-      color: var(--text-muted);
-      margin: 0;
-      font-size: 0.95rem;
-    }
-
-    .content-section {
-      display: none;
-    }
-    .content-section.active {
-      display: block;
-    }
-
-    .custom-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 380px;
-      gap: 24px;
-      align-items: start;
-    }
-
-    .sticky-preview-wrapper {
-      position: sticky;
-      top: 40px;
-    }
-
-    .card {
+      max-width: 420px;
       background-color: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-      position: relative;
-      width: 100%;
-    }
-
-    .card h2 {
-      font-size: 1.1rem;
-      margin-top: 0;
-      margin-bottom: 16px;
-      border-bottom: 1px solid var(--card-border);
-      padding-bottom: 8px;
-      color: #e4e4e7;
-    }
-
-    .status-badge {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background-color: var(--accent-green);
-      box-shadow: 0 0 8px var(--accent-green);
-      margin-right: 6px;
-    }
-
-    .status-text {
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-      color: var(--text-muted);
-    }
-
-    .status-text strong {
-      color: var(--text-main);
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .stat-card {
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 16px;
-    }
-
-    .stat-title {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-    }
-
-    .stat-value {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-      position: relative;
-      width: 100%;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .variable-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .var-chip {
-      background-color: #27272a;
-      border: 1px solid #3f3f46;
-      color: #38bdf8;
-      font-size: 0.78rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-family: monospace;
-      transition: all 0.15s ease;
-    }
-
-    .var-chip:hover {
-      background-color: #3f3f46;
-      border-color: #71717a;
-      color: #ffffff;
-    }
-
-    .color-picker-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-      position: relative;
-      flex-wrap: nowrap;
-    }
-
-    .color-preview-box {
-      width: 36px;
-      height: 32px;
-      border-radius: 6px;
-      border: 1px solid var(--card-border);
-      cursor: pointer;
-      transition: border-color 0.2s;
-      flex-shrink: 0;
-    }
-
-    .color-preview-box:hover {
-      border-color: #3f3f46;
-    }
-
-    .color-text-input {
-      width: 100px;
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      padding: 6px 10px;
-      color: var(--text-main);
-      font-size: 0.85rem;
-      outline: none;
-      font-family: monospace;
-      flex-shrink: 0;
-    }
-
-    /* カラーパレットポップアップ */
-    .custom-palette-popup {
-      position: absolute;
-      top: 40px;
-      left: 0;
-      width: 240px;
-      background-color: #16161a;
-      border: 1px solid #3f3f46;
-      border-radius: 10px;
-      padding: 10px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9);
-      z-index: 3000;
-      display: none;
-      user-select: none;
-    }
-
-    .custom-palette-popup.open {
-      display: block;
-    }
-
-    .palette-canvas-container {
-      position: relative;
-      width: 100%;
-      height: 130px;
-      border-radius: 6px;
-      overflow: hidden;
-      cursor: grab;
-      margin-bottom: 8px;
-      touch-action: none;
-    }
-    .palette-canvas-container:active {
-      cursor: grabbing;
-    }
-
-    .palette-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    .palette-sliders {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .palette-slider {
-      width: 100%;
-      height: 6px;
-      border-radius: 3px;
-      outline: none;
-      cursor: pointer;
-      -webkit-appearance: none;
-      background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
-    }
-
-    .palette-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ffffff;
-      border: 2px solid #000000;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-
-    .palette-presets-label {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .palette-presets-grid {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 3px;
-      margin-bottom: 8px;
-    }
-
-    .palette-preset-item {
-      width: 100%;
-      aspect-ratio: 1;
-      border-radius: 3px;
-      border: 1px solid #52525b;
-      cursor: pointer;
-      transition: transform 0.15s, border-color 0.15s;
-    }
-
-    .palette-preset-item:hover {
-      transform: scale(1.15);
-      border-color: #ffffff;
-    }
-
-    .palette-default-btn {
-      width: 100%;
-      background-color: #27272a;
-      border: 1px solid #3f3f46;
-      color: var(--text-main);
-      font-size: 0.65rem;
-      padding: 5px;
-      border-radius: 4px;
-      cursor: pointer;
+      border-radius: 14px;
+      padding: 28px;
       text-align: center;
-      transition: background-color 0.2s;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
     }
-
-    .palette-default-btn:hover {
-      background-color: #3f3f46;
+    .auth-gate-card h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.35rem;
+      color: #ffffff;
     }
-
-    .preview-card-container {
-      background-color: #313338;
-      border-radius: 8px;
-      padding: 16px;
-      color: #dbdee1;
+    .auth-gate-card p {
+      margin: 0 0 20px 0;
       font-size: 0.9rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-      border: 1px solid #3f4147;
-      word-break: break-all;
-    }
-
-    .preview-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .preview-bot-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
-      background-color: #5865f2;
-      flex-shrink: 0;
-    }
-
-    .preview-bot-info {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .preview-bot-name {
-      font-weight: 600;
-      color: #ffffff;
-    }
-
-    .preview-bot-tag {
-      background-color: #5865f2;
-      color: #ffffff;
-      font-size: 0.7rem;
-      padding: 1px 4px;
-      border-radius: 4px;
-      font-weight: 500;
-    }
-
-    .preview-time {
-      font-size: 0.75rem;
-      color: #949ba4;
-    }
-
-    .preview-message-box {
-      position: relative;
-      background-color: #2b2d31;
-      border-radius: 4px;
-      padding: 10px 14px;
-      margin-left: 52px;
-      word-break: break-all;
-      white-space: pre-wrap;
-      min-height: 24px;
-      color: #dbdee1;
-    }
-
-    .preview-embed-box {
-      background-color: #2b2d31;
-      border-radius: 4px;
-      padding: 10px 14px;
-      margin-left: 52px;
-      border-left: 4px solid #FFB6C1;
-      word-break: break-all;
-      white-space: pre-wrap;
-      color: #dbdee1;
-    }
-
-    .custom-select-container {
-      position: relative;
-      user-select: none;
-      width: 100%;
-    }
-
-    .custom-select-trigger {
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 12px 16px;
-      color: var(--text-main);
-      font-size: 0.95rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      width: 100%;
-    }
-
-    .custom-select-trigger:hover {
-      border-color: #3f3f46;
-    }
-
-    .custom-select-trigger::after {
-      content: '▾';
-      font-size: 0.85rem;
       color: var(--text-muted);
-      transition: transform 0.2s;
-    }
-
-    .custom-select-container.open .custom-select-trigger::after {
-      transform: rotate(180deg);
-    }
-
-    .custom-select-options {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      right: 0;
-      background-color: #1c1c21;
-      border: 1px solid #3f3f46;
-      border-radius: 8px;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.8);
-      max-height: 240px;
-      overflow-y: auto;
-      z-index: 999;
-      display: none;
-    }
-
-    .custom-select-container.open .custom-select-options {
-      display: block;
-    }
-
-    .custom-option {
-      padding: 12px 16px;
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .custom-option:last-child {
-      border-bottom: none;
-    }
-
-    .custom-option:hover, .custom-option.selected {
-      background-color: #27272a;
-      color: #ffffff;
-    }
-
-    .form-textarea, .form-input {
-      width: 100%;
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 12px 16px;
-      color: var(--text-main);
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .form-textarea {
-      resize: vertical;
-      min-height: 90px;
-    }
-
-    .form-textarea:focus, .form-input:focus {
-      border-color: var(--accent-blue);
-    }
-
-    .btn {
-      background-color: #27272a;
-      color: var(--text-main);
-      border: 1px solid #3f3f46;
-      padding: 10px 20px;
-      font-size: 0.95rem;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      width: 100%;
-    }
-
-    .btn-danger {
-      color: var(--accent-red);
-    }
-    .btn-danger:hover {
-      background-color: var(--accent-red);
-      color: #ffffff;
-      border-color: var(--accent-red);
-    }
-
-    .btn-blue {
-      background-color: var(--accent-blue);
-      color: #ffffff;
-      border-color: var(--accent-blue);
-    }
-    .btn-blue:hover {
-      background-color: #2563eb;
-    }
-
-    .notice-setting-card {
-      background-color: var(--input-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px;
-      cursor: pointer;
-      transition: border-color 0.2s;
-      position: relative;
-    }
-    .notice-setting-card.active-notice {
-      border-color: var(--accent-blue);
-    }
-
-    .log-container {
-      background-color: var(--log-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 16px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.88rem;
-      max-height: 450px;
-      overflow-y: auto;
-    }
-
-    .log-container::-webkit-scrollbar, .custom-select-options::-webkit-scrollbar {
-      width: 6px;
-    }
-    .log-container::-webkit-scrollbar-thumb, .custom-select-options::-webkit-scrollbar-thumb {
-      background: #3f3f46;
-      border-radius: 4px;
-    }
-
-    .log-item {
-      margin-bottom: 10px;
       line-height: 1.6;
-      color: #d4d4d8;
-      word-break: break-all;
     }
-
-    .log-time {
-      color: #71717a;
-      margin-right: 8px;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 4000;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-
-    .modal-overlay.show {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .modal-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 32px;
-      text-align: center;
-      max-width: 360px;
-      width: 90%;
-      transform: scale(0.9);
-      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
-    }
-
-    .modal-overlay.show .modal-card {
-      transform: scale(1);
-    }
-
-    .modal-icon {
-      width: 60px;
-      height: 60px;
-      background-color: rgba(34, 197, 94, 0.15);
-      color: var(--accent-green);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 16px auto;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }
-
-    .modal-icon.error {
-      background-color: rgba(239, 68, 68, 0.15);
-      color: var(--accent-red);
-      border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    .modal-card h3 {
-      margin: 0 0 8px 0;
-      font-size: 1.3rem;
-      color: #ffffff;
-    }
-
-    .modal-card p {
-      margin: 0 0 24px 0;
+    .auth-user-email {
+      font-size: 0.78rem;
       color: var(--text-muted);
-      font-size: 0.9rem;
+      word-break: break-all;
+      margin-bottom: 10px;
     }
-
-    @media (max-width: 768px) {
-      body {
-        overflow-x: hidden;
-      }
-
-      .mobile-header {
-        display: flex;
-      }
-
-      aside {
-        transform: translateX(-100%);
-        width: 280px;
-        box-shadow: 8px 0 24px rgba(0,0,0,0.8);
-      }
-
-      aside.open {
-        transform: translateX(0);
-      }
-
-      .close-menu-btn {
-        display: block;
-      }
-
-      .sidebar-overlay.open {
-        display: block;
-      }
-
-      main {
-        margin-left: 0;
-        padding: 80px 16px 24px 16px;
-        max-width: 100vw;
-        width: 100vw;
-      }
-
-      .custom-layout {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-
-      .sticky-preview-wrapper {
-        position: static;
-      }
-
-      .card {
-        padding: 16px;
-      }
-
-      .preview-message-box, .preview-embed-box {
-        margin-left: 0;
-        margin-top: 8px;
-      }
-
-      .custom-palette-popup {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 280px;
-      }
+    .auth-logout-btn {
+      background: #27272a;
+      color: var(--text-main);
+      border: 1px solid #3f3f46;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 6px;
+    }
+    .auth-logout-btn:hover {
+      background: #3f3f46;
     }
   </style>
 </head>
 <body>
+
+  <!-- 管理者認証ゲート -->
+  <div class="auth-gate-overlay" id="auth-gate">
+    <div class="auth-gate-card">
+      <h2>🐤 piyobot 管理者認証</h2>
+      <p id="auth-status-desc">管理パネルを利用するには、管理者アカウント（Google）でログインしてください。</p>
+      <button class="btn btn-blue" id="google-login-btn" type="button">Google でログイン</button>
+      <button class="auth-logout-btn" id="gate-logout-btn" type="button" style="display: none;">別のアカウントでログアウト</button>
+    </div>
+  </div>
 
   <!-- モバイル用ヘッダー -->
   <div class="mobile-header">
@@ -843,13 +92,17 @@
     </div>
     <ul class="sidebar-menu">
       <li class="active" id="menu-dashboard"><button onclick="switchTab('dashboard')">📊 ダッシュボード</button></li>
-      <li id="menu-custom"><button onclick="switchTab('custom')">💬 メッセージ送信テスト</button></li>
+      <li id="menu-custom"><button onclick="switchTab('custom')">💬 カスタムメッセージ送信</button></li>
       <li id="menu-notices"><button onclick="switchTab('notices')">⚙️ 通知メッセージ設定</button></li>
       <li id="menu-logs"><button onclick="switchTab('logs')">📜 稼働ログ</button></li>
       <li style="margin-top: 16px;"><a href="./" style="display:block; padding:12px 16px; color:var(--text-muted); text-decoration:none; font-size:0.95rem;">← メイン管理に戻る</a></li>
     </ul>
     <div class="sidebar-footer">
-      <span style="font-size: 0.8rem; color: var(--text-muted);">Status: Online</span>
+      <div class="auth-user-email" id="sidebar-user-email">未ログイン</div>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Status: Online</span>
+      </div>
+      <button class="auth-logout-btn" id="sidebar-logout-btn" type="button" style="display: none;">ログアウト</button>
     </div>
   </aside>
 
@@ -887,11 +140,11 @@
       </div>
     </section>
 
-    <!-- 2. カスタムメッセージ画面 -->
+    <!-- 2. カスタムメッセージ送信画面 -->
     <section id="section-custom" class="content-section">
       <div class="custom-layout">
         <div class="card">
-          <h2>メッセージ送信テスト</h2>
+          <h2>カスタムメッセージ送信</h2>
           
           <div class="form-group">
             <label>送信先サーバー</label>
@@ -946,9 +199,9 @@
         </div>
 
         <div class="sticky-preview-wrapper">
-          <div class="card" style="margin-bottom: 0;">
+          <div class="card preview-outer-card">
             <h2>送信プレビュー（構想図）</h2>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Discordで実際にどのように表示されるかのイメージです。</p>
+            <p class="preview-subtitle">Discordで実際にどのように表示されるかのイメージです。</p>
             
             <div class="preview-card-container">
               <div class="preview-header">
@@ -962,9 +215,7 @@
                   </div>
                 </div>
               </div>
-              <div class="preview-message-box" id="preview-msg-box">
-                ここにメッセージの内容がリアルタイムで反映されます...
-              </div>
+              <div class="preview-message-box" id="preview-msg-box">ここにメッセージの内容がリアルタイムで反映されます...</div>
             </div>
           </div>
         </div>
@@ -985,7 +236,7 @@
             <div class="form-group" style="margin-bottom: 12px;">
               <label>ウェルカムメッセージ</label>
               <div class="color-picker-row">
-                <div class="color-preview-box notice-color-preview" id="preview-box-welcome" style="background-color: #FFB6C1;" onclick="event.stopPropagation(); openNoticePalette('welcome')"></div>
+                <div class="color-preview-box notice-color-preview" id="preview-box-welcome" style="background-color: #FFB6C1;" onclick="event.stopPropagation(); openNoticePalette('welcome', event)"></div>
                 <input type="text" id="color-welcome" class="color-text-input notice-color-input" value="#FFB6C1" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('welcome', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
@@ -1014,7 +265,7 @@
             <div class="form-group" style="margin-bottom: 12px;">
               <label>ボイスチャンネル参加通知</label>
               <div class="color-picker-row">
-                <div class="color-preview-box notice-color-preview" id="preview-box-join" style="background-color: #57F287;" onclick="event.stopPropagation(); openNoticePalette('join')"></div>
+                <div class="color-preview-box notice-color-preview" id="preview-box-join" style="background-color: #57F287;" onclick="event.stopPropagation(); openNoticePalette('join', event)"></div>
                 <input type="text" id="color-join" class="color-text-input notice-color-input" value="#57F287" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('join', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
@@ -1043,7 +294,7 @@
             <div class="form-group" style="margin-bottom: 12px;">
               <label>ボイスチャンネル移動通知</label>
               <div class="color-picker-row">
-                <div class="color-preview-box notice-color-preview" id="preview-box-move" style="background-color: #FEE75C;" onclick="event.stopPropagation(); openNoticePalette('move')"></div>
+                <div class="color-preview-box notice-color-preview" id="preview-box-move" style="background-color: #FEE75C;" onclick="event.stopPropagation(); openNoticePalette('move', event)"></div>
                 <input type="text" id="color-move" class="color-text-input notice-color-input" value="#FEE75C" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('move', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
@@ -1073,7 +324,7 @@
             <div class="form-group" style="margin-bottom: 12px;">
               <label>ボイスチャンネル退出通知</label>
               <div class="color-picker-row">
-                <div class="color-preview-box notice-color-preview" id="preview-box-leave" style="background-color: #ED4245;" onclick="event.stopPropagation(); openNoticePalette('leave')"></div>
+                <div class="color-preview-box notice-color-preview" id="preview-box-leave" style="background-color: #ED4245;" onclick="event.stopPropagation(); openNoticePalette('leave', event)"></div>
                 <input type="text" id="color-leave" class="color-text-input notice-color-input" value="#ED4245" onclick="event.stopPropagation();" oninput="updateNoticeColorFromInput('leave', this.value)">
                 <span style="font-size: 0.8rem; color: var(--text-muted); white-space: nowrap;">バナーカラー</span>
 
@@ -1102,9 +353,9 @@
 
         <!-- 通知プレビュー -->
         <div class="sticky-preview-wrapper">
-          <div class="card" style="margin-bottom: 0;">
+          <div class="card preview-outer-card">
             <h2>通知プレビュー（構想図）</h2>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">選択中のイベント通知の見た目です。</p>
+            <p class="preview-subtitle">選択中のイベント通知の見た目です。</p>
             
             <div class="preview-card-container">
               <div class="preview-header">
@@ -1118,9 +369,7 @@
                   </div>
                 </div>
               </div>
-              <div class="preview-embed-box" id="preview-notice-box">
-                <div id="preview-notice-desc">ここに通知メッセージがリアルタイムで反映されます...</div>
-              </div>
+              <div class="preview-embed-box" id="preview-notice-box"><div id="preview-notice-desc">ここに通知メッセージがリアルタイムで反映されます...</div></div>
             </div>
           </div>
         </div>
@@ -1160,6 +409,13 @@
   <!-- Firebase & ロジック -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { 
       getFirestore, 
       collection, 
@@ -1174,6 +430,8 @@
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+    const ADMIN_EMAIL = "shunsukenoguchi@icloud.com";
+
     const firebaseConfig = {
       apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
       authDomain: "mywebsite-72df0.firebaseapp.com",
@@ -1185,7 +443,58 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
     const db = getFirestore(app);
+
+    const authGate = document.getElementById("auth-gate");
+    const authStatusDesc = document.getElementById("auth-status-desc");
+    const googleLoginBtn = document.getElementById("google-login-btn");
+    const gateLogoutBtn = document.getElementById("gate-logout-btn");
+    const sidebarUserEmail = document.getElementById("sidebar-user-email");
+    const sidebarLogoutBtn = document.getElementById("sidebar-logout-btn");
+
+    let firestoreInitialized = false;
+    let unsubscribes = [];
+
+    function isAdminUser(user) {
+      return Boolean(user && user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase());
+    }
+
+    function stopFirestoreListeners() {
+      unsubscribes.forEach(unsub => {
+        if (typeof unsub === "function") unsub();
+      });
+      unsubscribes = [];
+      firestoreInitialized = false;
+    }
+
+    googleLoginBtn.addEventListener("click", async () => {
+      try {
+        googleLoginBtn.disabled = true;
+        googleLoginBtn.textContent = "ログイン中...";
+        await signInWithPopup(auth, googleProvider);
+      } catch (e) {
+        console.error("Googleログインエラー:", e);
+        document.getElementById('error-modal-title').textContent = "ログインエラー";
+        document.getElementById('error-msg').textContent = "Googleログインに失敗しました。";
+        document.getElementById('error-modal').classList.add('show');
+      } finally {
+        googleLoginBtn.disabled = false;
+        googleLoginBtn.textContent = "Google でログイン";
+      }
+    });
+
+    async function handleLogout() {
+      try {
+        await signOut(auth);
+      } catch (e) {
+        console.error("ログアウトエラー:", e);
+      }
+    }
+
+    gateLogoutBtn.addEventListener("click", handleLogout);
+    sidebarLogoutBtn.addEventListener("click", handleLogout);
 
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -1218,8 +527,8 @@
       } else if (tabName === 'custom') {
         document.getElementById('section-custom').classList.add('active');
         document.getElementById('menu-custom').classList.add('active');
-        document.getElementById('page-title').textContent = 'メッセージ送信テスト';
-        document.getElementById('page-desc').textContent = 'ボットが導入されているテキストチャンネルを選択してメッセージの送信テストを行います。';
+        document.getElementById('page-title').textContent = 'カスタムメッセージ送信';
+        document.getElementById('page-desc').textContent = 'ボットが導入されているテキストチャンネルを選択してカスタムメッセージを送信します。';
       } else if (tabName === 'notices') {
         document.getElementById('section-notices').classList.add('active');
         document.getElementById('menu-notices').classList.add('active');
@@ -1250,6 +559,57 @@
       textarea.focus();
       textarea.dispatchEvent(new Event('input'));
     };
+
+    const LOGICAL_W = 220;
+    const LOGICAL_H = 120;
+
+    function renderHighResPalette(canvas, ctx, hue, mx, my) {
+      const dpr = Math.max(window.devicePixelRatio || 1, 2);
+      canvas.width = LOGICAL_W * dpr;
+      canvas.height = LOGICAL_H * dpr;
+
+      ctx.save();
+      ctx.scale(dpr, dpr);
+
+      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+      ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+      const gradWhite = ctx.createLinearGradient(0, 0, LOGICAL_W, 0);
+      gradWhite.addColorStop(0, "rgba(255, 255, 255, 1)");
+      gradWhite.addColorStop(1, "rgba(255, 255, 255, 0)");
+      ctx.fillStyle = gradWhite;
+      ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+      const gradBlack = ctx.createLinearGradient(0, 0, 0, LOGICAL_H);
+      gradBlack.addColorStop(0, "rgba(0, 0, 0, 0)");
+      gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
+      ctx.fillStyle = gradBlack;
+      ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+      if (mx !== undefined && my !== undefined) {
+        ctx.beginPath();
+        ctx.arc(mx, my, 6.2, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.85)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(mx, my, 5, 0, Math.PI * 2);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function readPixelHex(ctx, mx, my) {
+      const dpr = Math.max(window.devicePixelRatio || 1, 2);
+      const px = Math.max(0, Math.min(Math.round(mx * dpr), LOGICAL_W * dpr - 1));
+      const py = Math.max(0, Math.min(Math.round(my * dpr), LOGICAL_H * dpr - 1));
+      const pixel = ctx.getImageData(px, py, 1, 1).data;
+      return "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
 
     let activeNoticeType = 'welcome';
     const noticeConfigData = {
@@ -1330,34 +690,7 @@
       const presetsGrid = document.getElementById(conf.presetsId);
 
       function drawCanvas(hue, mx, my) {
-        canvas.width = 220;
-        canvas.height = 120;
-        ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const gradWhite = ctx.createLinearGradient(0, 0, canvas.width, 0);
-        gradWhite.addColorStop(0, "rgba(255, 255, 255, 1)");
-        gradWhite.addColorStop(1, "rgba(255, 255, 255, 0)");
-        ctx.fillStyle = gradWhite;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        const gradBlack = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradBlack.addColorStop(0, "rgba(0, 0, 0, 0)");
-        gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
-        ctx.fillStyle = gradBlack;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        if (mx !== undefined && my !== undefined) {
-          ctx.save();
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-          ctx.shadowBlur = 4;
-          ctx.strokeStyle = "#ffffff";
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.arc(mx, my, 5, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.restore();
-        }
+        renderHighResPalette(canvas, ctx, hue, mx, my);
       }
 
       noticePalettes[type] = { draw: drawCanvas };
@@ -1365,8 +698,7 @@
       slider.addEventListener("input", (e) => {
         const hue = e.target.value;
         drawCanvas(hue, conf.markerX, conf.markerY);
-        const pixel = ctx.getImageData(conf.markerX, conf.markerY, 1, 1).data;
-        const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
+        const hex = readPixelHex(ctx, conf.markerX, conf.markerY);
         applyColorToNotice(type, hex, false);
       });
 
@@ -1392,17 +724,14 @@
 
       function pickColor(e) {
         const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        const x = Math.max(0, Math.min((e.clientX - rect.left) * scaleX, canvas.width));
-        const y = Math.max(0, Math.min((e.clientY - rect.top) * scaleY, canvas.height));
+        const x = Math.max(0, Math.min(((e.clientX - rect.left) / rect.width) * LOGICAL_W, LOGICAL_W));
+        const y = Math.max(0, Math.min(((e.clientY - rect.top) / rect.height) * LOGICAL_H, LOGICAL_H));
         conf.markerX = x;
         conf.markerY = y;
 
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
-        const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
-        applyColorToNotice(type, hex, false);
         drawCanvas(slider.value, x, y);
+        const hex = readPixelHex(ctx, x, y);
+        applyColorToNotice(type, hex, false);
       }
 
       presetColors.forEach(hex => {
@@ -1417,8 +746,8 @@
       });
     });
 
-    window.openNoticePalette = function(type) {
-      event.stopPropagation();
+    window.openNoticePalette = function(type, ev) {
+      if (ev) ev.stopPropagation();
       selectNoticeTab(type);
       
       Object.keys(noticeConfigData).forEach(k => {
@@ -1509,9 +838,9 @@
         console.error("通知設定の読み込みエラー:", e);
       }
     }
-    loadNotificationConfig();
 
     saveNotifsBtn.addEventListener("click", async () => {
+      if (!isAdminUser(auth.currentUser)) return;
       try {
         saveNotifsBtn.disabled = true;
         saveNotifsBtn.textContent = "保存中...";
@@ -1564,11 +893,10 @@
       if (enableBannerCheckbox.checked) {
         previewMsgBox.className = "preview-embed-box";
         previewMsgBox.style.borderLeftColor = hex;
-        previewMsgBox.innerHTML = `<div>${text}</div>`;
+        previewMsgBox.textContent = text;
       } else {
         previewMsgBox.className = "preview-message-box";
-        previewMsgBox.style.borderLeft = "none";
-        previewMsgBox.style.paddingLeft = "0";
+        previewMsgBox.style.borderLeft = "";
         previewMsgBox.textContent = text;
       }
     }
@@ -1595,7 +923,7 @@
         } else if (hex.toUpperCase() === "#000000") {
           currentHue = 0;
           customMarkerX = 0;
-          customMarkerY = paletteCanvas.height || 120;
+          customMarkerY = LOGICAL_H;
         } else {
           const rgb = hexToRgb(hex);
           if (rgb) {
@@ -1610,6 +938,8 @@
       }
       updateCustomPreview();
     }
+
+    window.updateColor = updateColor;
 
     colorPreview.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1635,37 +965,7 @@
     document.addEventListener("click", () => { palettePopup.classList.remove("open"); });
 
     function drawPalette(hue, mx, my) {
-      paletteCanvas.width = 220;
-      paletteCanvas.height = 120;
-      const width = paletteCanvas.width;
-      const height = paletteCanvas.height;
-
-      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-      ctx.fillRect(0, 0, width, height);
-
-      const gradWhite = ctx.createLinearGradient(0, 0, width, 0);
-      gradWhite.addColorStop(0, "rgba(255, 255, 255, 1)");
-      gradWhite.addColorStop(1, "rgba(255, 255, 255, 0)");
-      ctx.fillStyle = gradWhite;
-      ctx.fillRect(0, 0, width, height);
-
-      const gradBlack = ctx.createLinearGradient(0, 0, 0, height);
-      gradBlack.addColorStop(0, "rgba(0, 0, 0, 0)");
-      gradBlack.addColorStop(1, "rgba(0, 0, 0, 1)");
-      ctx.fillStyle = gradBlack;
-      ctx.fillRect(0, 0, width, height);
-
-      if (mx !== undefined && my !== undefined) {
-        ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = 4;
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(mx, my, 5, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
+      renderHighResPalette(paletteCanvas, ctx, hue, mx, my);
     }
 
     let isMouseDown = false;
@@ -1689,24 +989,20 @@
 
     function pickColorFromCanvas(e) {
       const rect = paletteCanvas.getBoundingClientRect();
-      const scaleX = paletteCanvas.width / rect.width;
-      const scaleY = paletteCanvas.height / rect.height;
-      const x = Math.max(0, Math.min((e.clientX - rect.left) * scaleX, paletteCanvas.width));
-      const y = Math.max(0, Math.min((e.clientY - rect.top) * scaleY, paletteCanvas.height));
+      const x = Math.max(0, Math.min(((e.clientX - rect.left) / rect.width) * LOGICAL_W, LOGICAL_W));
+      const y = Math.max(0, Math.min(((e.clientY - rect.top) / rect.height) * LOGICAL_H, LOGICAL_H));
       customMarkerX = x;
       customMarkerY = y;
 
-      const pixel = ctx.getImageData(x, y, 1, 1).data;
-      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
-      updateColor(hex, false);
       drawPalette(currentHue, x, y);
+      const hex = readPixelHex(ctx, x, y);
+      updateColor(hex, false);
     }
 
     hueSlider.addEventListener("input", (e) => {
       currentHue = e.target.value;
       drawPalette(currentHue, customMarkerX, customMarkerY);
-      const pixel = ctx.getImageData(customMarkerX, customMarkerY, 1, 1).data;
-      const hex = "#" + [pixel[0], pixel[1], pixel[2]].map(val => val.toString(16).padStart(2, '0')).join('').toUpperCase();
+      const hex = readPixelHex(ctx, customMarkerX, customMarkerY);
       updateColor(hex, false);
     });
 
@@ -1745,7 +1041,10 @@
     const channelOptions = document.getElementById("channel-options");
 
     let loadedGuilds = [];
+    let selectedGuildId = "";
     let selectedChannelId = "";
+    let isRunning = true;
+    const statusRef = doc(db, "settings", "bot_status");
 
     guildTrigger.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -1765,45 +1064,30 @@
       channelDropdown.classList.remove("open");
     });
 
-    async function loadGuilds() {
-      try {
-        const docSnap = await getDoc(doc(db, "settings", "guilds_cache"));
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          loadedGuilds = data.guilds || [];
-          dashGuildsCount.textContent = loadedGuilds.length + " 個";
-          guildOptions.innerHTML = "";
-
-          loadedGuilds.forEach(g => {
-            const opt = document.createElement("div");
-            opt.className = "custom-option";
-            opt.textContent = g.name;
-            opt.addEventListener("click", () => selectGuild(g));
-            guildOptions.appendChild(opt);
-          });
-        } else {
-          guildTrigger.textContent = "サーバーが見つかりません";
-          dashGuildsCount.textContent = "0 個";
-        }
-      } catch (e) {
-        console.error("サーバー読み込みエラー:", e);
-      }
-    }
-    loadGuilds();
-
     function selectGuild(guild) {
+      selectedGuildId = guild.id;
       guildTrigger.textContent = guild.name;
       guildDropdown.classList.remove("open");
+      renderChannelOptions(guild, true);
+    }
 
-      channelTrigger.textContent = "チャンネルを選択してください";
+    function renderChannelOptions(guild, resetSelection = true) {
       channelTrigger.dataset.enabled = "true";
       channelOptions.innerHTML = "";
-      selectedChannelId = "";
 
-      if (guild.channels && guild.channels.length > 0) {
-        guild.channels.forEach(c => {
+      if (resetSelection) {
+        channelTrigger.textContent = "チャンネルを選択してください";
+        selectedChannelId = "";
+      }
+
+      const channels = Array.isArray(guild.channels) ? guild.channels : [];
+      if (channels.length > 0) {
+        channels.forEach(c => {
           const opt = document.createElement("div");
           opt.className = "custom-option";
+          if (c.id === selectedChannelId) {
+            opt.classList.add("selected");
+          }
           const isVoice = (c.type === 2 || c.type === 'GuildVoice' || c.type === 'GUILD_VOICE');
           const icon = isVoice ? '🔊 ' : '# ';
           opt.textContent = icon + c.name;
@@ -1817,6 +1101,7 @@
             channelTrigger.textContent = icon + c.name;
             selectedChannelId = c.id;
             channelDropdown.classList.remove("open");
+            renderChannelOptions(guild, false);
           });
           channelOptions.appendChild(opt);
         });
@@ -1829,72 +1114,137 @@
       }
     }
 
-    const q = query(collection(db, "bot_logs"), orderBy("timestamp", "desc"), limit(25));
+    function startFirestoreListeners() {
+      if (firestoreInitialized) return;
+      firestoreInitialized = true;
 
-    onSnapshot(q, (snapshot) => {
-      logListEl.innerHTML = "";
-      if (snapshot.empty) {
-        logListEl.innerHTML = '<div class="log-item" style="color: var(--text-muted);">ログはありません。</div>';
-        return;
-      }
+      loadNotificationConfig();
 
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        let timeStr = "";
-        if (data.timestamp && data.timestamp.toDate) {
-          const date = data.timestamp.toDate();
-          timeStr = `[${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}]`;
+      const unsubGuilds = onSnapshot(doc(db, "settings", "guilds_cache"), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          loadedGuilds = Array.isArray(data.guilds) ? data.guilds : [];
+          dashGuildsCount.textContent = loadedGuilds.length + " 個";
+          guildOptions.innerHTML = "";
+
+          loadedGuilds.forEach(g => {
+            const opt = document.createElement("div");
+            opt.className = "custom-option";
+            opt.textContent = g.name;
+            opt.addEventListener("click", () => selectGuild(g));
+            guildOptions.appendChild(opt);
+          });
+
+          if (selectedGuildId) {
+            const currentGuild = loadedGuilds.find(g => g.id === selectedGuildId);
+            if (currentGuild) {
+              renderChannelOptions(currentGuild, false);
+            }
+          }
         } else {
-          timeStr = `[直近]`;
+          guildTrigger.textContent = "サーバーが見つかりません";
+          dashGuildsCount.textContent = "0 個";
         }
-
-        let messageHtml = (data.message || "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
-        const logItem = document.createElement("div");
-        logItem.className = "log-item";
-        logItem.innerHTML = `<span class="log-time">${timeStr}</span> ${messageHtml}`;
-        logListEl.appendChild(logItem);
+      }, (e) => {
+        console.error("サーバー読み込みエラー:", e);
       });
-    });
 
-    let isRunning = true;
-    const statusRef = doc(db, "settings", "bot_status");
-
-    onSnapshot(statusRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        isRunning = data.running !== false;
-        
-        if (data.ping !== undefined) {
-          dashPingEl.textContent = data.ping + " ms";
+      const q = query(collection(db, "bot_logs"), orderBy("timestamp", "desc"), limit(25));
+      const unsubLogs = onSnapshot(q, (snapshot) => {
+        logListEl.innerHTML = "";
+        if (snapshot.empty) {
+          logListEl.innerHTML = '<div class="log-item" style="color: var(--text-muted);">ログはありません。</div>';
+          return;
         }
-      } else {
-        setDoc(statusRef, { running: true, ping: 0 });
-        isRunning = true;
-      }
 
-      if (isRunning) {
-        statusBadge.style.backgroundColor = "var(--accent-green)";
-        statusBadge.style.boxShadow = "0 0 8px var(--accent-green)";
-        statusLabel.textContent = "有効 (稼働中)";
-        dashStatusText.textContent = "オンライン (稼働中)";
-        dashStatusText.style.color = "var(--accent-green)";
-        toggleBtn.textContent = "ボットを停止する";
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          let timeStr = "";
+          if (data.timestamp && data.timestamp.toDate) {
+            const date = data.timestamp.toDate();
+            timeStr = `[${date.getFullYear()}/${date.getMonth() + 1}/${date.getDate()} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}]`;
+          } else {
+            timeStr = `[直近]`;
+          }
+
+          let messageHtml = (data.message || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+          const logItem = document.createElement("div");
+          logItem.className = "log-item";
+          logItem.innerHTML = `<span class="log-time">${timeStr}</span> ${messageHtml}`;
+          logListEl.appendChild(logItem);
+        });
+      }, (e) => {
+        console.error("ログ購読エラー:", e);
+      });
+
+      const unsubStatus = onSnapshot(statusRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          isRunning = data.running !== false;
+          
+          if (data.ping !== undefined) {
+            dashPingEl.textContent = data.ping + " ms";
+          }
+        } else {
+          setDoc(statusRef, { running: true, ping: 0 });
+          isRunning = true;
+        }
+
+        if (isRunning) {
+          statusBadge.style.backgroundColor = "var(--accent-green)";
+          statusBadge.style.boxShadow = "0 0 8px var(--accent-green)";
+          statusLabel.textContent = "有効 (稼働中)";
+          dashStatusText.textContent = "オンライン (稼働中)";
+          dashStatusText.style.color = "var(--accent-green)";
+          toggleBtn.textContent = "ボットを停止する";
+        } else {
+          statusBadge.style.backgroundColor = "var(--accent-red)";
+          statusBadge.style.boxShadow = "0 0 8px var(--accent-red)";
+          statusLabel.textContent = "停止中";
+          dashStatusText.textContent = "停止中";
+          dashStatusText.style.color = "var(--accent-red)";
+          toggleBtn.textContent = "ボットを再開する";
+        }
+      }, (e) => {
+        console.error("ステータス購読エラー:", e);
+      });
+
+      unsubscribes.push(unsubGuilds, unsubLogs, unsubStatus);
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && isAdminUser(user)) {
+        sidebarUserEmail.textContent = user.email;
+        sidebarLogoutBtn.style.display = "block";
+        gateLogoutBtn.style.display = "none";
+        authGate.classList.add("hidden");
+        startFirestoreListeners();
+      } else if (user) {
+        stopFirestoreListeners();
+        sidebarUserEmail.textContent = user.email || "権限なし";
+        sidebarLogoutBtn.style.display = "block";
+        gateLogoutBtn.style.display = "block";
+        googleLoginBtn.style.display = "none";
+        authStatusDesc.textContent = `${user.email} には管理者権限がありません。管理者アカウント（${ADMIN_EMAIL}）でログインし直してください。`;
+        authGate.classList.remove("hidden");
       } else {
-        statusBadge.style.backgroundColor = "var(--accent-red)";
-        statusBadge.style.boxShadow = "0 0 8px var(--accent-red)";
-        statusLabel.textContent = "停止中";
-        dashStatusText.textContent = "停止中";
-        dashStatusText.style.color = "var(--accent-red)";
-        toggleBtn.textContent = "ボットを再開する";
+        stopFirestoreListeners();
+        sidebarUserEmail.textContent = "未ログイン";
+        sidebarLogoutBtn.style.display = "none";
+        gateLogoutBtn.style.display = "none";
+        googleLoginBtn.style.display = "block";
+        authStatusDesc.textContent = `管理パネルを利用するには、管理者アカウント（${ADMIN_EMAIL}）でログインしてください。`;
+        authGate.classList.remove("hidden");
       }
     });
 
     toggleBtn.addEventListener("click", async () => {
+      if (!isAdminUser(auth.currentUser)) return;
       try {
         const nextState = !isRunning;
         await setDoc(statusRef, { running: nextState }, { merge: true });
@@ -1906,6 +1256,7 @@
     });
 
     sendMsgBtn.addEventListener("click", async () => {
+      if (!isAdminUser(auth.currentUser)) return;
       const content = messageInput.value.trim();
       const color = enableBannerCheckbox.checked ? (colorText.value.trim() || "#32CD32") : null;
 
