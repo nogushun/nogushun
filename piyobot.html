@@ -6,7 +6,7 @@
   <title>piyobot 管理パネル</title>
   <link rel="stylesheet" href="style.css">
   <style>
-    /* 認証ゲート用スタイル（style.css に移しても問題ありません） */
+    /* 認証ゲート・ルール編集用スタイル */
     .auth-gate-overlay {
       position: fixed;
       inset: 0;
@@ -61,6 +61,51 @@
     .auth-logout-btn:hover {
       background: #3f3f46;
     }
+    .rules-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .rules-header-row h2 {
+      margin: 0;
+    }
+    .btn-template {
+      background-color: #27272a;
+      color: var(--text-main);
+      border: 1px solid #3f3f46;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+    .btn-template:hover {
+      background-color: #3f3f46;
+      border-color: var(--accent-blue);
+    }
+    .rules-textarea {
+      min-height: 200px;
+      margin-bottom: 14px;
+      line-height: 1.65;
+    }
+    #preview-rules-box.preview-embed-box {
+      background-image: none;
+      padding-top: 12px;
+    }
+    .rules-preview-body {
+      margin-top: 0;
+      white-space: pre-wrap;
+      line-height: 1.6;
+      font-size: 0.88rem;
+    }
+    .rules-preview-body strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -69,7 +114,7 @@
   <div class="auth-gate-overlay" id="auth-gate">
     <div class="auth-gate-card">
       <h2>🐤 piyobot 管理者認証</h2>
-      <p id="auth-status-desc">管理パネルを利用するには、管理者アカウント（Google）でログインしてください。</p>
+      <p id="auth-status-desc">管理パネルを利用するには、Googleアカウントでログインしてください。</p>
       <button class="btn btn-blue" id="google-login-btn" type="button">Google でログイン</button>
       <button class="auth-logout-btn" id="gate-logout-btn" type="button" style="display: none;">別のアカウントでログアウト</button>
     </div>
@@ -94,6 +139,7 @@
       <li class="active" id="menu-dashboard"><button onclick="switchTab('dashboard')">📊 ダッシュボード</button></li>
       <li id="menu-custom"><button onclick="switchTab('custom')">💬 カスタムメッセージ送信</button></li>
       <li id="menu-notices"><button onclick="switchTab('notices')">⚙️ 通知メッセージ設定</button></li>
+      <li id="menu-rules"><button onclick="switchTab('rules')">📜 ルールを編集</button></li>
       <li id="menu-logs"><button onclick="switchTab('logs')">📜 稼働ログ</button></li>
       <li style="margin-top: 16px;"><a href="./" style="display:block; padding:12px 16px; color:var(--text-muted); text-decoration:none; font-size:0.95rem;">← メイン管理に戻る</a></li>
     </ul>
@@ -155,7 +201,7 @@
           </div>
 
           <div class="form-group">
-            <label>送信先チャンネル（※テキストチャンネルを選択してください）</label>
+            <label>送信先チャンネル（※テキスト・ボイスチャンネルを選択してください）</label>
             <div class="custom-select-container" id="channel-dropdown">
               <div class="custom-select-trigger" id="channel-trigger">先にサーバーを選択してください</div>
               <div class="custom-select-options" id="channel-options"></div>
@@ -351,7 +397,6 @@
           <button class="btn btn-blue" id="save-notifs-btn">設定を保存する</button>
         </div>
 
-        <!-- 通知プレビュー -->
         <div class="sticky-preview-wrapper">
           <div class="card preview-outer-card">
             <h2>通知プレビュー（構想図）</h2>
@@ -376,7 +421,78 @@
       </div>
     </section>
 
-    <!-- 4. 稼働ログ画面 -->
+    <!-- 4. ルールを編集画面（左：編集カード・バナー/カラー選択 / 右：構想図プレビュー） -->
+    <section id="section-rules" class="content-section">
+      <div class="custom-layout">
+        <div class="card">
+          <div class="rules-header-row">
+            <h2>ルールを編集</h2>
+            <button class="btn-template" id="create-template-btn" type="button">✨ テンプレートを作成</button>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 14px;">
+            /rules コマンドで表示されるサーバー利用規約・ルールを編集できます。
+          </p>
+
+          <!-- バナー追加のチェックボックス -->
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main);">
+              <input type="checkbox" id="enable-rules-banner-checkbox" checked style="width: 16px; height: 16px; accent-color: var(--accent-blue); cursor: pointer;">
+              <span>バナーを追加する（Embedサイドバーカラー）</span>
+            </label>
+          </div>
+
+          <!-- カラー選択エリア -->
+          <div class="form-group" id="rules-banner-color-section">
+            <label for="rules-color-text">アクセントカラー（サイドバーの色）</label>
+            <div class="color-picker-row">
+              <div class="color-preview-box" id="rules-color-preview" style="background-color: #5865F2;" title="クリックしてカラーパレットを開く"></div>
+              <input type="text" id="rules-color-text" class="color-text-input" value="#5865F2" placeholder="#5865F2">
+
+              <div class="custom-palette-popup" id="rules-palette-popup">
+                <div class="palette-canvas-container">
+                  <canvas class="palette-canvas" id="rules-palette-canvas"></canvas>
+                </div>
+                <div class="palette-sliders">
+                  <input type="range" min="0" max="360" value="235" class="palette-slider" id="rules-hue-slider">
+                </div>
+                <div class="palette-presets-label">カラーテンプレート</div>
+                <div class="palette-presets-grid" id="rules-preset-grid"></div>
+                <div class="palette-default-btn" onclick="updateRulesColor('#5865F2', true); document.getElementById('rules-palette-popup').classList.remove('open');">デフォルトに戻す (#5865F2)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <textarea id="rules-input" class="form-textarea rules-textarea" placeholder="当サーバーへようこそ！ルールを守って楽しく過ごしましょう。"></textarea>
+          </div>
+          <button class="btn btn-blue" id="save-rules-btn" type="button">ルールを保存する</button>
+        </div>
+
+        <div class="sticky-preview-wrapper">
+          <div class="card preview-outer-card">
+            <h2>ルールプレビュー（構想図）</h2>
+            <p class="preview-subtitle">/rules 実行時にDiscordで表示されるイメージです。</p>
+
+            <div class="preview-card-container">
+              <div class="preview-header">
+                <img src="cat.png" alt="bot avatar" class="preview-bot-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="preview-bot-avatar" style="display:none; align-items:center; justify-content:center; font-weight:bold;">P</div>
+                <div>
+                  <div class="preview-bot-info">
+                    <span class="preview-bot-name">piyobot</span>
+                    <span class="preview-bot-tag">アプリ</span>
+                    <span class="preview-time">今日 17:45</span>
+                  </div>
+                </div>
+              </div>
+              <div class="preview-embed-box" id="preview-rules-box" style="border-left-color: #5865F2;"><div class="rules-preview-body" id="preview-rules-desc">当サーバーへようこそ！ルールを守って楽しく過ごしましょう。</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. 稼働ログ画面 -->
     <section id="section-logs" class="content-section">
       <div class="card">
         <h2>リアルタイム稼働ログ</h2>
@@ -431,6 +547,26 @@
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const ADMIN_EMAIL = "shunsukenoguchi@icloud.com";
+
+    const SERVER_RULE_TEMPLATE = `**1. 基本マナー**
+・他のメンバーを尊重し、思いやりのある言動を心がけましょう。
+・暴言、誹謗中傷、煽り、差別的な発言は禁止です。
+
+**2. チャット・チャンネルの使い方**
+・各チャンネルのトピックや用途に合った内容を投稿してください。
+・スパム、連投、過度なメンション、外部リンクの無断宣伝はお控えください。
+
+**3. ボイスチャンネル（VC）**
+・参加・退出や移動時は周囲に配慮し、騒音やマイク乗りにご注意ください。
+・録音・録画や配信を行う場合は、参加メンバー全員の同意を得てください。
+
+**4. プライバシーと安全**
+・個人情報（本名、住所、連絡先、アカウント情報など）やDMのスクリーンショットを無断で公開しないでください。
+・Discordの利用規約およびコミュニティガイドラインもあわせて遵守してください。
+
+**5. 運営からの案内**
+・違反行為が確認された場合、注意・メッセージ削除・タイムアウト・BANなどの対応を行うことがあります。
+・困ったことや問題があれば、運営までご連絡ください。`;
 
     const firebaseConfig = {
       apiKey: "AIzaSyD4xg5pQ92oyb37YJfA3e3KmGN1q0-ThIQ",
@@ -528,13 +664,19 @@
         document.getElementById('section-custom').classList.add('active');
         document.getElementById('menu-custom').classList.add('active');
         document.getElementById('page-title').textContent = 'カスタムメッセージ送信';
-        document.getElementById('page-desc').textContent = 'ボットが導入されているテキストチャンネルを選択してカスタムメッセージを送信します。';
+        document.getElementById('page-desc').textContent = 'ボットが導入されているチャンネルを選択してカスタムメッセージを送信します。';
       } else if (tabName === 'notices') {
         document.getElementById('section-notices').classList.add('active');
         document.getElementById('menu-notices').classList.add('active');
         document.getElementById('page-title').textContent = '通知メッセージ設定';
-        document.getElementById('page-desc').textContent = 'ウェルカムメッセージや通話通知の文面やバナーカラーを自由に編集できます。';
+        document.getElementById('page-desc').textContent = 'ウェルカムメッセージや通話通知の設定を自由に編集できます。';
         selectNoticeTab('welcome');
+      } else if (tabName === 'rules') {
+        document.getElementById('section-rules').classList.add('active');
+        document.getElementById('menu-rules').classList.add('active');
+        document.getElementById('page-title').textContent = 'ルールを編集';
+        document.getElementById('page-desc').textContent = '/rules コマンドで表示されるサーバー利用規約・ルールを編集できます。';
+        updateRulesPreviewUI();
       } else if (tabName === 'logs') {
         document.getElementById('section-logs').classList.add('active');
         document.getElementById('menu-logs').classList.add('active');
@@ -559,6 +701,14 @@
       textarea.focus();
       textarea.dispatchEvent(new Event('input'));
     };
+
+    function formatBoldHtml(rawText) {
+      const escaped = rawText
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      return escaped.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    }
 
     const LOGICAL_W = 220;
     const LOGICAL_H = 120;
@@ -650,10 +800,10 @@
     });
 
     const presetColors = [
-      "#32CD32", "#22c55e", "#10b981", "#06b6d4", 
-      "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", 
-      "#ec4899", "#f43f5e", "#ef4444", "#f97316", 
-      "#eab308", "#84cc16", "#ffffff", "#000000"
+      "#5865F2", "#32CD32", "#22c55e", "#10b981",
+      "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6",
+      "#a855f7", "#ec4899", "#f43f5e", "#ef4444",
+      "#f97316", "#eab308", "#ffffff", "#000000"
     ];
 
     const noticePalettes = {};
@@ -816,6 +966,162 @@
     });
 
     const saveNotifsBtn = document.getElementById("save-notifs-btn");
+    const rulesInput = document.getElementById("rules-input");
+    const previewRulesBox = document.getElementById("preview-rules-box");
+    const previewRulesDesc = document.getElementById("preview-rules-desc");
+    const createTemplateBtn = document.getElementById("create-template-btn");
+    const saveRulesBtn = document.getElementById("save-rules-btn");
+    const enableRulesBannerCheckbox = document.getElementById("enable-rules-banner-checkbox");
+    const rulesBannerColorSection = document.getElementById("rules-banner-color-section");
+    const rulesColorPreview = document.getElementById("rules-color-preview");
+    const rulesColorText = document.getElementById("rules-color-text");
+    const rulesPalettePopup = document.getElementById("rules-palette-popup");
+    const rulesPaletteCanvas = document.getElementById("rules-palette-canvas");
+    const rulesCtx = rulesPaletteCanvas.getContext("2d", { willReadFrequently: true });
+    const rulesHueSlider = document.getElementById("rules-hue-slider");
+    const rulesPresetGrid = document.getElementById("rules-preset-grid");
+    let rulesHue = 235;
+    let rulesMarkerX = 110;
+    let rulesMarkerY = 60;
+
+    function updateRulesPreviewUI() {
+      const rawText = rulesInput.value.trim() || rulesInput.placeholder;
+      const hex = rulesColorText.value.trim() || "#5865F2";
+
+      previewRulesDesc.innerHTML = formatBoldHtml(rawText);
+
+      if (enableRulesBannerCheckbox.checked) {
+        previewRulesBox.className = "preview-embed-box";
+        previewRulesBox.style.borderLeftColor = hex;
+      } else {
+        previewRulesBox.className = "preview-message-box";
+        previewRulesBox.style.borderLeft = "";
+      }
+    }
+
+    function updateRulesColor(hex, syncHue = true) {
+      rulesColorPreview.style.backgroundColor = hex;
+      rulesColorText.value = hex;
+
+      if (syncHue && /^#[0-9A-F]{6}$/i.test(hex)) {
+        if (hex.toUpperCase() === "#FFFFFF") {
+          rulesHue = 0;
+          rulesMarkerX = 0;
+          rulesMarkerY = 0;
+        } else if (hex.toUpperCase() === "#000000") {
+          rulesHue = 0;
+          rulesMarkerX = 0;
+          rulesMarkerY = LOGICAL_H;
+        } else {
+          const rgb = hexToRgb(hex);
+          if (rgb) {
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            rulesHue = hsl.h;
+            rulesHueSlider.value = rulesHue;
+            rulesMarkerX = 110;
+            rulesMarkerY = 60;
+          }
+        }
+        renderHighResPalette(rulesPaletteCanvas, rulesCtx, rulesHue, rulesMarkerX, rulesMarkerY);
+      }
+      updateRulesPreviewUI();
+    }
+
+    window.updateRulesColor = updateRulesColor;
+
+    enableRulesBannerCheckbox.addEventListener("change", (e) => {
+      if (e.target.checked) {
+        rulesBannerColorSection.style.display = "block";
+      } else {
+        rulesBannerColorSection.style.display = "none";
+        rulesPalettePopup.classList.remove("open");
+      }
+      updateRulesPreviewUI();
+    });
+
+    rulesColorPreview.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = rulesPalettePopup.classList.contains("open");
+      if (!isOpen) {
+        rulesPalettePopup.classList.add("open");
+        const currentHex = rulesColorText.value.trim() || "#5865F2";
+        if (currentHex.toUpperCase() !== "#FFFFFF" && currentHex.toUpperCase() !== "#000000") {
+          const rgb = hexToRgb(currentHex);
+          if (rgb) {
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            rulesHue = hsl.h;
+            rulesHueSlider.value = rulesHue;
+          }
+        }
+        renderHighResPalette(rulesPaletteCanvas, rulesCtx, rulesHue, rulesMarkerX, rulesMarkerY);
+      } else {
+        rulesPalettePopup.classList.remove("open");
+      }
+    });
+
+    rulesPalettePopup.addEventListener("click", (e) => { e.stopPropagation(); });
+    document.addEventListener("click", () => { rulesPalettePopup.classList.remove("open"); });
+
+    let isRulesMouseDown = false;
+    rulesPaletteCanvas.addEventListener("mousedown", (e) => { isRulesMouseDown = true; pickRulesColor(e); });
+    window.addEventListener("mouseup", () => { isRulesMouseDown = false; });
+    rulesPaletteCanvas.addEventListener("mousemove", (e) => { if (isRulesMouseDown) pickRulesColor(e); });
+
+    rulesPaletteCanvas.addEventListener("touchstart", (e) => {
+      isRulesMouseDown = true;
+      pickRulesColor(e.touches[0]);
+      e.preventDefault();
+    }, { passive: false });
+
+    window.addEventListener("touchend", () => { isRulesMouseDown = false; });
+    rulesPaletteCanvas.addEventListener("touchmove", (e) => {
+      if (isRulesMouseDown) {
+        pickRulesColor(e.touches[0]);
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    function pickRulesColor(e) {
+      const rect = rulesPaletteCanvas.getBoundingClientRect();
+      const x = Math.max(0, Math.min(((e.clientX - rect.left) / rect.width) * LOGICAL_W, LOGICAL_W));
+      const y = Math.max(0, Math.min(((e.clientY - rect.top) / rect.height) * LOGICAL_H, LOGICAL_H));
+      rulesMarkerX = x;
+      rulesMarkerY = y;
+
+      renderHighResPalette(rulesPaletteCanvas, rulesCtx, rulesHue, x, y);
+      const hex = readPixelHex(rulesCtx, x, y);
+      updateRulesColor(hex, false);
+    }
+
+    rulesHueSlider.addEventListener("input", (e) => {
+      rulesHue = e.target.value;
+      renderHighResPalette(rulesPaletteCanvas, rulesCtx, rulesHue, rulesMarkerX, rulesMarkerY);
+      const hex = readPixelHex(rulesCtx, rulesMarkerX, rulesMarkerY);
+      updateRulesColor(hex, false);
+    });
+
+    rulesColorText.addEventListener("input", (e) => {
+      const val = e.target.value;
+      if (/^#[0-9A-F]{6}$/i.test(val)) {
+        updateRulesColor(val, true);
+      }
+    });
+
+    presetColors.forEach(hex => {
+      const item = document.createElement("div");
+      item.className = "palette-preset-item";
+      item.style.backgroundColor = hex;
+      item.addEventListener("click", () => { updateRulesColor(hex, true); });
+      rulesPresetGrid.appendChild(item);
+    });
+
+    rulesInput.addEventListener("input", updateRulesPreviewUI);
+
+    createTemplateBtn.addEventListener("click", () => {
+      rulesInput.value = SERVER_RULE_TEMPLATE;
+      updateRulesPreviewUI();
+      rulesInput.focus();
+    });
 
     async function loadNotificationConfig() {
       try {
@@ -832,7 +1138,19 @@
           if (data.moveColor) applyColorToNotice('move', data.moveColor, true);
           if (data.leaveColor) applyColorToNotice('leave', data.leaveColor, true);
 
+          if (typeof data.rulesText === "string") {
+            rulesInput.value = data.rulesText;
+          }
+          if (typeof data.rulesBannerEnabled === "boolean") {
+            enableRulesBannerCheckbox.checked = data.rulesBannerEnabled;
+            rulesBannerColorSection.style.display = data.rulesBannerEnabled ? "block" : "none";
+          }
+          if (data.rulesColor) {
+            updateRulesColor(data.rulesColor, true);
+          }
+
           updateNoticePreviewUI();
+          updateRulesPreviewUI();
         }
       } catch (e) {
         console.error("通知設定の読み込みエラー:", e);
@@ -868,6 +1186,34 @@
       } finally {
         saveNotifsBtn.disabled = false;
         saveNotifsBtn.textContent = "設定を保存する";
+      }
+    });
+
+    saveRulesBtn.addEventListener("click", async () => {
+      if (!isAdminUser(auth.currentUser)) return;
+      try {
+        saveRulesBtn.disabled = true;
+        saveRulesBtn.textContent = "保存中...";
+
+        await setDoc(doc(db, "settings", "bot_config"), {
+          rulesText: rulesInput.value,
+          rulesBannerEnabled: enableRulesBannerCheckbox.checked,
+          rulesColor: rulesColorText.value.trim() || "#5865F2",
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        updateRulesPreviewUI();
+        document.getElementById('success-title').textContent = "保存完了";
+        document.getElementById('success-desc').textContent = "サーバーのルール設定を保存しました！";
+        document.getElementById('success-modal').classList.add('show');
+      } catch (e) {
+        console.error("ルール保存エラー:", e);
+        document.getElementById('error-modal-title').textContent = "エラー";
+        document.getElementById('error-msg').textContent = "ルールの保存に失敗しました。";
+        document.getElementById('error-modal').classList.add('show');
+      } finally {
+        saveRulesBtn.disabled = false;
+        saveRulesBtn.textContent = "ルールを保存する";
       }
     });
 
@@ -1092,12 +1438,6 @@
           const icon = isVoice ? '🔊 ' : '# ';
           opt.textContent = icon + c.name;
           opt.addEventListener("click", () => {
-            if (isVoice) {
-              document.getElementById('error-modal-title').textContent = "音声チャンネルの注意";
-              document.getElementById('error-msg').textContent = "Discordの仕様上、音声チャンネルに直接テキストメッセージは送信できません。テキストチャンネルを選択してください。";
-              document.getElementById('error-modal').classList.add('show');
-              return;
-            }
             channelTrigger.textContent = icon + c.name;
             selectedChannelId = c.id;
             channelDropdown.classList.remove("open");
@@ -1230,7 +1570,7 @@
         sidebarLogoutBtn.style.display = "block";
         gateLogoutBtn.style.display = "block";
         googleLoginBtn.style.display = "none";
-        authStatusDesc.textContent = `${user.email} には管理者権限がありません。管理者アカウント（${ADMIN_EMAIL}）でログインし直してください。`;
+        authStatusDesc.textContent = "このアカウントには管理者権限がありません。別のアカウントでログインし直してください。";
         authGate.classList.remove("hidden");
       } else {
         stopFirestoreListeners();
@@ -1238,7 +1578,7 @@
         sidebarLogoutBtn.style.display = "none";
         gateLogoutBtn.style.display = "none";
         googleLoginBtn.style.display = "block";
-        authStatusDesc.textContent = `管理パネルを利用するには、管理者アカウント（${ADMIN_EMAIL}）でログインしてください。`;
+        authStatusDesc.textContent = "管理パネルを利用するには、Googleアカウントでログインしてください。";
         authGate.classList.remove("hidden");
       }
     });
@@ -1262,7 +1602,7 @@
 
       if (!selectedChannelId || !content) {
         document.getElementById('error-modal-title').textContent = "通知";
-        document.getElementById('error-msg').textContent = "送信先のテキストチャンネルとメッセージ内容をすべて選択・入力してください。";
+        document.getElementById('error-msg').textContent = "送信先のチャンネルとメッセージ内容をすべて選択・入力してください。";
         document.getElementById('error-modal').classList.add('show');
         return;
       }
